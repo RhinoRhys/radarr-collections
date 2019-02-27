@@ -28,7 +28,7 @@ All values need to be in "" except Profile <br>
 - profile is the numerical ID assigned by Radarr and does not need the "" <br>
     
 #### Profile ID
-To find your profile ID you will need to view the API raw data. Assuming a default install, with your Radarr API key go to `http://localhost:7878/api/movies?apikey=XXX` and search for "qualityProfileId". If you use more than one Profile in Radarr you will need to manually match the ID to the correct Profile by checking the movie titles (for example my films use a 1080p cut off profile and the ID was 1 and my documentaries use the Any profile and the ID was 7).
+To find your profile ID you will need to view the API raw data. Assuming a default install, with your Radarr API key go to `http://localhost:7878/api/movie?apikey=XXX` and search for "qualityProfileId". If you use more than one Profile in Radarr you will need to manually match the ID to the correct Profile by checking the movie titles (for example my films use a 1080p cut off profile and the ID was 1 and my documentaries use the Any profile and the ID was 7).
 
 ### Other Variables 
 tmdbkey is where to paste your TMDB API key and needs the ""
