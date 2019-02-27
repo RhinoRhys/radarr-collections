@@ -5,8 +5,9 @@ This is my first experience writing code not to do with scientific data analysis
 
 ## Features: <br>
 - Automatic Add using API, <br>
-- Add Monitored (optional), <br>
-- Automatic Search (optional). <br>
+- Option to add Monitored or Unmonitored, <br>
+- Automatic Search (optional), <br>
+- Outputs list of collection artwork URLs to text file.
   
 ## Requirements:
 - Radarr, <br>
@@ -21,7 +22,7 @@ TMDB offers free API keys to anyone with an account. Simply sign up for an accou
 All values need to be in "" except Profile <br>
 - host is default "localhost"
 - port is default "7878"
-- base url should be set as "" unless needed. <br>
+- base url should be set as "" unless needed <br>
 - api key can be found under Settings > General <br>
 - path is to your root movie folder where the new items will be added <br>
 - profile is the numerical ID assigned by Radarr and does not need the "" <br>
