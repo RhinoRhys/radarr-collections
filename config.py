@@ -8,8 +8,8 @@ radarr = {"host" : "localhost",
           "port": "7878",
           "base_url": "",
           "api_key" : "",
-          "path" : ""
-          "profile" : <INT>
+          "path" : "",
+          "profile" : 
           }
 
 # Add new items monitored
