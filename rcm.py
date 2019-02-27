@@ -1,13 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime, os, sys
+import requests, json, datetime, os, sys, getopt
 from config import radarr, monitored, autosearch, tmdbkey
 
-if len(sys.argv) > 1 and sys.argv[1] == "full":
-    full = True
-else:
-    full = False
+full = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hft:c:",["full","tmdbid=","colid="])
+except getopt.GetoptError:
+    print 'rcm.py -h'
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print('rcm.py <option> [<id>] \n\n Options: \n -h \t help \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
+        sys.exit()
+    elif opt in ("-f", "--full"):
+        full = True
+    elif opt in ("-t", "--tmdbid"):
+        print("tmdb scan")
+    elif opt in ("-c", "--colid"):
+        print("collection scan")
+        
+    
 
 time = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S") 
 
