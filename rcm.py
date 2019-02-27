@@ -12,19 +12,19 @@ except getopt.GetoptError:
     print 'rcm.py -h'
     sys.exit(2)
 for opt, arg in opts:
-    if opt == '-h':
+    if opt in ("-h", "--help"):
         print('rcm.py <option> [<id>] \n\n Options: \n -h \t help \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
         sys.exit()
-    elif opt in ("-f", "--full"):
-        full = True
     elif opt in ("-t", "--tmdbid"):
         print("tmdb scan")
     elif opt in ("-c", "--colid"):
         print("collection scan")
+    elif opt in ("-f", "--full"):
+        full = True
         
     
 
-time = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S") 
+time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
 if radarr['base_url'] == "":
     radarr['url'] = "http://" + radarr['host'] + ":" + radarr['port'] + "/api/movie"
@@ -75,7 +75,7 @@ if not os.path.exists("output"):
 
 #%%
         
-f = open('logs/log' + time + '.txt','w')
+f = open('logs/log_' + time + '.txt','w')
     
 log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
@@ -177,7 +177,7 @@ if len(get) > 0:
     g.close()
    
 cols.sort()
-t = open('output/art.txt', 'w')
+t = open('output/art.txt', 'a+')
 for line in cols:
     t.write(line.encode("utf-8", "replace") + '\n')
 t.close()
