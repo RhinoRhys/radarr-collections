@@ -24,7 +24,7 @@ for opt, arg in opts:
         
     
 
-time = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S") 
+time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
 if radarr['base_url'] == "":
     radarr['url'] = "http://" + radarr['host'] + ":" + radarr['port'] + "/api/movie"
@@ -75,7 +75,7 @@ if not os.path.exists("output"):
 
 #%%
         
-f = open('logs/log' + time + '.txt','w')
+f = open('logs/log_' + time + '.txt','w')
     
 log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
