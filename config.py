@@ -7,21 +7,19 @@ profile is the numerical ID assigned by Radarr - see Readme for more info
 radarr = {"host" : "localhost",
           "port": "7878",
           "base_url": "",
-          "api_key" : "",
-          "path" : "",
-          "profile" : 
+          "api_key" : "insert api key",
+          "path" : "path/to/movies",
+          "profile" : 1
           }
 
+# API key for TMDB
+tmdbkey = "insert api key"
+
+# Reccomended defaults below are False, you'll be suprised how many movies will be added on the first run!
+
 # Add new items monitored
-# Reccomended default is False, you'll be suprised how many movies will be added!
 monitored = False
 
 # Automatically run a historical / backlog search when new items added
-# Reccomended default is False, you'll be suprised how many movies will be added!
 autosearch = False
 
-# Full library scan (True) or only search added since last run (False)
-full = False
-
-# API key for TMDB
-tmdbkey = ""
