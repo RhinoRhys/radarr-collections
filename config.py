@@ -21,7 +21,7 @@ monitored = False
 autosearch = False
 
 # Full library scan (True) or only search added since last run (False)
-full = True
+full = False
 
 # API key for TMDB
 tmdbkey = ""
