@@ -1,10 +1,8 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime, re, sys, getopt
-from config import radarr, monitored, autosearch, profile, full
-
-
+import requests, json, datetime, re
+from config import radarr, monitored, autosearch, profile, full, tmdbkey
 
 time = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S") 
 
@@ -39,7 +37,7 @@ def api(host, com = "get", args = {}):
         elif args['end'] == "col":
             end = "collection/"
         url = "https://api.themoviedb.org/3/" + end + str(args['id'])
-        key = {"api_key": "05905018ab36263a8506b6e8caeb28fd"}
+        key = {"api_key": tmdbkey }
         
     response = requests.get(url, params = key )
     response.content.decode("utf-8")
@@ -77,7 +75,7 @@ cols = []
 
 #%%
 
-for i in range(23,24):
+for i in range(len(data)):
     
     logtext = datetime.datetime.now().strftime("[ %y-%m-%d %H:%M:%S ] ") + "Radarr ID: %i \t TMDB ID: %i \t\t %s" % (i+1, data[i]["tmdbId"], data[i]['title'])
     
@@ -100,7 +98,8 @@ for i in range(23,24):
             col_json = api("tmdb", args = {"end": "col", "id": col_id})
             cols.append(col_json)
             parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
-            other = parts.remove(int(data[i]["tmdbId"]))
+            other = parts[:]
+            other.remove(int(data[i]["tmdbId"]))
            
             logtext += "\t\t %i other items" % len(other)
             
@@ -119,30 +118,11 @@ for i in range(23,24):
                 tag_data.append('Single Movie Collection')
             log(logtext)
             
-            # Add Collection info to Radarr tags
-            def tag(index):
-                if len(data[index]['tags']) == 0:
-                    [data[index]['tags'].append(item) for item in tag_data.values()]
-                else:
-                    for regex, key in [['Collection ID:','id'],
-                                       ['https://image.tmdb.org/t/p/original','path'],
-                                       ['Parts:','parts']]:
-                        try:
-                            dex = [type(match) != type(None) for match in [re.match(regex, item) for item in data[index]['tags']]].index(True)
-                            data[index]['tags'][dex] = tag_data[key]
-                        except:
-                            data[index]['tags'].append(tag_data[key])
-                            
-                return api('radarr', com='put', args=data[index])
-            
-            tag(i)
-
-            # Collection Items Check
+                        # Collection Items Check
             for part in other:
                 if part in tmdb_ids:
                     skip.append(part)
-                    tag(tmdb_ids.index(part))
-                    log(" > TMDB ID " + str(part) + " in library, updating tags, remembering to skip")
+                    log(" > TMDB ID " + str(part) + " in library, remembering to skip")
                     
                 else:
                     lookup_json = api("radarr", com = "lookup", args = {'id': part})
