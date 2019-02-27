@@ -60,7 +60,7 @@ def api(host, com = "get", args = {}):
     return response.json()
 
 def log(text):
-    print(text)
+    print(text.encode('utf-8', 'replace'))
     try:
         f.write(text.encode('utf-8', 'replace') + '\n')
     except:
