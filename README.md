@@ -1,4 +1,4 @@
-# radarr-collections
+# Radarr Collection Manager
 
 A Python script for checking your Radarr database against TMDB Collections. <br>
 This is my first experience writing code not to do with scientific data analysis so it may not be amazingly written.
