@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime, re
-from config import radarr, monitored, autosearch, profile, full, tmdbkey
+import requests, json, datetime
+from config import radarr, monitored, autosearch, full, tmdbkey
 
 time = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S") 
 
@@ -103,10 +103,6 @@ for i in range(len(data)):
            
             logtext += "\t\t %i other items" % len(other)
             
-            tag_data = {'id': 'Collection ID: %s' % col_id,
-                        'path': 'https://image.tmdb.org/t/p/original%s' % mov_json['belongs_to_collection']['poster_path'],
-                        'parts': 'Parts: %s' % str(parts).strip('[]')}
-            
             # Single Movie Collections Notifier
             if len(other) == 0:
                 logtext += ", added to errors"
@@ -115,10 +111,9 @@ for i in range(len(data)):
                                 "collection": col_json['name'],
                                 "collection id": col_json['id']
                                 })
-                tag_data.append('Single Movie Collection')
             log(logtext)
             
-                        # Collection Items Check
+            # Collection Items Check
             for part in other:
                 if part in tmdb_ids:
                     skip.append(part)
@@ -127,12 +122,10 @@ for i in range(len(data)):
                 else:
                     lookup_json = api("radarr", com = "lookup", args = {'id': part})
                     log(" > " + lookup_json['title'] + " (TMDB ID: " + str(part) + ") missing, fetching")
-                    tag_data.update({'plex':'hide'})
-                    post_data = {"qualityProfileId" : profile,
+                    post_data = {"qualityProfileId" : radarr["profile"],
                                  "rootFolderPath": radarr['path'],
                                  "monitored" : monitored,
                                  "addOptions" : {"searchForMovie" : autosearch},
-                                 "tags" : tag_data.values()
                                  }
                     for dictkey in ["tmdbId","title","titleSlug","images","year"]:
                         post_data.update({dictkey : lookup_json[dictkey]})
@@ -143,7 +136,7 @@ for i in range(len(data)):
                                 'year': post_data['year'], 
                                 'tmdb id': post_data['tmdbId'],
                                 'return code': post})
-                    tmdb_ids.append(post_data['tmbdId'])
+                    tmdb_ids.append(post_data['tmdbId'])
         else:
             logtext += "\t\t" + "Not in collection"
             log(logtext)
