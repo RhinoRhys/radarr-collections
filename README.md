@@ -31,8 +31,8 @@ All values need to be in "" except Profile <br>
 To find your profile ID you will need to view the API raw data. Assuming a default install, with your Radarr API key go to `http://localhost:7878/api/movies?apikey=XXX` and search for "qualityProfileId". If you use more than one Profile in Radarr you will need to manually match the ID to the correct Profile by checking the movie titles (for example my films use a 1080p cut off profile and the ID was 1 and my documentaries use the Any profile and the ID was 7).
 
 ### Other Variables 
-Monitored, Autosearch are boolean (True/False), do not need the "" but do need the capital first letter. <br>
-The first time you run this script, it is reccomended to have both set to False. From a database of 1200 movies, this found 180 new movies on my first run and having it autosearch all of these is a bad idea.
+Monitored and Autosearch are boolean (True/False) switches, do not need the "" but do need the capital first letter. <br>
+The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea.
 
 tmdbkey is where to paste your TMDB API key and needs the ""
 
