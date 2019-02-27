@@ -12,15 +12,15 @@ except getopt.GetoptError:
     print 'rcm.py -h'
     sys.exit(2)
 for opt, arg in opts:
-    if opt == '-h':
+    if opt in ("-h", "--help"):
         print('rcm.py <option> [<id>] \n\n Options: \n -h \t help \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
         sys.exit()
-    elif opt in ("-f", "--full"):
-        full = True
     elif opt in ("-t", "--tmdbid"):
         print("tmdb scan")
     elif opt in ("-c", "--colid"):
         print("collection scan")
+    elif opt in ("-f", "--full"):
+        full = True
         
     
 
@@ -60,7 +60,7 @@ def api(host, com = "get", args = {}):
     return response.json()
 
 def log(text):
-    print(text)
+    print(text.encode('utf-8', 'replace'))
     try:
         f.write(text.encode('utf-8', 'replace') + '\n')
     except:
@@ -177,7 +177,7 @@ if len(get) > 0:
     g.close()
    
 cols.sort()
-t = open('output/art.txt', 'w')
+t = open('output/art.txt', 'a+')
 for line in cols:
     t.write(line.encode("utf-8", "replace") + '\n')
 t.close()
