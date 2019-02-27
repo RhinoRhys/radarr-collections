@@ -33,11 +33,11 @@ The first time you run this script, it is reccomended to have all set to False. 
 
 tmdbkey is where to paste your TMDB API key and needs the ""
 
+## Running
+In the same folder as rcm.py please create an empty folder called "logs" (all lower case) and then once the config file is written, simply run rcm.py to initiate the sync.
+
 ## Output
 As well as a log file there are a few additional output files. <br>
 skip.dat is a list of the TMDB IDs in your Radarr database that have already been checked. If in config.py Full is set to False, the script will import this list and only check recently added items to save on unnecessary API calls to TMDB. True will recheck every item every time you run the script.<br>
 added [date].txt is a secondary log file that lists of the movies that have been added on that run. <br>
 art.txt is a list of every collection that has been checked along with the URL to the default collection artwork to be easily pasted into Plex or other media apps.
-
-## Running
-In the same folder as rcm.py please create an empty folder called "logs" (all lower case) and then once the config file is written, simply run rcm.py to initiate the sync.
