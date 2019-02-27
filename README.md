@@ -40,4 +40,4 @@ added [date].txt is a secondary log file that lists of the movies that have been
 art.txt is a list of every collection that has been checked along with the URL to the default collection artwork to be easily pasted into Plex or other media apps.
 
 ## Running
-Once the config file is written, simply run rcm.py to initiate the sync.
+In the same folder as rcm.py please create an empty folder called "logs" (all lower case) and then once the config file is written, simply run rcm.py to initiate the sync.
