@@ -1,8 +1,28 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime
-from config import radarr, monitored, autosearch, full, tmdbkey
+import requests, json, datetime, os, sys, getopt
+from config import radarr, monitored, autosearch, tmdbkey
+
+full = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:],"hft:c:",["full","tmdbid=","colid="])
+except getopt.GetoptError:
+    print 'rcm.py -h'
+    sys.exit(2)
+for opt, arg in opts:
+    if opt == '-h':
+        print('rcm.py <option> [<id>] \n\n Options: \n -h \t help \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
+        sys.exit()
+    elif opt in ("-f", "--full"):
+        full = True
+    elif opt in ("-t", "--tmdbid"):
+        print("tmdb scan")
+    elif opt in ("-c", "--colid"):
+        print("collection scan")
+        
+    
 
 time = datetime.datetime.now().strftime("%y-%m-%d %H:%M:%S") 
 
@@ -47,16 +67,21 @@ def log(text):
         f.write("---- unkown error in logging ---- \n")
 
 #%%
+if not os.path.exists("logs"):
+    os.mkdir("logs")
+
+if not os.path.exists("output"):
+    os.mkdir("output")
+
+#%%
+        
 f = open('logs/log' + time + '.txt','w')
     
 log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
-
-
 data = api("radarr")
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
-
 
 if full == False:
     try:
@@ -99,7 +124,7 @@ for i in range(len(data)):
             logtext += "\t\t Collection: %i" % col_id
             
             col_json = api("tmdb", args = {"end": "col", "id": col_id})
-            cols.append(str('%s    https://image.tmdb.org/t/p/original%s\n' %(col_json['name'].encode("utf-8"), col_json['poster_path'])))
+            cols.append('%s \t\t https://image.tmdb.org/t/p/original%s' %(col_json['name'], col_json['poster_path']))
             parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
             parts.remove(int(data[i]["tmdbId"]))
            
@@ -111,11 +136,11 @@ for i in range(len(data)):
             for part in parts:
                 if part in tmdb_ids:
                     skip.append(part)
-                    log(" > %s in library, remembering to skip" % data[tmdb_ids.index(part)]['title'])
+                    log("\t\t > %s in library, remembering to skip" % data[tmdb_ids.index(part)]['title'])
                     
                 else:
                     lookup_json = api("radarr", com = "lookup", args = {'id': part})
-                    log(" > " + lookup_json['title'] + " (TMDB ID: " + str(part) + ") missing, fetching")
+                    log("\t\t > %s \t (TMDB ID: %i) missing, fetching" %(lookup_json['title'], part))
                     post_data = {"qualityProfileId" : radarr["profile"],
                                  "rootFolderPath": radarr['path'],
                                  "monitored" : monitored,
@@ -125,7 +150,7 @@ for i in range(len(data)):
                         post_data.update({dictkey : lookup_json[dictkey]})
                     post = api("radarr", com = "post", args = post_data)
                     code = post == 201
-                    log(' >> Added: ' + str(code) + "  [code: " + str(post) + "]")
+                    log(" >> Added: %s  [code: %s]" %(str(code),str(post)))
                     get.append({'title': post_data['title'], 
                                 'year': post_data['year'], 
                                 'tmdb id': post_data['tmdbId'],
@@ -138,19 +163,23 @@ for i in range(len(data)):
         logtext += "\t\t" + "Skipping - Checked"
         log(logtext)
         
-log("\n Added " + str(len(get)) + " items \n\n Thank You")
+log("\n Added %i movies \n\n Thank You for using Radarr Collection Manager by RhinoRhys" % len(get))
 
 f.close()
 
+#%% Output files
+
 if len(get) > 0:
-    g = open('added ' + time + '.txt','w')
+    g = open('output/added ' + time + '.txt','w')
     g.write("Movies added: " + str(len(get)) + "\n\n")
     for item in get:
         g.write(str(item) + '\n')
     g.close()
    
-t = open('art.txt', 'w')
-t.writelines(cols)
+cols.sort()
+t = open('output/art.txt', 'w')
+for line in cols:
+    t.write(line.encode("utf-8", "replace") + '\n')
 t.close()
 
 s = open('skip.dat','w')
