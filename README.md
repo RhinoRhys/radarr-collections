@@ -17,7 +17,7 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 - Option to add Monitored or Unmonitored, <br>
 - Automatic Search (optional), <br>
 - Ignore Wanted list. Only check movies with files (optional),<br>
-- Outputs list of collection artwork URLs to text file. <br>
+- Outputs list of collection artwork URLs to text file. (optional)<br>
   
 ## Requirements:
 - Radarr, <br>
@@ -48,19 +48,22 @@ Can be found under Settings > General <br>
 The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea.
 
 ## Running
-- Once the config file is set up, simply run `python rcm.py` to initiate the sync. Once the script has run, it will save a list of all the TMDB IDs in your Radarr database at that moment. 
-- Running `python rcm.py` again will initiate an update scan, import the list and only check items added to Radarr since to save on unnecessary API calls to TMDB. 
-- Running `python rcm.py -f` or `--full` will not import this list and will run a full scan and recheck every item.
+Run `python rcm.py [options]` to initiate a sync.<br>
 
 #### Command line options
-- `-h` or `--help`	Displays this help 
-- `-q` or `--quiet`	Disable verbose logging in command line. Log file still created.
-- `-f` or `--full`	Run full scan, check all items.
-- `-d` or `--down`	Only search movies with files. Ignore Wanted list.
+- `-h` or `--help`		Displays this help 
+- `-q` or `--quiet`		Disable verbose logging in command line. Log file still created.
+- `-f` or `--full`		Run full scan, check all items.
+- `-d` or `--down`		Only search movies with files. Ignore Wanted list.
+- `-a` or `--art`		Output artwork URL file.
+
+Once the script has run, it will save a list of all the TMDB IDs in your Radarr database at that moment.
+- Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
+- **Not** passing the `-f` option will initiate an update scan, import the list and only check items added to Radarr since to save on unnecessary API calls to TMDB.
 
 Multiple options can be passed in. `python rcm.py -d -q -f` would work.
 
 ## Output
-As well as as the complete log file there is an output folder with additional files. <br>
+As well as automatically adding the movies into Radarr there is an output folder with additional files. <br>
 - added [date].txt is a secondary log file that lists the movies that have been added on that run. It is not created if 0 movies are added. <br>
-- art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
+- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
