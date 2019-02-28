@@ -61,14 +61,16 @@ def api(host, com = "get", args = {}):
     response.content.decode("utf-8")
     
     code = response.status_code
-    
-    if code != 200:
+    if code not in (200,201):
         if code == 401:
             log("Error Unauthorized - Please check your %s API key" %host)
+            sys.exit(2)
+        elif code == 404:
+            return code
         else:
-            log("Error connecting to %s API, please check config" %host)
-        sys.exit(2)
-        
+            log("Error from %s API, return code: %i" %(host,code))
+            sys.exit(2)
+    
     return response.json()
 
 def log(text):
@@ -124,7 +126,7 @@ for i in range(len(data)):
         
         mov_json = api("tmdb", args = {"end": "mov", "id": data[i]["tmdbId"]})
         
-        if mov_json == {"status_code":34,"status_message":"The resource you requested could not be found."}:
+        if mov_json in ({"status_code":34,"status_message":"The resource you requested could not be found."},404):
             logtext += "\t\t Error - Not Found"
             log(logtext)
             
