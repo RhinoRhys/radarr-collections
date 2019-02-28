@@ -1,13 +1,25 @@
+"""
+Radarr settings
+api key can be found under Settings > General
+path is to your root movie folder where the new items will be added
+profile is the numerical ID assigned by Radarr - see Readme for more info
+"""
 radarr = {"host" : "localhost",
           "port": "7878",
           "base_url": "",
-          "api_key" : "",
-          "path" : ""
+          "api_key" : "insert api key",
+          "path" : "path/to/movies",
+          "profile" : 1
           }
 
-monitored = True
-autosearch = False
-profile = 1
+# API key for TMDB
+tmdbkey = "insert api key"
 
-# Full library scan (1) or only search added since last run (0)
-full = True
+# Reccomended defaults below are False, you'll be suprised how many movies will be added on the first run!
+
+# Add new items monitored
+monitored = False
+
+# Automatically run a historical / backlog search when new items added
+autosearch = False
+
