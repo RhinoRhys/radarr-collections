@@ -1,8 +1,6 @@
 """
 Radarr settings
 api key can be found under Settings > General
-path is to your root movie folder where the new items will be added
-profile is the numerical ID assigned by Radarr - see Readme for more info
 """
 radarr = {"host" : "localhost",
           "port": "7878",
