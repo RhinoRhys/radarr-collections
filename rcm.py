@@ -24,8 +24,6 @@ for opt, arg in opts:
 #        print("collection scan")
     elif opt in ("-f", "--full"):
         full = True
-        
-    
 
 time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
@@ -33,7 +31,8 @@ if radarr['base_url'] == "off":
     radarr['url'] = "http://%s:%s/api/movie" %(radarr['host'].strip(), radarr['port'].strip())
 else:
     radarr['url'] = "http://%s%s/api/movie" %(radarr['host'].strip(), radarr['base_url'].strip())
-
+ 
+#%%  funcs
 
 def api(host, com = "get", args = {}):
     """
@@ -79,14 +78,15 @@ def log(text):
     except:
         f.write("---- unkown error in logging ---- \n")
 
-#%%
+#%% Output folder checks
+        
 if not os.path.exists("logs"):
     os.mkdir("logs")
 
 if not os.path.exists("output"):
     os.mkdir("output")
 
-#%%
+#%% Opening
         
 f = open('logs/log_' + time + '.txt','w')
     
@@ -114,7 +114,7 @@ else:
 get = []
 cols = []
 
-#%%
+#%% Check loop
 
 for i in range(len(data)):
     
