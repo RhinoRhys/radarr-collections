@@ -18,7 +18,8 @@ New items added will use the same Profile and Root Path as the movie currently b
   
 ## Requirements:
 - Radarr, <br>
-- Your own TMDB API key. <br>
+- Your own TMDB API key, <br>
+- Python modules: requests, json, datetime, os, sys, getopt
   
 ## Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
