@@ -6,7 +6,7 @@ profile is the numerical ID assigned by Radarr - see Readme for more info
 """
 radarr = {"host" : "localhost",
           "port": "7878",
-          "base_url": "",
+          "base_url": "off",
           "api_key" : "insert api key",
           }
 
