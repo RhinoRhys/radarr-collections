@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime, os, sys, getopt
+import requests, json, datetime, os, sys, getopt, time
 from config import radarr, monitored, autosearch, tmdbkey
 
 verbose = True # T
@@ -23,7 +23,7 @@ for opt, arg in opts:
     elif opt in ("-f", "--full"): full = True
     elif opt in ("-a", "--art"): art = True
 
-time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
+now = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
 if radarr['base_url'] == "off":
     radarr['url'] = "http://%s:%s/api/movie" %(radarr['host'].strip(), radarr['port'].strip())
@@ -38,6 +38,7 @@ def api(host, com = "get", args = {}):
     tmdb: get & {end,id}
     """
     if host == "radarr":
+        host = host.title()
         url = radarr['url']
         key = {"apikey": radarr['api_key']}
         if com == "lookup":
@@ -48,29 +49,36 @@ def api(host, com = "get", args = {}):
             response = requests.post(url, data = json.dumps(args))
             return response.status_code
     elif host == "tmdb":
-        if args['end'] == "mov":
-            end = "movie/"
-        elif args['end'] == "col":
-            end = "collection/"
+        host = host.upper()
+        if   args['end'] == "mov": end = "movie/"
+        elif args['end'] == "col": end = "collection/"
         url = "https://api.themoviedb.org/3/" + end + str(args['id'])
         key = {"api_key": tmdbkey }
-        
-    response = requests.get(url, params = key )
-    response.content.decode("utf-8")
     
-    code = response.status_code
-    if code not in (200,201):
-        if code == 401:
+    good = False
+    while not good:    
+                
+        response = requests.get(url, params = key )
+        response.content.decode("utf-8")
+        code = response.status_code
+        
+        if code in (200,201):
+            good = True
+            return response.json()
+        elif code == 401:
             log("Error Unauthorized - Please check your %s API key" %host)
             sys.exit(2)
         elif code == 404:
+            good = True
             return code
+        elif code == 429:
+            wait = int(response.headers["Retry-After"]) + 1
+            print("\n" + "Too many requests - waiting %i seconds \n" %wait)
+            time.sleep(wait)
         else:
-            log("Error from %s API, return code: %i" %(host,code))
+            log("Unplanned error from %s API, return code: %i" %(host,code))
             sys.exit(2)
     
-    return response.json()
-
 def log(text):
     if verbose: print(text.encode('utf-8', 'replace'))
     try:
@@ -88,7 +96,7 @@ if not os.path.exists("output"):
 
 #%% Opening
         
-f = open('logs/log_' + time + '.txt','w')
+f = open('logs/log_' + now + '.txt','w')
     
 log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
@@ -180,7 +188,7 @@ f.close()
 #%% Output files
 
 if len(get) > 0:
-    g = open('output/added_%s.txt' %time,'w')
+    g = open('output/added_%s.txt' %now,'w')
     g.write("Movies added: " + str(len(get)) + "\n\n")
     for item in get:
         g.write(str(item) + '\n')
