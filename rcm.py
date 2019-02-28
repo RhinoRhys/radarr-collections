@@ -118,7 +118,7 @@ cols = []
 
 #%% Check loop
 
-for i in range(976,1000): #len(data)):
+for i in range(len(data)):
     
     logtext = datetime.datetime.now().strftime("[ %y-%m-%d %H:%M:%S ] ") + "Radarr ID: %i \t TMDB ID: %i \t\t %s" % (i+1, data[i]["tmdbId"], data[i]['title'])
     
