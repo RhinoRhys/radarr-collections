@@ -4,26 +4,22 @@
 import requests, json, datetime, os, sys, getopt
 from config import radarr, monitored, autosearch, tmdbkey
 
-full = False
-verbose = True
+verbose = True # T
+ignore_wanted = False # F
+full = False # F
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"qhft:c:",["quiet","full","tmdbid=","colid="])
+    opts, args = getopt.getopt(sys.argv[1:],"hqdf",["help","quiet","down","full"])
 except getopt.GetoptError:
-    print('rcm.py -h')
+    print('Error in options\n\n run: rcm.py -h for more info')
     sys.exit(2)
 for opt, arg in opts:
     if opt in ("-h", "--help"):
-        print('rcm.py <option> \n\n Options: \n -h \t help \n -q \t disable verbose logging \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
+        print('rcm.py <option> \n\n Options: \n -h \t help \n -q \t disable verbose logging \n -f \t run full scan, recheck all movies \n -d \t only check downloaded movies, ignore wanted list')
         sys.exit()
-    elif opt in ("-q", "--quiet"):
-        verbose = False
-#    elif opt in ("-t", "--tmdbid"):
-#        print("tmdb scan")
-#    elif opt in ("-c", "--colid"):
-#        print("collection scan")
-    elif opt in ("-f", "--full"):
-        full = True
+    elif opt in ("-q", "--quiet"): verbose = False
+    elif opt in ("-d", "--down"): ignore_wanted = True
+    elif opt in ("-f", "--full"): full = True
 
 time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
@@ -104,29 +100,32 @@ if full == False:
         skip = s.readlines()[0].strip('[]\n').split(', ')
         skip = [int(skip[i]) for i in range(len(skip))]
         
-        log('Running partial scan\n')
+        log('Running partial scan: only checking movies added since last run\n')
         
     except:
         skip = []
-        log('Running full scan\n')
+        log('Running full scan: checking all items\n')
 else:
     skip = []
-    log('Running full scan\n')
+    log('Running full scan: checking all items\n')
+
+if ignore_wanted: log("Ignore wanted list active: only checking movies with files\n")
     
-get = []
-cols = []
+get, cols, wanted = [],[],[]
 
 #%% Check loop
 
 for i in range(len(data)):
     
+    if ignore_wanted and not data[i]['hasFile']: wanted.append(data[i]['tmdbId'])
+    
     logtext = datetime.datetime.now().strftime("[ %y-%m-%d %H:%M:%S ] ") + "Radarr ID: %i \t TMDB ID: %i \t\t %s" % (i+1, data[i]["tmdbId"], data[i]['title'])
     
-    if data[i]["tmdbId"] not in skip:
+    if data[i]["tmdbId"] not in skip and data[i]["tmdbId"] not in wanted:
         
         mov_json = api("tmdb", args = {"end": "mov", "id": data[i]["tmdbId"]})
         
-        if mov_json in ({"status_code":34,"status_message":"The resource you requested could not be found."},404):
+        if mov_json == 404:
             logtext += "\t\t Error - Not Found"
             log(logtext)
             
@@ -172,11 +171,14 @@ for i in range(len(data)):
                                 'tmdb id': post_data['tmdbId'],
                                 'return code': post})
                     tmdb_ids.append(post_data['tmdbId'])
-        else: # if mov_json
+        else: # if mov_json = 404
             logtext += "\t\t" + "Not in collection"
             log(logtext)
-    else: # if data
-        logtext += "\t\t" + "Skipping - Checked"
+    elif data[i]["tmdbId"] in wanted: # if id in list
+        logtext += "\t\t No file Found - Skipping"
+        log(logtext)
+    else: # if id in list
+        logtext += "\t\t" + "Checked - Skipping"
         log(logtext)
         
 log("\n Added %i movies \n\n Thank You for using Radarr Collection Manager by RhinoRhys" % len(get))
