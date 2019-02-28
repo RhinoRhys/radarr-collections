@@ -9,7 +9,6 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 - Multiple root folder support <br>
 - Multiple Profile Support <br>
 	_New items added will use the same Profile and Root Path as the movie currently being checked_.<br>
-<br>
 - Ignore Wanted List<br>
 	_Use flag_ `-d` _to only check movies with files_
 
