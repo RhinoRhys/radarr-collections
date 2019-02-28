@@ -7,19 +7,21 @@ from config import radarr, monitored, autosearch, tmdbkey
 verbose = True # T
 ignore_wanted = False # F
 full = False # F
+art = False # F
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hqdf",["help","quiet","down","full"])
+    opts, args = getopt.getopt(sys.argv[1:],"hqdfa",["help","quiet","down","full","art"])
 except getopt.GetoptError:
     print('Error in options\n\n run: rcm.py -h for more info')
     sys.exit(2)
 for opt, arg in opts:
     if opt in ("-h", "--help"):
-        print('rcm.py <option> \n\n Options: \n -h \t help \n -q \t disable verbose logging \n -f \t run full scan, recheck all movies \n -d \t only check downloaded movies, ignore wanted list')
+        print('rcm.py <option> \n\n Options: \n -h \t help \n -q \t disable verbose logging \n -f \t run full scan, recheck all movies \n -d \t only check downloaded movies, ignore wanted list \n -a \t output artwork URL file')
         sys.exit()
     elif opt in ("-q", "--quiet"): verbose = False
     elif opt in ("-d", "--down"): ignore_wanted = True
     elif opt in ("-f", "--full"): full = True
+    elif opt in ("-a", "--art"): art = True
 
 time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
@@ -94,7 +96,7 @@ data = api("radarr")
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 
-if full == False:
+if not full:
     try:
         s = open("skip.dat", "r+")
         skip = s.readlines()[0].strip('[]\n').split(', ')
@@ -110,6 +112,8 @@ else:
     log('Running full scan: checking all items\n')
 
 if ignore_wanted: log("Ignore wanted list active: only checking movies with files\n")
+
+if art: log("Collection Artwork URLs will be saved to output/art.txt\n")
     
 get, cols, wanted = [],[],[]
 
@@ -119,26 +123,21 @@ for i in range(len(data)):
     
     if ignore_wanted and not data[i]['hasFile']: wanted.append(data[i]['tmdbId'])
     
-    logtext = datetime.datetime.now().strftime("[ %y-%m-%d %H:%M:%S ] ") + "Radarr ID: %i \t TMDB ID: %i \t\t %s" % (i+1, data[i]["tmdbId"], data[i]['title'])
+    logtext = datetime.datetime.now().strftime("[ %y-%m-%d %H:%M:%S ] ") + "Radarr ID: %i \t TMDB ID: %i \t\t %s" % (data[i]['id'], data[i]["tmdbId"], data[i]['title'])
     
     if data[i]["tmdbId"] not in skip and data[i]["tmdbId"] not in wanted:
         
         mov_json = api("tmdb", args = {"end": "mov", "id": data[i]["tmdbId"]})
         
-        if mov_json == 404:
-            logtext += "\t\t Error - Not Found"
-            log(logtext)
-            
-        elif mov_json.has_key('belongs_to_collection') == False:
-            logtext += "\t\t Error - Collection Key Not Found"
-            log(logtext)
+        if mov_json == 404: log(logtext + "\t\t Error - Not Found")
+        elif mov_json.has_key('belongs_to_collection') == False: log(logtext + "\t\t Error - Collection Key Not Found")
         
-        elif type(mov_json['belongs_to_collection']) != type(None):
+        elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
             col_id = mov_json['belongs_to_collection']['id']
             logtext += "\t\t Collection: %i" % col_id
             
             col_json = api("tmdb", args = {"end": "col", "id": col_id})
-            cols.append('%s \t\t https://image.tmdb.org/t/p/original%s' %(col_json['name'], col_json['poster_path']))
+            if art: cols.append('%s \t\t https://image.tmdb.org/t/p/original%s' %(col_json['name'], col_json['poster_path']))
             parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
             parts.remove(int(data[i]["tmdbId"]))
            
@@ -171,15 +170,8 @@ for i in range(len(data)):
                                 'tmdb id': post_data['tmdbId'],
                                 'return code': post})
                     tmdb_ids.append(post_data['tmdbId'])
-        else: # if mov_json = 404
-            logtext += "\t\t" + "Not in collection"
-            log(logtext)
-    elif data[i]["tmdbId"] in wanted: # if id in list
-        logtext += "\t\t No file Found - Skipping"
-        log(logtext)
-    else: # if id in list
-        logtext += "\t\t" + "Checked - Skipping"
-        log(logtext)
+        else: log(logtext + "\t\t Not in collection") # if mov_json = 404
+    else: log(logtext + "\t\t Skipping") # if id in list
         
 log("\n Added %i movies \n\n Thank You for using Radarr Collection Manager by RhinoRhys" % len(get))
 
@@ -188,17 +180,19 @@ f.close()
 #%% Output files
 
 if len(get) > 0:
-    g = open('output/added ' + time + '.txt','w')
+    g = open('output/added_%s.txt' %time,'w')
     g.write("Movies added: " + str(len(get)) + "\n\n")
     for item in get:
         g.write(str(item) + '\n')
     g.close()
    
-cols.sort()
-t = open('output/art.txt', 'a+')
-for line in cols:
-    t.write(line.encode("utf-8", "replace") + '\n')
-t.close()
+
+if art:
+    cols.sort()
+    t = open('output/art.txt', 'w+')
+    for line in cols:
+        t.write(line.encode("utf-8", "replace") + '\n')
+    t.close()
 
 s = open('skip.dat','w')
 s.write(str(tmdb_ids))
