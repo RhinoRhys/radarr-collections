@@ -8,7 +8,6 @@ radarr = {"host" : "localhost",
           "port": "7878",
           "base_url": "",
           "api_key" : "insert api key",
-          "path" : "path/to/movies",
           "profile" : 1
           }
 
