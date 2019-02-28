@@ -5,20 +5,23 @@ import requests, json, datetime, os, sys, getopt
 from config import radarr, monitored, autosearch, tmdbkey
 
 full = False
+verbose = True
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hft:c:",["full","tmdbid=","colid="])
+    opts, args = getopt.getopt(sys.argv[1:],"qhft:c:",["quiet","full","tmdbid=","colid="])
 except getopt.GetoptError:
-    print 'rcm.py -h'
+    print('rcm.py -h')
     sys.exit(2)
 for opt, arg in opts:
     if opt in ("-h", "--help"):
-        print('rcm.py <option> [<id>] \n\n Options: \n -h \t help \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
+        print('rcm.py <option> \n\n Options: \n -h \t help \n -q \t disable verbose logging \n -f \t full scan') #(TO DO) \n -t # \t search single movie ID \n -c # \t search single collection ID
         sys.exit()
-    elif opt in ("-t", "--tmdbid"):
-        print("tmdb scan")
-    elif opt in ("-c", "--colid"):
-        print("collection scan")
+    elif opt in ("-q", "--quiet"):
+        verbose = False
+#    elif opt in ("-t", "--tmdbid"):
+#        print("tmdb scan")
+#    elif opt in ("-c", "--colid"):
+#        print("collection scan")
     elif opt in ("-f", "--full"):
         full = True
         
@@ -26,10 +29,10 @@ for opt, arg in opts:
 
 time = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
-if radarr['base_url'] == "":
-    radarr['url'] = "http://" + radarr['host'] + ":" + radarr['port'] + "/api/movie"
+if radarr['base_url'] == "off":
+    radarr['url'] = "http://%s:%s/api/movie" %(radarr['host'].strip(), radarr['port'].strip())
 else:
-    radarr['url'] = "http://" + radarr['host'] + radarr['base_url'] + "/api/movie"
+    radarr['url'] = "http://%s%s/api/movie" %(radarr['host'].strip(), radarr['base_url'].strip())
 
 
 def api(host, com = "get", args = {}):
@@ -57,10 +60,20 @@ def api(host, com = "get", args = {}):
         
     response = requests.get(url, params = key )
     response.content.decode("utf-8")
+    
+    code = response.status_code
+    
+    if code != 200:
+        if code == 401:
+            log("Error Unauthorized - Please check your %s API key" %host)
+        else:
+            log("Error connecting to %s API, please check config" %host)
+        sys.exit(2)
+        
     return response.json()
 
 def log(text):
-    print(text.encode('utf-8', 'replace'))
+    if verbose: print(text.encode('utf-8', 'replace'))
     try:
         f.write(text.encode('utf-8', 'replace') + '\n')
     except:
@@ -141,8 +154,9 @@ for i in range(len(data)):
                 else:
                     lookup_json = api("radarr", com = "lookup", args = {'id': part})
                     log("\t\t > %s \t (TMDB ID: %i) missing, fetching" %(lookup_json['title'], part))
+                    
                     post_data = {"qualityProfileId" : radarr["profile"],
-                                 "rootFolderPath": radarr['path'],
+                                 "rootFolderPath": os.path.split(data[i]['path'])[0],
                                  "monitored" : monitored,
                                  "addOptions" : {"searchForMovie" : autosearch},
                                  }
