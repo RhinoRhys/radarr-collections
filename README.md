@@ -5,19 +5,19 @@ This is my first experience writing code not to do with scientific data analysis
 
 This downloads information directly from the movie's TMDB page and TMDB Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and then will automatically add any that are not in the database. If you already have two or more of the movies in a collection, it will only check the collection once. 
 
-**Update** <br>
-- Multiple root folder support <br>
-- Multiple Profile Support <br>
-	_New items added will use the same Profile and Root Path as the movie currently being checked_.<br>
-- Ignore Wanted List<br>
-	_Use flag_ `-d` _to only check movies with files_
-
 ## Features: <br>
 - Automatically Added into Radarr using API, <br>
 - Option to add Monitored or Unmonitored, <br>
 - Automatic Search (optional), <br>
 - Ignore Wanted list. Only check movies with files (optional),<br>
 - Outputs list of collection artwork URLs to text file. (optional)<br>
+
+**Update** <br>
+- Multiple root folder support <br>
+- Multiple Profile Support <br>
+	_New items added will use the same Profile and Root Path as the movie currently being checked_.<br>
+- Ignore Wanted List<br>
+	_Use flag_ `-d` _to only check movies with files_
   
 ## Requirements:
 - Radarr, <br>
