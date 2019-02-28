@@ -33,35 +33,35 @@ TMDB offers free API keys to anyone with an account. Simply sign up for an accou
 All values need to be in ""<br>
 
 - **Host and Port** <br>
-If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the Web interface. Default for running on the same machine is "localhost" and "7878" <br>
+If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the Web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
 
 - **base url** <br>
-Used for reverse proxies. Should be set as "off" unless needed, if used needs to have / included eg. `"/radarr"`. <br>
+Used for reverse proxies. Should be set as `"off"` unless needed, if used needs to have / included eg. `"/radarr"`. <br>
 
 - **api key** <br>
 Can be found under Settings > General <br>
 
 ### Other Variables 
-**tmdbkey** is where to paste your TMDB API key and needs the ""
+**tmdbkey** is where to paste your TMDB API key, also needs "".
 
-**Monitored** and **Autosearch** are boolean (True/False) switches, do not need the "" but do need the capital first letter. <br>
-The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea.
+**Monitored** and **Autosearch** are boolean (`True`/`False`) switches, need the capital first letter but do not need the "" <br>
+The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. 
 
 ## Running
 Run `python rcm.py [options]` to initiate a sync.<br>
 
-#### Command line options
-- `-h` or `--help`		Displays this help 
-- `-q` or `--quiet`		Disable verbose logging in command line. Log file still created.
-- `-f` or `--full`		Run full scan, check all items.
-- `-d` or `--down`		Only search movies with files. Ignore Wanted list.
-- `-a` or `--art`		Output artwork URL file.
+#### Options
+- `-h` or `--help`	&nbsp;&nbsp;&nbsp;	Displays this help 
+- `-q` or `--quiet`	&nbsp;&nbsp;&nbsp;	Disable verbose logging in command line. Log file still created.
+- `-f` or `--full`	&nbsp;&nbsp;&nbsp;	Run full scan, check all items.
+- `-d` or `--down`	&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
+- `-a` or `--art`	&nbsp;&nbsp;&nbsp;	Output artwork URL file.
 
-Once the script has run, it will save a list of all the TMDB IDs in your Radarr database at that moment.
+Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
 - **Not** passing the `-f` option will initiate an update scan, import the list and only check items added to Radarr since to save on unnecessary API calls to TMDB.
 
-Multiple options can be passed in. `python rcm.py -d -q -f` would work.
+Multiple options can be passed in. `python rcm.py -d -q -f` would work for example.
 
 ## Output
 As well as automatically adding the movies into Radarr there is an output folder with additional files. <br>
