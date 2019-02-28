@@ -51,11 +51,11 @@ The first time you run the script, it is reccomended to have both set to False. 
 Run `python rcm.py [options]` to initiate a sync.<br>
 
 #### Options
-- `-h` or `--help`	&nbsp;&nbsp;&nbsp;	Displays this help 
-- `-q` or `--quiet`	&nbsp;&nbsp;&nbsp;	Disable verbose logging in command line. Log file still created.
-- `-f` or `--full`	&nbsp;&nbsp;&nbsp;	Run full scan, check all items.
-- `-d` or `--down`	&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
-- `-a` or `--art`	&nbsp;&nbsp;&nbsp;	Output artwork URL file.
+- `-h` or `--help`	&nbsp;&nbsp;&nbsp;&nbsp;	Displays this help 
+- `-q` or `--quiet`	&nbsp;&nbsp;&nbsp;&nbsp;	Disable verbose logging in command line. Log file still created.
+- `-f` or `--full`	&nbsp;&nbsp;&nbsp;&nbsp;	Run full scan, check all items.
+- `-d` or `--down`	&nbsp;&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
+- `-a` or `--art`	&nbsp;&nbsp;&nbsp;&nbsp;	Output artwork URL file.
 
 Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
@@ -66,4 +66,5 @@ Multiple options can be passed in. `python rcm.py -d -q -f` would work for examp
 ## Output
 As well as automatically adding the movies into Radarr there is an output folder with additional files. <br>
 - added [date].txt is a secondary log file that lists the movies that have been added on that run. It is not created if 0 movies are added. <br>
-- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
+- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. It won't be an active link in the output file but continuing with the Batman theme for examples, it's entry would be:
+> The Dark Knight Collection 	&nbsp;&nbsp;&nbsp;&nbsp; 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg
