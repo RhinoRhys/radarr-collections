@@ -20,4 +20,3 @@ monitored = False
 
 # Automatically run a historical / backlog search when new items added
 autosearch = False
-

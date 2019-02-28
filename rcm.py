@@ -155,7 +155,7 @@ for i in range(len(data)):
                     lookup_json = api("radarr", com = "lookup", args = {'id': part})
                     log("\t\t > %s \t (TMDB ID: %i) missing, fetching" %(lookup_json['title'], part))
                     
-                    post_data = {"qualityProfileId" : radarr["profile"],
+                    post_data = {"qualityProfileId" : data[i]['qualityProfileId'],
                                  "rootFolderPath": os.path.split(data[i]['path'])[0],
                                  "monitored" : monitored,
                                  "addOptions" : {"searchForMovie" : autosearch},

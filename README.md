@@ -5,34 +5,37 @@ This is my first experience writing code not to do with scientific data analysis
 
 This will check every movie in your Radarr database, it does not matter if the movie is downloaded or wanted, my thought process was if you want one of them, you'll want the whole set but this could be filtered if requested. This downloads information directly from the movie's TMDB page and TMDB Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and then will automatically add any that are not in the database. If you already have two or more of the movies in a collection, it will only check the collection once. 
 
-**Update**
-Multiple root folder support - New items added will use the same root folder as the movie currently being checked.
+**Update** <br>
+- Multiple root folder support <br>
+- Multiple Profile Support <br>
+New items added will use the same Profile and Root Path as the movie currently being checked.<br>
 
 ## Features: <br>
 - Automatically Added into Radarr using API, <br>
 - Option to add Monitored or Unmonitored, <br>
 - Automatic Search (optional), <br>
-- Outputs list of collection artwork URLs to text file. 
+- Outputs list of collection artwork URLs to text file. <br>
   
 ## Requirements:
 - Radarr, <br>
 - Your own TMDB API key. <br>
   
-## Getting a TMDB API key:<br>
+## Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
   
-## config.py <br>
-### Radarr settings <br>
+## config.py
+### Radarr settings
 
-All values need to be in "" except Profile <br>
-- host is default "localhost"
-- port is default "7878"
-- base url should be set as "off" unless needed, if used needs / <br>
-- api key can be found under Settings > General <br>
-- profile is the numerical ID assigned by Radarr and does not need the "" <br>
-    
-#### Profile ID
-To find your profile ID you will need to view the API raw data. Assuming a default install, with your Radarr API key go to `http://localhost:7878/api/movie?apikey=XXX` and search for "qualityProfileId". If you use more than one Profile in Radarr you will need to manually match the ID to the correct Profile by checking the movie titles (for example my films use a 1080p cut off profile and the ID was 1 and my documentaries use the Any profile and the ID was 7).
+All values need to be in ""<br>
+
+- **Host and Port** <br>
+If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the Web interface. Default for running on the same machine is "localhost" and "7878" <br>
+
+- **base url** <br>
+Used for reverse proxies. Should be set as "off" unless needed, if used needs to have / included. <br>
+
+- **api key** <br>
+Can be found under Settings > General <br>
 
 ### Other Variables 
 tmdbkey is where to paste your TMDB API key and needs the ""
