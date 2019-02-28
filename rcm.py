@@ -4,7 +4,7 @@
 import requests, json, datetime, os, sys, getopt
 from config import radarr, monitored, autosearch, tmdbkey
 
-full = True
+full = False
 verbose = True
 
 try:
