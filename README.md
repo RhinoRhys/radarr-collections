@@ -46,6 +46,7 @@ Download and extract the zip or clone with git to a location of your choice. Edi
 
 #### Options
 
+| Flag	|	Use	|
 |---|---|
 | `-h` or `--help`		|	Displays this help.	|
 | `-f` or `--full`		|	Run full scan, check all items	|
