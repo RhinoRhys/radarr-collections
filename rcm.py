@@ -105,16 +105,16 @@ def log(text):
 
 def datadump():
     
-    if len(get) > 0 and not nolog:
+    if len(get) > 0 and cache:
         g = open(os.path.join('output','added_%s.txt' %now),'w+')
         g.write("Movies Found: %i \n\n" %len(get))
         for item in get:
             g.write(str(item) + '\n')
         g.close()
     
-    if art and not nolog:
+    if art:
         cols.sort()
-        t = open(os.path.join('output','art.txt'), 'w+')
+        t = open(os.path.join('output','art_%s.txt' %now), 'w+')
         for line in cols:
             t.write(line.encode("utf-8", "replace") + '\n')
         t.close()
@@ -142,18 +142,13 @@ if not nolog: f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
 atexit.register(datadump)
     
 log(library.hello)
-
+    
 data = api("radarr")
 
 if start > len(data):
     if not verbose: print(library.start_err)
     log(library.start_err)
     sys.exit(2)  
-
-if cache and nolog:
-    if not verbose: print(library.opts_err)
-    log(library.opts_err)
-    sys.exit()
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 

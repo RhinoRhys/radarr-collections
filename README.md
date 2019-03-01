@@ -51,11 +51,11 @@ Download and extract the zip or clone with git to a location of your choice. Edi
 | `-h` | `--help`		|	Displays this help.	|
 | `-f` | `--full`		|	Run full scan, check all items	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
-| `-n` | `--nolog` 	|	Disables all text file output. (overrides `-a`)	|
-| `-c` | `--cache`		|	Disables automatic adding to Radarr, only saves list of missing movies to text file. (conflict with `-n`)	|
+| `-n` | `--nolog` 	|	Disables text file log output.	|
+| `-c` | `--cache`		|	Disables automatic adding to Radarr, only saves list of missing movies to text file.	|
 | `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
 | `-s <num>` | `--start <num>`	|	Specify start point, useful for fatal error restarts.	|
-| `-a` | `--art`		|	Saves list of Collection artwork URLs to text file. (`-n` overrides)	|
+| `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
 Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
@@ -63,8 +63,8 @@ Every time the script is run it will save a list of all the TMDB IDs in your Rad
 
 Multiple options can be passed in. `python rcm.py -d -q -f` would work for example.
 
-## Output
-As well as automatically adding the movies into Radarr there is an output folder with additional files. <br>
-- added [date].txt is a secondary log file that lists the movies that have been added on that run. It is not created if 0 movies are added. <br>
-- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. Continuing with the Batman theme for examples, it's entry would be:
->| The Dark Knight Collection 	| 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg |
+## Additional Output Files
+
+- When running with the `-c` option, added\_date\_time.txt is the scan results cache file that lists the movies that have been found missing on that run. It is not created if 0 movies are found.  <br>
+- When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. Continuing with the Batman theme for examples, it's entry would be:
+> The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg 
