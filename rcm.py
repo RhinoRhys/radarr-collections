@@ -8,9 +8,10 @@ verbose = True # T
 ignore_wanted = False # F
 full = False # F
 art = False # F
+start = 0 # 0
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hqdfa",["help","quiet","down","full","art"])
+    opts, args = getopt.getopt(sys.argv[1:],"hqdfas:",["help","quiet","down","full","art","start="])
 except getopt.GetoptError:
     print('Error in options\n\n run: rcm.py -h for more info')
     sys.exit(2)
@@ -22,6 +23,7 @@ for opt, arg in opts:
     elif opt in ("-d", "--down"): ignore_wanted = True
     elif opt in ("-f", "--full"): full = True
     elif opt in ("-a", "--art"): art = True
+    elif opt in ("-s", "--start"): start = int(arg)
 
 now = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
@@ -134,7 +136,7 @@ get, cols, wanted = [],[],[]
 
 #%% Check loop
 
-for i in range(len(data)):
+for i in range(start,len(data)):
     
     if ignore_wanted and not data[i]['hasFile']: wanted.append(data[i]['tmdbId'])
     
