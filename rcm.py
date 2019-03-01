@@ -65,13 +65,13 @@ def api(host, com = "get", args = {}):
         
         if code in (200,201):           # GOOD
             good = True
-            return response.json() 
+            return response.json()
         elif code == 401:               # FATAL
             log("Error Unauthorized - Please check your %s API key" %host)
             sys.exit(2)
         elif code == 404:               # MINOR
             good = True
-            return code 
+            return code
         elif code == 429:               # RETRY
             wait = int(response.headers["Retry-After"]) + 1
             if verbose: print("\n" + "Too many requests - waiting %i seconds \n" %wait)
