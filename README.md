@@ -46,16 +46,16 @@ Download and extract the zip or clone with git to a location of your choice. Edi
 
 #### Options
 
-| Flag	|	Use	|
-|---|---|
-| `-h` or `--help`		|	Displays this help.	|
-| `-f` or `--full`		|	Run full scan, check all items	|
-| `-q` or `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
-| `-n` or `--nolog` 	|	Disables all text file output. (overrides `-a`)	|
-| `-c` or `--cache`		|	Disables automatic adding to Radarr, only saves list of missing movies to text file. (conflict with `-n`)	|
-| `-d` or `--down`		|	Only search movies with files. Ignore Wanted list.	|
-| `-s <num>` or `--start <num>`	|	Specify start point, useful for fatal error restarts.	|
-| `-a` or `--art`		|	Saves list of Collection artwork URLs to text file. (`-n` overrides)	|
+|	Short	|	Long	|	Use	|
+|	---		|	---		|	---	|
+| `-h` | `--help`		|	Displays this help.	|
+| `-f` | `--full`		|	Run full scan, check all items	|
+| `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
+| `-n` | `--nolog` 	|	Disables all text file output. (overrides `-a`)	|
+| `-c` | `--cache`		|	Disables automatic adding to Radarr, only saves list of missing movies to text file. (conflict with `-n`)	|
+| `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
+| `-s <num>` | `--start <num>`	|	Specify start point, useful for fatal error restarts.	|
+| `-a` | `--art`		|	Saves list of Collection artwork URLs to text file. (`-n` overrides)	|
 
 Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
