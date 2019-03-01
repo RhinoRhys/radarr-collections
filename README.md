@@ -24,7 +24,8 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 ## Requirements:
 - Radarr, <br>
 - Your own TMDB API key, <br>
-- Python modules: requests, json, datetime, os, sys, getopt, time
+- Python requests module<br>
+	`pip install requests`
   
 ## Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
@@ -35,7 +36,7 @@ TMDB offers free API keys to anyone with an account. Simply sign up for an accou
 All values need to be in ""<br>
 
 - **Host and Port** <br>
-If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the Web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
+If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
 
 - **base url** <br>
 Used for reverse proxies. Should be set as `"off"` unless needed, if used needs to have / included eg. `"/radarr"`. <br>
@@ -50,7 +51,7 @@ Can be found under Settings > General <br>
 The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. 
 
 ## Running
-Run `python rcm.py [options]` to initiate a sync.<br>
+Download and extract the zip or clone with git to a location of your choice. Edit config.py with you values then in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py [options]` to initiate a scan.<br>
 
 #### Options
 - `-h` or `--help`	&nbsp;&nbsp;&nbsp;	Displays this help 
@@ -59,6 +60,7 @@ Run `python rcm.py [options]` to initiate a sync.<br>
 - `-d` or `--down`	&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
 - `-a` or `--art`	&nbsp;&nbsp;&nbsp;	Output artwork URL file.
 - `-s` or `--start`	&nbsp;&nbsp;&nbsp;	Specify start point, useful for fatal error restarts.
+- `-n` or `--nolog` &nbsp;&nbsp;&nbsp;  Ignores log file creation error, disables all text output (overrides `-a`)
 
 Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
@@ -69,5 +71,5 @@ Multiple options can be passed in. `python rcm.py -d -q -f` would work for examp
 ## Output
 As well as automatically adding the movies into Radarr there is an output folder with additional files. <br>
 - added [date].txt is a secondary log file that lists the movies that have been added on that run. It is not created if 0 movies are added. <br>
-- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. It won't be an active link in the output file but continuing with the Batman theme for examples, it's entry would be:
+- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. Continuing with the Batman theme for examples, it's entry would be:
 > The Dark Knight Collection 	&nbsp;&nbsp;&nbsp;&nbsp; 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg
