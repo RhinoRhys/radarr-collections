@@ -26,7 +26,7 @@ for opt, arg in opts:
     elif opt in ("-f", "--full"): full = True
     elif opt in ("-a", "--art"): art = True
     elif opt in ("-s", "--start"): start = int(arg)
-    elif opt in ("-", "--nolog"): nolog = True
+    elif opt in ("-n", "--nolog"): nolog = True
 
 now = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
