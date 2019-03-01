@@ -56,28 +56,35 @@ def api(host, com = "get", args = {}):
         key = {"api_key": tmdbkey }
     
     good = False
+    tries = 0 
     while not good:    
                 
         response = requests.get(url, params = key )
         response.content.decode("utf-8")
         code = response.status_code
         
-        if code in (200,201):
+        if code in (200,201):           # GOOD
             good = True
-            return response.json()
-        elif code == 401:
+            return response.json() 
+        elif code == 401:               # FATAL
             log("Error Unauthorized - Please check your %s API key" %host)
             sys.exit(2)
-        elif code == 404:
+        elif code == 404:               # MINOR
             good = True
-            return code
-        elif code == 429:
+            return code 
+        elif code == 429:               # RETRY
             wait = int(response.headers["Retry-After"]) + 1
-            print("\n" + "Too many requests - waiting %i seconds \n" %wait)
-            time.sleep(wait)
-        else:
-            log("Unplanned error from %s API, return code: %i" %(host,code))
-            sys.exit(2)
+            if verbose: print("\n" + "Too many requests - waiting %i seconds \n" %wait)
+            time.sleep(wait) 
+        else:                           # UNKNOWN
+            while tries < 5 :           ## RETRY
+                tries += 1
+                log("Unplanned error from %s API, return code: %i - Retrying, attempt %i \n" %(host,code,tries))
+                time.sleep(5) 
+            else:                       ## LIMIT
+                if not verbose: print("Fatal Error - Retry limit reached - Exiting \n")
+                log("Fatal Error - Retry limit reached - Exiting \n")
+                sys.exit(2)
     
 def log(text):
     if verbose: print(text.encode('utf-8', 'replace'))
