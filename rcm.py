@@ -28,7 +28,7 @@ for opt, arg in opts:
     elif opt in ("-s", "--start"): start = int(arg)
     elif opt in ("-n", "--nolog"): nolog = True
 
-now = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
+now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S") 
 
 if radarr['base_url'] == "off":
     radarr['url'] = "http://%s:%s/api/movie" %(radarr['host'].strip(), radarr['port'].strip())
