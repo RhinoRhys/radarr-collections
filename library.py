@@ -9,5 +9,6 @@ helptext = ["rcm.py <option>",
             "-f \t run full scan, recheck all movies",
             "-d \t only check downloaded movies, ignore wanted list",
             "-a \t output artwork URL file",
-            "-s \t specify start point"]
+            "-s \t specify start point",
+            "-n \t disable text logging - ignores unresolved logging issue"]
 

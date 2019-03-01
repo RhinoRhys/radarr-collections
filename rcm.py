@@ -8,10 +8,11 @@ verbose = True # T
 ignore_wanted = False # F
 full = False # F
 art = False # F
+nolog = False # F
 start = 0 # 0
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hqdfas:",["help","quiet","down","full","art","start="])
+    opts, args = getopt.getopt(sys.argv[1:],"hqdfas:n",["help","quiet","down","full","art","start=","nolog"])
 except getopt.GetoptError:
     print('Error in options\n\n run: rcm.py -h for more info')
     sys.exit(2)
@@ -25,6 +26,7 @@ for opt, arg in opts:
     elif opt in ("-f", "--full"): full = True
     elif opt in ("-a", "--art"): art = True
     elif opt in ("-s", "--start"): start = int(arg)
+    elif opt in ("-", "--nolog"): nolog = True
 
 now = datetime.datetime.now().strftime("%y-%m-%d_%H:%M:%S") 
 
@@ -91,10 +93,11 @@ def api(host, com = "get", args = {}):
     
 def log(text):
     if verbose: print(text.encode('utf-8', 'replace'))
-    try:
-        f.write(text.encode('utf-8', 'replace') + '\n')
-    except:
-        f.write("---- unkown error in logging ---- \n")
+    if not nolog:
+        try:
+            f.write(text.encode('utf-8', 'replace') + '\n')
+        except:
+            f.write("---- unkown error in logging ---- \n")
 
 #%% Output folder checks
         
@@ -106,7 +109,7 @@ if not os.path.exists("output"):
 
 #%% Opening
         
-f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
+if not nolog: f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
     
 log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
@@ -200,11 +203,11 @@ for i in range(start,len(data)):
         
 log("\n Added %i movies \n\n Thank You for using Radarr Collection Manager by RhinoRhys" % len(get))
 
-f.close()
+if not nolog: f.close()
 
 #%% Output files
 
-if len(get) > 0:
+if len(get) > 0 and not nolog:
     g = open(os.path.join('output','added_%s.txt' %now),'w+')
     g.write("Movies added: " + str(len(get)) + "\n\n")
     for item in get:
@@ -212,7 +215,7 @@ if len(get) > 0:
     g.close()
    
 
-if art:
+if art and not nolog:
     cols.sort()
     t = open(os.path.join('output','art.txt'), 'w+')
     for line in cols:
