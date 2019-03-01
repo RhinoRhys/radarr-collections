@@ -18,11 +18,13 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 	_New items added will use the same Profile and Root Path as the movie currently being checked_.<br>
 - Ignore Wanted List<br>
 	_Use flag_ `-d` _to only check movies with files_
+- API error handling<br>
+	_429 rate limiting and retry cycle before fatal error_
   
 ## Requirements:
 - Radarr, <br>
 - Your own TMDB API key, <br>
-- Python modules: requests, json, datetime, os, sys, getopt
+- Python modules: requests, json, datetime, os, sys, getopt, time
   
 ## Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
@@ -51,11 +53,12 @@ The first time you run the script, it is reccomended to have both set to False. 
 Run `python rcm.py [options]` to initiate a sync.<br>
 
 #### Options
-- `-h` or `--help`	&nbsp;&nbsp;&nbsp;&nbsp;	Displays this help 
-- `-q` or `--quiet`	&nbsp;&nbsp;&nbsp;&nbsp;	Disable verbose logging in command line. Log file still created.
-- `-f` or `--full`	&nbsp;&nbsp;&nbsp;&nbsp;	Run full scan, check all items.
-- `-d` or `--down`	&nbsp;&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
-- `-a` or `--art`	&nbsp;&nbsp;&nbsp;&nbsp;	Output artwork URL file.
+- `-h` or `--help`	&nbsp;&nbsp;&nbsp;	Displays this help 
+- `-q` or `--quiet`	&nbsp;&nbsp;&nbsp;	Disable verbose logging in command line. Log file still created.
+- `-f` or `--full`	&nbsp;&nbsp;&nbsp;	Run full scan, check all items.
+- `-d` or `--down`	&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
+- `-a` or `--art`	&nbsp;&nbsp;&nbsp;	Output artwork URL file.
+- `-s` or `--start`	&nbsp;&nbsp;&nbsp;	Specify start point, useful for fatal error restarts.
 
 Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.

@@ -17,7 +17,8 @@ except getopt.GetoptError:
     sys.exit(2)
 for opt, arg in opts:
     if opt in ("-h", "--help"):
-        print('rcm.py <option> \n\n Options: \n -h \t help \n -q \t disable verbose logging \n -f \t run full scan, recheck all movies \n -d \t only check downloaded movies, ignore wanted list \n -a \t output artwork URL file')
+        from library import helptext
+        for line in helptext: print(line)
         sys.exit()
     elif opt in ("-q", "--quiet"): verbose = False
     elif opt in ("-d", "--down"): ignore_wanted = True
@@ -111,6 +112,11 @@ log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
 data = api("radarr")
 
+if start > len(data):
+    if not verbose: print("Fatal Error - Start point too high - Exiting \n")
+    log("Fatal Error - Start point too high - Exiting \n")
+    sys.exit(2)    
+
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 
 if not full:
@@ -129,6 +135,8 @@ else:
     log('Running full scan: checking all items\n')
 
 if ignore_wanted: log("Ignore wanted list active: only checking movies with files\n")
+
+if start != 0: log("Start point specified: skipping %i items\n" %start)
 
 if art: log("Collection Artwork URLs will be saved to output/art.txt\n")
     
