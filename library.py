@@ -16,7 +16,7 @@ helptext = ["rcm.py <option>",
 hello = "Welcome to Radarr Collection Manager by RhinoRhys \n"
 
 start_err = "Fatal Error - Start point too high - Exiting \n"
-opts_err = "Options Error - All functions disabled, not adding or writing output - Exiting\n"
+
 api_auth = "Error Unauthorized - Please check your %s API key"
 api_retry = "Fatal Error - Retry limit reached - Exiting at item %i \n"
 api_misc = "Unplanned error from %s API, return code: %i - Retrying, attempt %i \n"
