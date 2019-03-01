@@ -18,11 +18,13 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 	_New items added will use the same Profile and Root Path as the movie currently being checked_.<br>
 - Ignore Wanted List<br>
 	_Use flag_ `-d` _to only check movies with files_
+- API error handling<br>
+	_429 rate limiting and retry cycle before fatal error_
   
 ## Requirements:
 - Radarr, <br>
 - Your own TMDB API key, <br>
-- Python modules: requests, json, datetime, os, sys, getopt
+- Python modules: requests, json, datetime, os, sys, getopt, time
   
 ## Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
@@ -56,6 +58,8 @@ Run `python rcm.py [options]` to initiate a sync.<br>
 - `-f` or `--full`	&nbsp;&nbsp;&nbsp;	Run full scan, check all items.
 - `-d` or `--down`	&nbsp;&nbsp;&nbsp;	Only search movies with files. Ignore Wanted list.
 - `-a` or `--art`	&nbsp;&nbsp;&nbsp;	Output artwork URL file.
+- `-s` or `--start`	&nbsp;&nbsp;&nbsp;	Specify start point, useful for fatal error restarts.
+
 
 Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
 - Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
@@ -66,4 +70,6 @@ Multiple options can be passed in. `python rcm.py -d -q -f` would work for examp
 ## Output
 As well as automatically adding the movies into Radarr there is an output folder with additional files. <br>
 - added [date].txt is a secondary log file that lists the movies that have been added on that run. It is not created if 0 movies are added. <br>
-- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
+- When running with the `-a` flag, art.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. It won't be an active link in the output file but continuing with the Batman theme for examples, it's entry would be:
+> The Dark Knight Collection 	&nbsp;&nbsp;&nbsp;&nbsp; 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg
+
