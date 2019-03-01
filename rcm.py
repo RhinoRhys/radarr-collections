@@ -142,7 +142,7 @@ if not nolog: f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
 atexit.register(datadump)
     
 log(library.hello)
-    
+
 data = api("radarr")
 
 if start > len(data):
