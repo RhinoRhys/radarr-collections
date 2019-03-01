@@ -3,23 +3,24 @@
 
 import requests, json, datetime, os, sys, getopt, time
 from config import radarr, monitored, autosearch, tmdbkey
+import library
 
 verbose = True # T
 ignore_wanted = False # F
 full = False # F
 art = False # F
 nolog = False # F
+cache = False
 start = 0 # 0
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"hqdfas:n",["help","quiet","down","full","art","start=","nolog"])
+    opts, args = getopt.getopt(sys.argv[1:],"hqdfas:nc",["help","quiet","down","full","art","start=","nolog","cache"])
 except getopt.GetoptError:
     print('Error in options\n\n run: rcm.py -h for more info')
     sys.exit(2)
 for opt, arg in opts:
     if opt in ("-h", "--help"):
-        from library import helptext
-        for line in helptext: print(line)
+        for line in library.helptext: print(line)
         sys.exit()
     elif opt in ("-q", "--quiet"): verbose = False
     elif opt in ("-d", "--down"): ignore_wanted = True
@@ -27,6 +28,7 @@ for opt, arg in opts:
     elif opt in ("-a", "--art"): art = True
     elif opt in ("-s", "--start"): start = int(arg)
     elif opt in ("-n", "--nolog"): nolog = True
+    elif opt in ("-c", "--cache"): cache = True
 
 now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S") 
 
@@ -111,14 +113,19 @@ if not os.path.exists("output"):
         
 if not nolog: f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
     
-log('Welcome to Radarr Collection Manager by RhinoRhys \n')
+log(library.hello)
 
 data = api("radarr")
 
 if start > len(data):
-    if not verbose: print("Fatal Error - Start point too high - Exiting \n")
-    log("Fatal Error - Start point too high - Exiting \n")
-    sys.exit(2)    
+    if not verbose: print(library.start_err)
+    log(library.start_err)
+    sys.exit(2)  
+
+if cache and nolog:
+    if not verbose: print(library.opts_err)
+    log(library.opts_err)
+    sys.exit()
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 
@@ -128,20 +135,20 @@ if not full:
         skip = s.readlines()[0].strip('[]\n').split(', ')
         skip = [int(skip[i]) for i in range(len(skip))]
         
-        log('Running partial scan: only checking movies added since last run\n')
+        log(library.partial)
         
     except:
         skip = []
-        log('Running full scan: checking all items\n')
+        log(library.full)
 else:
     skip = []
-    log('Running full scan: checking all items\n')
+    log(library.full)
 
-if ignore_wanted: log("Ignore wanted list active: only checking movies with files\n")
+if ignore_wanted: log(library.wanted)
 
-if start != 0: log("Start point specified: skipping %i items\n" %start)
+if start != 0: log(library.start %start)
 
-if art: log("Collection Artwork URLs will be saved to output/art.txt\n")
+if art and not nolog: log(library.art)
     
 get, cols, wanted = [],[],[]
 
@@ -181,7 +188,7 @@ for i in range(start,len(data)):
                     
                 else:
                     lookup_json = api("radarr", com = "lookup", args = {'id': part})
-                    log("\t\t > %s \t (TMDB ID: %i) missing, fetching" %(lookup_json['title'], part))
+                    log("\t\t > %s \t (TMDB ID: %i) missing from library" %(lookup_json['title'], part))
                     
                     post_data = {"qualityProfileId" : data[i]['qualityProfileId'],
                                  "rootFolderPath": os.path.split(data[i]['path'])[0],
@@ -190,18 +197,16 @@ for i in range(start,len(data)):
                                  }
                     for dictkey in ["tmdbId","title","titleSlug","images","year"]:
                         post_data.update({dictkey : lookup_json[dictkey]})
-                    post = api("radarr", com = "post", args = post_data)
-                    code = post == 201
-                    log(" >> Added: %s  [code: %s]" %(str(code),str(post)))
-                    get.append({'title': post_data['title'], 
-                                'year': post_data['year'], 
-                                'tmdb id': post_data['tmdbId'],
-                                'return code': post})
-                    tmdb_ids.append(post_data['tmdbId'])
+                    if not cache:
+                        post = api("radarr", com = "post", args = post_data)
+                        success = post == 201
+                        log(" >> Added: %s  [code: %s]" %(str(success),str(post)))
+                        tmdb_ids.append(post_data['tmdbId'])
+                    get.append("%s \t %i \t %s (%i)" %(col_json['name'], post_data['tmdbId'], post_data['title'], post_data['year']))
         else: log(logtext + "\t\t Not in collection") # if mov_json = 404
     else: log(logtext + "\t\t Skipping") # if id in list
         
-log("\n Added %i movies \n\n Thank You for using Radarr Collection Manager by RhinoRhys" % len(get))
+log(library.bye % len(get))
 
 if not nolog: f.close()
 
@@ -209,7 +214,7 @@ if not nolog: f.close()
 
 if len(get) > 0 and not nolog:
     g = open(os.path.join('output','added_%s.txt' %now),'w+')
-    g.write("Movies added: " + str(len(get)) + "\n\n")
+    g.write("Movies Found: %i \n\n" %len(get))
     for item in get:
         g.write(str(item) + '\n')
     g.close()
