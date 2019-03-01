@@ -1,7 +1,7 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime, os, sys, getopt, time
+import requests, json, datetime, os, sys, getopt, time, atexit
 from config import radarr, monitored, autosearch, tmdbkey
 import library
 
@@ -10,7 +10,7 @@ ignore_wanted = False # F
 full = False # F
 art = False # F
 nolog = False # F
-cache = False
+cache = False # F
 start = 0 # 0
 
 try:
@@ -37,7 +37,7 @@ if radarr['base_url'] == "off":
 else:
     radarr['url'] = "http://%s%s/api/movie" %(radarr['host'].strip(), radarr['base_url'].strip())
  
-#%%  funcs
+#%%  API function
 
 def api(host, com = "get", args = {}):
     """
@@ -74,25 +74,27 @@ def api(host, com = "get", args = {}):
             good = True
             return response.json()
         elif code == 401:               # FATAL
-            log("Error Unauthorized - Please check your %s API key" %host)
+            log(library.api_auth %host)
             sys.exit(2)
         elif code == 404:               # MINOR
             good = True
             return code
         elif code == 429:               # RETRY
             wait = int(response.headers["Retry-After"]) + 1
-            if verbose: print("\n" + "Too many requests - waiting %i seconds \n" %wait)
+            if verbose: print(library.api_wait %wait)
             time.sleep(wait) 
         else:                           # UNKNOWN
             while tries < 5 :           ## RETRY
                 tries += 1
-                log("Unplanned error from %s API, return code: %i - Retrying, attempt %i \n" %(host,code,tries))
+                log(library.api_misc %(host,code,tries))
                 time.sleep(5) 
             else:                       ## LIMIT
-                if not verbose: print("Fatal Error - Retry limit reached - Exiting at item %i \n" %i)
-                log("Fatal Error - Retry limit reached - Exiting at item %i \n" %i)
+                if not verbose: print(library.api_retry %i)
+                log(library.api_retry %i)
                 sys.exit(2)
     
+#%% Output files
+
 def log(text):
     if verbose: print(text.encode('utf-8', 'replace'))
     if not nolog:
@@ -100,6 +102,30 @@ def log(text):
             f.write(text.encode('utf-8', 'replace') + '\n')
         except:
             f.write("---- unkown error in logging ---- \n")
+
+def datadump():
+    
+    if len(get) > 0 and not nolog:
+        g = open(os.path.join('output','added_%s.txt' %now),'w+')
+        g.write("Movies Found: %i \n\n" %len(get))
+        for item in get:
+            g.write(str(item) + '\n')
+        g.close()
+    
+    if art and not nolog:
+        cols.sort()
+        t = open(os.path.join('output','art.txt'), 'w+')
+        for line in cols:
+            t.write(line.encode("utf-8", "replace") + '\n')
+        t.close()
+    
+    s = open('skip.dat','w+')
+    s.write(str(tmdb_ids))
+    s.close()
+    
+    log(library.bye % len(get))
+
+    if not nolog: f.close() 
 
 #%% Output folder checks
         
@@ -112,6 +138,8 @@ if not os.path.exists("output"):
 #%% Opening
         
 if not nolog: f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
+
+atexit.register(datadump)
     
 log(library.hello)
 
@@ -202,32 +230,9 @@ for i in range(start,len(data)):
                         success = post == 201
                         log(" >> Added: %s  [code: %s]" %(str(success),str(post)))
                         tmdb_ids.append(post_data['tmdbId'])
-                    get.append("%s \t %i \t %s (%i)" %(col_json['name'], post_data['tmdbId'], post_data['title'], post_data['year']))
+                    get.append("%s \t TMDB ID: %i \t %s (%i)" %(col_json['name'], post_data['tmdbId'], post_data['title'], post_data['year']))
         else: log(logtext + "\t\t Not in collection") # if mov_json = 404
     else: log(logtext + "\t\t Skipping") # if id in list
         
-log(library.bye % len(get))
 
-if not nolog: f.close()
-
-#%% Output files
-
-if len(get) > 0 and not nolog:
-    g = open(os.path.join('output','added_%s.txt' %now),'w+')
-    g.write("Movies Found: %i \n\n" %len(get))
-    for item in get:
-        g.write(str(item) + '\n')
-    g.close()
-   
-
-if art and not nolog:
-    cols.sort()
-    t = open(os.path.join('output','art.txt'), 'w+')
-    for line in cols:
-        t.write(line.encode("utf-8", "replace") + '\n')
-    t.close()
-
-s = open('skip.dat','w+')
-s.write(str(tmdb_ids))
-s.close()
 
