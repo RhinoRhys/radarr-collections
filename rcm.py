@@ -106,7 +106,7 @@ if not os.path.exists("output"):
 
 #%% Opening
         
-f = open('logs/log_' + now + '.txt','w')
+f = open('logs/log_' + now + '.txt','w+')
     
 log('Welcome to Radarr Collection Manager by RhinoRhys \n')
 
@@ -205,7 +205,7 @@ f.close()
 #%% Output files
 
 if len(get) > 0:
-    g = open('output/added_%s.txt' %now,'w')
+    g = open('output/added_%s.txt' %now,'w+')
     g.write("Movies added: " + str(len(get)) + "\n\n")
     for item in get:
         g.write(str(item) + '\n')
@@ -219,7 +219,7 @@ if art:
         t.write(line.encode("utf-8", "replace") + '\n')
     t.close()
 
-s = open('skip.dat','w')
+s = open('skip.dat','w+')
 s.write(str(tmdb_ids))
 s.close()
 
