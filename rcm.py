@@ -85,8 +85,8 @@ def api(host, com = "get", args = {}):
                 log("Unplanned error from %s API, return code: %i - Retrying, attempt %i \n" %(host,code,tries))
                 time.sleep(5) 
             else:                       ## LIMIT
-                if not verbose: print("Fatal Error - Retry limit reached - Exiting \n")
-                log("Fatal Error - Retry limit reached - Exiting \n")
+                if not verbose: print("Fatal Error - Retry limit reached - Exiting at item %i \n" %i)
+                log("Fatal Error - Retry limit reached - Exiting at item %i \n" %i)
                 sys.exit(2)
     
 def log(text):
