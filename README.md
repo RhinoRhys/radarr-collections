@@ -6,20 +6,11 @@ This is my first experience writing code not to do with scientific data analysis
 This downloads information directly from the movie's TMDB page and TMDB Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and then will automatically add any that are not in the database. If you already have two or more of the movies in a collection, it will only check the collection once. 
 
 ## Optional Features: <br>
-- Automatically Added into Radarr using API (default on), <br>
+- Automatically added into Radarr using API (default on), <br>
 - Add Monitored or Unmonitored, <br>
-- Automatic Search, <br>
-- Ignore Wanted list. Only check movies with files, <br>
+- Automatic search, <br>
+- Ignore wanted list - only check movies with files, <br>
 - Outputs list of collection artwork URLs to text file. <br>
-
-**Update** <br>
-- Multiple root folder support <br>
-- Multiple Profile Support <br>
-	_New items added will use the same Profile and Root Path as the movie currently being checked_.<br>
-- Ignore Wanted List<br>
-	_Use flag_ `-d` _to only check movies with files_
-- API error handling<br>
-	_429 rate limiting and retry cycle before fatal error_
   
 ## Requirements:
 - Radarr, <br>
@@ -54,6 +45,8 @@ The first time you run the script, it is reccomended to have both set to False. 
 Download and extract the zip or clone with git to a location of your choice. Edit config.py with you values then in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py [options]` to initiate a scan.<br>
 
 #### Options
+
+|---|---|
 | `-h` or `--help`		|	Displays this help.	|
 | `-f` or `--full`		|	Run full scan, check all items	|
 | `-q` or `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
