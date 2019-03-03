@@ -222,7 +222,7 @@ for i in range(start,len(data)):
                                      "addOptions" : {"searchForMovie" : autosearch}}
                         for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
                         white_cid = ""
-                        white_cid += " "*(15 - len(str(data[i]["tmdbId"])))
+                        white_cid += " "*(15 - len(str(post_data["tmdbId"])))
                         found.append(words.found %(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
                         if not cache:
                             post = api("Radarr", com = "post", args = post_data)
