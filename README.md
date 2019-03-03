@@ -3,14 +3,14 @@
 A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections. <br>
 This is my first experience writing code not to do with scientific data analysis so it may not be amazingly written.
 
-This downloads information directly from the movie's TMDB page and TMDB Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and then will automatically add any that are not in the database. If you already have two or more of the movies in a collection, it will only check the collection once. 
+This downloads information directly from the movie's TMDB page and TMDB Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once. 
 
 ## Optional Features: <br>
-- Automatically added into Radarr using API (default on), <br>
-- Add Monitored or Unmonitored, <br>
-- Automatic search, <br>
+- Automatically added into Radarr (default) _or_ save results to text file, <br> 
+	- Add Monitored _or_ Unmonitored, <br>
+    - Automatic search, <br>
 - Ignore wanted list - only check movies with files, <br>
-- Outputs list of collection artwork URLs to text file. <br>
+- Save list of collection artwork URLs to text file. <br>
   
 ## Requirements:
 - Radarr, <br>
@@ -65,6 +65,10 @@ Multiple options can be passed in. `python rcm.py -d -q -f` would work for examp
 
 ## Additional Output Files
 
-- When running with the `-c` option, added\_date\_time.txt is the scan results cache file that lists the movies that have been found missing on that run. It is not created if 0 movies are found.  <br>
-- When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps. Continuing with the Batman theme for examples, it's entry would be:
+- When running with the `-c` option, found\_date\_time.txt is the scan results file that lists the movies that have been found on that run. It is not created if 0 movies are found.  <br>
+> Movies Found: 1
+> 
+> The Dark Knight Collection    TMDB ID: 272    Batman Begins (2005)
+
+- When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
 > The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg 
