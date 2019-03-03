@@ -3,7 +3,7 @@
 
 import requests, json, datetime, os, sys, getopt, time, atexit
 from config import radarr, monitored, autosearch, tmdbkey
-import library
+import words
 
 verbose = True # T
 ignore_wanted = False # F
@@ -13,39 +13,74 @@ nolog = False # F
 cache = False # F
 start = 0 # 0
 
-try:
-    opts, args = getopt.getopt(sys.argv[1:],"hqdfas:nc",["help","quiet","down","full","art","start=","nolog","cache"])
-except getopt.GetoptError:
-    print('Error in options\n\n run: rcm.py -h for more info')
-    sys.exit(2)
-for opt, arg in opts:
-    if opt in ("-h", "--help"):
-        for line in library.helptext: print(line)
+if __name__ == '__main__':
+    try:
+        opts, args = getopt.getopt(sys.argv[1:],"hqdfas:nc",["help","quiet","down","full","art","start=","nolog","cache"])
+    except getopt.GetoptError:
+        print('Error in options\n\n')
+        for line in words.helptext: print(line)
         sys.exit()
-    elif opt in ("-q", "--quiet"): verbose = False
-    elif opt in ("-d", "--down"): ignore_wanted = True
-    elif opt in ("-f", "--full"): full = True
-    elif opt in ("-a", "--art"): art = True
-    elif opt in ("-s", "--start"): start = int(arg)
-    elif opt in ("-n", "--nolog"): nolog = True
-    elif opt in ("-c", "--cache"): cache = True
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            for line in words.helptext: print(line)
+            sys.exit()
+        elif opt in ("-q", "--quiet"): verbose = not verbose
+        elif opt in ("-d", "--down"): ignore_wanted = not ignore_wanted
+        elif opt in ("-f", "--full"): full = not full
+        elif opt in ("-a", "--art"): art = not art
+        elif opt in ("-s", "--start"): start = int(arg)
+        elif opt in ("-n", "--nolog"): nolog = not nolog
+        elif opt in ("-c", "--cache"): cache = not nolog
 
 now = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S") 
 
-if radarr['base_url'] == "off":
-    radarr['url'] = "http://%s:%s/api/movie" %(radarr['host'].strip(), radarr['port'].strip())
-else:
-    radarr['url'] = "http://%s%s/api/movie" %(radarr['host'].strip(), radarr['base_url'].strip())
+if radarr['base_url'] == "off": radarr['url'] = "http://%s:%s/api/movie" %(radarr['host'].strip(), radarr['port'].strip())
+else: radarr['url'] = "http://%s%s/api/movie" %(radarr['host'].strip(), radarr['base_url'].strip())
+   
+#%% Output files
+
+if not os.path.exists("logs"): os.mkdir("logs")
+if not os.path.exists("output"): os.mkdir("output")
+    
+def log(text):
+    if verbose: print(text.encode('utf-8', 'replace'))
+    if not nolog: f.write(text.encode('utf-8', 'replace') + '\n')
+
+def datadump():
+    if len(found) != 0 and cache:
+        if fails == 10: log(words.cache %now)
+        found.sort()
+        g = open(os.path.join('output','found_%s.txt' %now),'w+')
+        g.write("Movies Found: %i \n\n" %len(found))
+        for item in found: g.write(item.encode("utf-8", "replace") + '\n')
+        g.close()
+        
+    if art:
+        cols.sort()
+        g = open(os.path.join('output','art_%s.txt' %now), 'w+')
+        for line in cols: g.write(line.encode("utf-8", "replace") + '\n')
+        g.close()
+    
+    g = open('skip.dat','w+')
+    g.write(str(tmdb_ids))
+    g.close()
+    
+    log(words.bye % len(found))
+    if not nolog: f.close() 
  
 #%%  API function
+
+def fatal(error, kwargs=None):
+    if not verbose: print(error.encode('utf-8', 'replace') %kwargs)
+    log(error %kwargs)
+    sys.exit(2)
 
 def api(host, com = "get", args = {}):
     """
     radarr: get & {} | lookup & {id:} | post & {**data}
     tmdb: get & {end,id}
     """
-    if host == "radarr":
-        host = host.title()
+    if host == "Radarr":
         url = radarr['url']
         key = {"apikey": radarr['api_key']}
         if com == "lookup":
@@ -55,179 +90,143 @@ def api(host, com = "get", args = {}):
             url += "?apikey=" + radarr['api_key']
             response = requests.post(url, data = json.dumps(args))
             return response.status_code
-    elif host == "tmdb":
-        host = host.upper()
+    elif host == "TMDB":
         if   args['end'] == "mov": end = "movie/"
         elif args['end'] == "col": end = "collection/"
         url = "https://api.themoviedb.org/3/" + end + str(args['id'])
         key = {"api_key": tmdbkey }
     
     good = False
-    tries = 0 
+    tries = 0
     while not good:    
-                
         response = requests.get(url, params = key )
         response.content.decode("utf-8")
         code = response.status_code
         
-        if code in (200,201):           # GOOD
+        if code == 200:                                     # GOOD
             good = True
             return response.json()
-        elif code == 401:               # FATAL
-            log(library.api_auth %host)
-            sys.exit(2)
-        elif code == 404:               # MINOR
+        elif code == 401: fatal(words.api_auth, host)       # FATAL
+        elif code == 404:                                   # MINOR
             good = True
             return code
-        elif code == 429:               # RETRY
+        elif code == 429:                                   # RETRY
             wait = int(response.headers["Retry-After"]) + 1
-            if verbose: print(library.api_wait %wait)
-            time.sleep(wait) 
-        else:                           # UNKNOWN
-            while tries < 5 :           ## RETRY
+            if verbose: print(words.api_wait.encode('utf-8', 'replace') %wait)
+            time.sleep(wait)
+        else:                                               # UNKNOWN
+            if tries < 5 :                                     ## RETRY
                 tries += 1
-                log(library.api_misc %(host,code,tries))
+                print(words.api_misc.encode('utf-8', 'replace') %(host,code,tries))
                 time.sleep(5) 
-            else:                       ## LIMIT
-                if not verbose: print(library.api_retry %i)
-                log(library.api_retry %i)
-                sys.exit(2)
-    
-#%% Output files
-
-def log(text):
-    if verbose: print(text.encode('utf-8', 'replace'))
-    if not nolog:
-        try:
-            f.write(text.encode('utf-8', 'replace') + '\n')
-        except:
-            f.write("---- unkown error in logging ---- \n")
-
-def datadump():
-    
-    if len(get) > 0 and cache:
-        g = open(os.path.join('output','added_%s.txt' %now),'w+')
-        g.write("Movies Found: %i \n\n" %len(get))
-        for item in get:
-            g.write(str(item) + '\n')
-        g.close()
-    
-    if art:
-        cols.sort()
-        t = open(os.path.join('output','art_%s.txt' %now), 'w+')
-        for line in cols:
-            t.write(line.encode("utf-8", "replace") + '\n')
-        t.close()
-    
-    s = open('skip.dat','w+')
-    s.write(str(tmdb_ids))
-    s.close()
-    
-    log(library.bye % len(get))
-
-    if not nolog: f.close() 
-
-#%% Output folder checks
-        
-if not os.path.exists("logs"):
-    os.mkdir("logs")
-
-if not os.path.exists("output"):
-    os.mkdir("output")
+            else: fatal(words.api_retry, (host,i))           ## LIMITED
+                
 
 #%% Opening
         
 if not nolog: f = open(os.path.join('logs',"log_%s.txt" %now),'w+')
 
-atexit.register(datadump)
-    
-log(library.hello)
-
-data = api("radarr")
+log(words.hello)
+data = api("Radarr")
 
 if start > len(data):
-    if not verbose: print(library.start_err)
-    log(library.start_err)
-    sys.exit(2)  
+    fatal(words.start_err)
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
+title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
+rad_top = len(str(data[-1]['id'])) + 1
 
 if not full:
     try:
         s = open("skip.dat", "r+")
         skip = s.readlines()[0].strip('[]\n').split(', ')
         skip = [int(skip[i]) for i in range(len(skip))]
-        
-        log(library.partial)
-        
+        new = len(data) - len(skip)
+        log(words.partial %new)
     except:
         skip = []
-        log(library.full)
+        log(words.full)
 else:
     skip = []
-    log(library.full)
+    log(words.full)
 
-if ignore_wanted: log(library.wanted)
-
-if start != 0: log(library.start %start)
-
-if art and not nolog: log(library.art)
-    
-get, cols, wanted = [],[],[]
+if start != 0: log(words.start %start)
+log(words.scan %(len(data)-start))
+if ignore_wanted: log(words.wanted)
+if art and not nolog: log(words.art)
 
 #%% Check loop
 
+found, cols = [],[]
+fails = 0 
+atexit.register(datadump)
+
 for i in range(start,len(data)):
+    def whitespace(tmdbId, title, year, rad_id):
+        w_id, w_title, w_rad = "","",""
+        w_id += " "*(10 - len(str(tmdbId)))
+        w_title += " "*(title_top - len(title))
+        if year == 0: w_title += " "*3
+        w_rad += " "*(rad_top - len(str(rad_id)))
+        return w_rad, w_id, w_title
     
-    if ignore_wanted and not data[i]['hasFile']: wanted.append(data[i]['tmdbId'])
+    def mov_info(index):
+        w_rad, w_id, w_title = whitespace(data[index]["tmdbId"], data[index]['title'], data[index]['year'], data[index]['id'])
+        return (data[index]['id'], w_rad, data[index]["tmdbId"], w_id, data[index]['title'], data[index]['year'], w_title)
     
-    logtext = datetime.datetime.now().strftime("[ %y-%m-%d %H:%M:%S ] ") + "Radarr ID: %i \t TMDB ID: %i \t\t %s" % (data[i]['id'], data[i]["tmdbId"], data[i]['title'])
+    white_dex = ""
+    white_dex += " "*(len(str(len(data))) + 1 - len(str(i)))
+    logtext = "%i:%s" %(i,white_dex) + datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") \
+            + (words.radarr + words.mov_info) %mov_info(i)
     
-    if data[i]["tmdbId"] not in skip and data[i]["tmdbId"] not in wanted:
-        
-        mov_json = api("tmdb", args = {"end": "mov", "id": data[i]["tmdbId"]})
-        
-        if mov_json == 404: log(logtext + "\t\t Error - Not Found")
-        elif mov_json.has_key('belongs_to_collection') == False: log(logtext + "\t\t Error - Collection Key Not Found")
-        
+    if any([not all([ignore_wanted, not data[i]['hasFile']]), not ignore_wanted]) \
+    and data[i]["tmdbId"] not in skip:
+        mov_json = api("TMDB", args = {"end": "mov", "id": data[i]["tmdbId"]})
+      
+        if mov_json == 404: log(logtext + "Error - Not Found")
         elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
             col_id = mov_json['belongs_to_collection']['id']
-            logtext += "\t\t Collection: %i" % col_id
-            
-            col_json = api("tmdb", args = {"end": "col", "id": col_id})
-            if art: cols.append('%s \t\t https://image.tmdb.org/t/p/original%s' %(col_json['name'], col_json['poster_path']))
+            logtext += "Collection: %i" % col_id
+            col_json = api("TMDB", args = {"end": "col", "id": col_id})
+            white_name = ""
+            if len(col_json['name']) < 50: top_c = 50
+            else: top_c = len(col_json['name']) + 5
+            white_name += " "*(top_c - len(col_json['name'])) 
+            if art: cols.append('%s%s https://image.tmdb.org/t/p/original%s' %(col_json['name'], white_name, col_json['poster_path']))
             parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
-            parts.remove(int(data[i]["tmdbId"]))
-           
-            logtext += "\t\t %i other items" % len(parts)
-            
             log(logtext)
-            
+            try: parts.remove(int(data[i]["tmdbId"]))
+            except: pass
+            log("\n" + words.other %(col_json['name'],len(parts)) + "\n")
             # Collection Items Check
             for part in parts:
                 if part in tmdb_ids:
-                    skip.append(part)
-                    log("\t\t > %s in library, remembering to skip" % data[tmdb_ids.index(part)]['title'])
-                    
+                    skip.append(part) 
+                    log(words.in_data %mov_info(tmdb_ids.index(part)))
                 else:
-                    lookup_json = api("radarr", com = "lookup", args = {'id': part})
-                    log("\t\t > %s \t (TMDB ID: %i) missing from library" %(lookup_json['title'], part))
-                    
-                    post_data = {"qualityProfileId" : data[i]['qualityProfileId'],
-                                 "rootFolderPath": os.path.split(data[i]['path'])[0],
+                    lookup_json = api("Radarr", com = "lookup", args = {'id': part})
+                    w_rad, w_id, w_title = whitespace(part, lookup_json['title'], lookup_json['year'], "")
+                    log(words.not_data %(w_rad, part, w_id, lookup_json['title'], lookup_json['year'], w_title))
+                    post_data = {"qualityProfileId" : int(data[i]['qualityProfileId']),
+                                 "rootFolderPath": os.path.split(data[i]['path'])[0].encode(sys.getfilesystemencoding()),
                                  "monitored" : monitored,
-                                 "addOptions" : {"searchForMovie" : autosearch},
-                                 }
-                    for dictkey in ["tmdbId","title","titleSlug","images","year"]:
-                        post_data.update({dictkey : lookup_json[dictkey]})
+                                 "addOptions" : {"searchForMovie" : autosearch},}
+                    for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
                     if not cache:
-                        post = api("radarr", com = "post", args = post_data)
-                        success = post == 201
-                        log(" >> Added: %s  [code: %s]" %(str(success),str(post)))
+                        post = api("Radarr", com = "post", args = post_data)
+                        white_yn = ""
+                        white_yn += " "*(rad_top + 10)
+                        if post != 201:
+                            log(words.add_fail %(white_yn,post))
+                            fails += 1
+                            if fails == 10:
+                                cache = True
+                                print(words.retry_err.encode('utf-8', 'replace'))
+                        else: log(words.add_true %white_yn)
                         tmdb_ids.append(post_data['tmdbId'])
-                    get.append("%s \t TMDB ID: %i \t %s (%i)" %(col_json['name'], post_data['tmdbId'], post_data['title'], post_data['year']))
-        else: log(logtext + "\t\t Not in collection") # if mov_json = 404
-    else: log(logtext + "\t\t Skipping") # if id in list
-        
-
-
+                    white_cid = ""
+                    white_cid += " "*(8 - len(str(data[i]["tmdbId"])))
+                    found.append("%s%s TMDB ID: %i%s \t %s (%i)" %(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
+            log("")
+        else: log(logtext + "Not in collection") # if mov_json == 404
+    else: log(logtext + "Skipping") # if id in list
