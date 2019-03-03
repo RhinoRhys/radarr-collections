@@ -48,7 +48,7 @@ def log(text):
 
 def datadump():
     if len(found) != 0 and cache:
-        if fails == 10: log(words.cache %now)
+        if fails == 10: log(words.auto_cache %now)
         found.sort()
         g = open(os.path.join('output','found_%s.txt' %now),'w+')
         g.write("Movies Found: %i \n\n" %len(found))
@@ -150,6 +150,7 @@ else:
     skip = []
     log(words.full)
 
+if cache: log(words.cache)
 if start != 0: log(words.start %start)
 log(words.scan %(len(data)-start))
 if ignore_wanted: log(words.wanted)
@@ -225,8 +226,8 @@ for i in range(start,len(data)):
                         else: log(words.add_true %white_yn)
                         tmdb_ids.append(post_data['tmdbId'])
                     white_cid = ""
-                    white_cid += " "*(8 - len(str(data[i]["tmdbId"])))
-                    found.append("%s%s TMDB ID: %i%s \t %s (%i)" %(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
+                    white_cid += " "*(15 - len(str(data[i]["tmdbId"])))
+                    found.append(words.found %(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
             log("")
         else: log(logtext + "Not in collection") # if mov_json == 404
     else: log(logtext + "Skipping") # if id in list
