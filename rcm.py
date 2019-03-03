@@ -146,16 +146,15 @@ try:
     col_ids = [int(col_ids[i]) for i in range(len(col_ids))]
 except: 
     full = True
-    skip = []
 
-if not full:
-        skip = s.readlines()[0].strip('[]\n').split(', ')
-        skip = [int(skip[i]) for i in range(len(skip))]
-        new = len(data) - len(skip)
-        log(words.partial %new)    
-else:
+if full:
     skip = []
     log(words.full)
+else:
+    skip = s.readlines()[0].strip('[]\n').split(', ')
+    skip = [int(skip[i]) for i in range(len(skip))]
+    new = len(data) - len(skip)
+    log(words.partial %new)    
 
 if cache: log(words.cache)
 if start != 0: log(words.start %start)
@@ -220,7 +219,7 @@ for i in range(start,len(data)):
                         post_data = {"qualityProfileId" : int(data[i]['qualityProfileId']),
                                      "rootFolderPath": os.path.split(data[i]['path'])[0].encode(sys.getfilesystemencoding()),
                                      "monitored" : monitored,
-                                     "addOptions" : {"searchForMovie" : autosearch},}
+                                     "addOptions" : {"searchForMovie" : autosearch}}
                         for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
                         white_cid = ""
                         white_cid += " "*(15 - len(str(data[i]["tmdbId"])))
@@ -229,13 +228,13 @@ for i in range(start,len(data)):
                             post = api("Radarr", com = "post", args = post_data)
                             white_yn = ""
                             white_yn += " "*(rad_top + 10)
-                            if post != 201:
+                            if post == 201: log(words.add_true %white_yn)
+                            else:
                                 log(words.add_fail %(white_yn,post))
                                 fails += 1
                                 if fails == 10:
                                     cache = True
-                                    print(words.retry_err.encode('utf-8', 'replace'))
-                            else: log(words.add_true %white_yn)
+                                    print(words.retry_err.encode('utf-8', 'replace')) 
                             tmdb_ids.append(post_data['tmdbId'])
             log("")
         else: log(logtext + "Not in collection") # if mov_json == 404

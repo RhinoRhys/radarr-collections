@@ -40,7 +40,7 @@ Can be found under Settings > General <br>
 **tmdbkey** is where to paste your TMDB API key, also needs "".
 
 **Monitored** and **Autosearch** are boolean (`True`/`False`) switches, need the capital first letter but do not need the "" <br>
-The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea.
+The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. Having them unmonitored makes them easy to filter in Radarr movie editor for bulk editing.
 
 ### Blacklist
 **force_ignore** should be a comma separated list of TMDB IDs in [] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have:
