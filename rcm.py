@@ -62,7 +62,7 @@ def datadump():
         g.close()
     
     g = open('memory.dat','w+')
-    g.write("\n") # str(tmdb_ids) + "\n")  TEST
+    g.write(str(tmdb_ids) + "\n")
     g.write(str(col_ids))
     g.close()
     
