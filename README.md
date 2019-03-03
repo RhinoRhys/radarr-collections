@@ -10,7 +10,8 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 	- Add Monitored _or_ Unmonitored, <br>
     - Automatic search, <br>
 - Ignore wanted list - only check movies with files, <br>
-- Save list of collection artwork URLs to text file. <br>
+- Save list of collection artwork URLs to text file, <br>
+- Set blacklist of TMDB IDs to ignore. <br>
   
 ## Requirements:
 - Radarr, <br>
@@ -39,7 +40,11 @@ Can be found under Settings > General <br>
 **tmdbkey** is where to paste your TMDB API key, also needs "".
 
 **Monitored** and **Autosearch** are boolean (`True`/`False`) switches, need the capital first letter but do not need the "" <br>
-The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. 
+The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea.
+
+### Blacklist
+**force_ignore** should be a comma separated list of TMDB IDs in [] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have:
+	`force_ignore = [272, 49026]`
 
 ## Running
 Download and extract the zip or clone with git to a location of your choice. Edit config.py with you values then in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py [options]` to initiate a scan.<br>
