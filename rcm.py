@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import requests, json, datetime, os, sys, getopt, time, atexit
-from config import radarr, monitored, autosearch, tmdbkey
+from config import radarr, monitored, autosearch, tmdbkey, force_ignore
 import words
 
 verbose = True # T
@@ -56,13 +56,14 @@ def datadump():
         g.close()
         
     if art:
-        cols.sort()
+        col_art.sort()
         g = open(os.path.join('output','art_%s.txt' %now), 'w+')
-        for line in cols: g.write(line.encode("utf-8", "replace") + '\n')
+        for line in col_art: g.write(line.encode("utf-8", "replace") + '\n')
         g.close()
     
-    g = open('skip.dat','w+')
-    g.write(str(tmdb_ids))
+    g = open('memory.dat','w+')
+    g.write(str(tmdb_ids) + "\n")
+    g.write(str(col_ids))
     g.close()
     
     log(words.bye % len(found))
@@ -136,16 +137,22 @@ tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
+found, col_art, col_ids = [],[],[]
+fails = 0
+
+try: 
+    s = open("memory.dat", "r+")
+    col_ids = s.readlines()[1].strip('[]\n').split(', ')
+    col_ids = [int(col_ids[i]) for i in range(len(col_ids))]
+except: 
+    full = True
+    skip = []
+
 if not full:
-    try:
-        s = open("skip.dat", "r+")
         skip = s.readlines()[0].strip('[]\n').split(', ')
         skip = [int(skip[i]) for i in range(len(skip))]
         new = len(data) - len(skip)
-        log(words.partial %new)
-    except:
-        skip = []
-        log(words.full)
+        log(words.partial %new)    
 else:
     skip = []
     log(words.full)
@@ -157,9 +164,7 @@ if ignore_wanted: log(words.wanted)
 if art and not nolog: log(words.art)
 
 #%% Check loop
-
-found, cols = [],[]
-fails = 0 
+ 
 atexit.register(datadump)
 
 for i in range(start,len(data)):
@@ -187,47 +192,51 @@ for i in range(start,len(data)):
         if mov_json == 404: log(logtext + "Error - Not Found")
         elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
             col_id = mov_json['belongs_to_collection']['id']
+            if col_id not in col_ids: col_ids.append(col_id)
             logtext += "Collection: %i" % col_id
             col_json = api("TMDB", args = {"end": "col", "id": col_id})
             white_name = ""
             if len(col_json['name']) < 50: top_c = 50
             else: top_c = len(col_json['name']) + 5
             white_name += " "*(top_c - len(col_json['name'])) 
-            if art: cols.append('%s%s https://image.tmdb.org/t/p/original%s' %(col_json['name'], white_name, col_json['poster_path']))
+            if art: col_art.append('%s%s https://image.tmdb.org/t/p/original%s' %(col_json['name'], white_name, col_json['poster_path']))
             parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
             log(logtext)
             try: parts.remove(int(data[i]["tmdbId"]))
             except: pass
             log("\n" + words.other %(col_json['name'],len(parts)) + "\n")
-            # Collection Items Check
-            for part in parts:
+            
+            for part in parts:  # Collection Items Check
                 if part in tmdb_ids:
                     skip.append(part) 
                     log(words.in_data %mov_info(tmdb_ids.index(part)))
                 else:
                     lookup_json = api("Radarr", com = "lookup", args = {'id': part})
                     w_rad, w_id, w_title = whitespace(part, lookup_json['title'], lookup_json['year'], "")
-                    log(words.not_data %(w_rad, part, w_id, lookup_json['title'], lookup_json['year'], w_title))
-                    post_data = {"qualityProfileId" : int(data[i]['qualityProfileId']),
-                                 "rootFolderPath": os.path.split(data[i]['path'])[0].encode(sys.getfilesystemencoding()),
-                                 "monitored" : monitored,
-                                 "addOptions" : {"searchForMovie" : autosearch},}
-                    for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
-                    if not cache:
-                        post = api("Radarr", com = "post", args = post_data)
-                        white_yn = ""
-                        white_yn += " "*(rad_top + 10)
-                        if post != 201:
-                            log(words.add_fail %(white_yn,post))
-                            fails += 1
-                            if fails == 10:
-                                cache = True
-                                print(words.retry_err.encode('utf-8', 'replace'))
-                        else: log(words.add_true %white_yn)
-                        tmdb_ids.append(post_data['tmdbId'])
-                    white_cid = ""
-                    white_cid += " "*(15 - len(str(data[i]["tmdbId"])))
-                    found.append(words.found %(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
+                    payload = (w_rad, part, w_id, lookup_json['title'], lookup_json['year'], w_title)
+                    if part in force_ignore: log(words.ignore %payload)
+                    else:
+                        log(words.not_data %payload)
+                        post_data = {"qualityProfileId" : int(data[i]['qualityProfileId']),
+                                     "rootFolderPath": os.path.split(data[i]['path'])[0].encode(sys.getfilesystemencoding()),
+                                     "monitored" : monitored,
+                                     "addOptions" : {"searchForMovie" : autosearch},}
+                        for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
+                        white_cid = ""
+                        white_cid += " "*(15 - len(str(data[i]["tmdbId"])))
+                        found.append(words.found %(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
+                        if not cache:
+                            post = api("Radarr", com = "post", args = post_data)
+                            white_yn = ""
+                            white_yn += " "*(rad_top + 10)
+                            if post != 201:
+                                log(words.add_fail %(white_yn,post))
+                                fails += 1
+                                if fails == 10:
+                                    cache = True
+                                    print(words.retry_err.encode('utf-8', 'replace'))
+                            else: log(words.add_true %white_yn)
+                            tmdb_ids.append(post_data['tmdbId'])
             log("")
         else: log(logtext + "Not in collection") # if mov_json == 404
     else: log(logtext + "Skipping") # if id in list
