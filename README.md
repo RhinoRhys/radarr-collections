@@ -44,7 +44,7 @@ The first time you run the script, it is reccomended to have both set to False. 
 ### Blacklist
 Is there a sequel that you just dont want? Simply search for it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
 
-**force_ignore** should be a comma separated list of TMDB IDs in [ ] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `force_ignore = [272, 49026]`
+**force_ignore** should be a comma separated list of TMDB IDs in [ &nbsp; ] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `force_ignore = [272, 49026]`
 
 ## Running
 Download and extract the zip or clone with git to a location of your choice. Edit config.py with you values then in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py [options]` to initiate a scan.<br>
