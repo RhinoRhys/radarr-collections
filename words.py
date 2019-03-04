@@ -28,7 +28,7 @@ api_misc = "\n" + "Unplanned error from {0} API, return code: {1} - Retrying, at
 radarr = "Radarr ID: {0}"
 mov_info = u"{1} TMDB ID: {2}{3}{4} ({5}){6}"
 
-other = u"{0}{1}{2}: (ID: {3}) {4} movies in collection:"
+other = u"{0}{1}{2} (ID: {3}): {4} movies in collection:"
 two =  " "*3 + ">> "
 in_data  = two + radarr + mov_info + "In Library"
 not_data = two + " "*11 + mov_info + "Missing"
@@ -45,6 +45,9 @@ offline = "\n" + "Error {0} offline" + exiting
 retry_err = "\n" + "Too many errors adding to Radarr - Switching to caching mode" + "\n"
 
 run_col_mon = "Rechecking {0} previosuly found collections:" + "\n"
+
+found_open = "Total Movies Found: {0}" + "\n\n" \
+           + "From Collections: {1}" + "\n" 
 
 auto_cache = "\n" + "Too many errors adding to Radarr, found_{0}.txt has been saved in the output folder instead"
 bye = "Found {0} movies" + "\n\n" + "Thank You for using Radarr Collection Manager by RhinoRhys"

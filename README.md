@@ -2,7 +2,7 @@
 
 A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections. <br>
 
-This downloads information directly from the movie's TMDB page and TMDB Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once. 
+This downloads information directly from the movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. 
 
 ## Optional Features: <br>
 - Automatically added into Radarr (default) _or_ save results to text file, <br> 
@@ -60,7 +60,7 @@ You are able to change the function and output by running as `python rcm.py [opt
 | `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
 | `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
-| `-n` | `--nolog` 	|	Disables log file creation.	|
+| `-n` | `--nolog` 	|	Disables log file creation. Verbose logging still visible.	|
 | `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
