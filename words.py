@@ -47,7 +47,7 @@ retry_err = "\n" + "Too many errors adding to Radarr - Switching to caching mode
 run_col_mon = "Rechecking {0} previosuly found collections:" + "\n"
 
 found_open = "Total Movies Found: {0}" + "\n\n" \
-           + "From Collections: {1}" + "\n" 
+           + "From Collections: {1}" + "\n\n" 
 
 auto_cache = "\n" + "Too many errors adding to Radarr, found_{0}.txt has been saved in the output folder instead"
 bye = "Found {0} movies" + "\n\n" + "Thank You for using Radarr Collection Manager by RhinoRhys"

@@ -141,7 +141,7 @@ def api(host, com = "get", args = {}):
                 time.sleep(5) 
             else: fatal(words.api_retry.format(host,i))           ## LIMITED
                 
-#%% Collection Checker
+#%% Collection Checker Function
 
 def collection_check(col_id):
     global cache, fails
