@@ -42,31 +42,31 @@ Can be found under Settings > General <br>
 The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. Having them unmonitored makes them easy to filter in Radarr movie editor for bulk editing.
 
 ### Blacklist
-Is there a sequel that you just dont want? Simply search for it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
+Is there a sequel that you just don't want? Simply search for it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
 
 **force_ignore** should be a comma separated list of TMDB IDs in [ &nbsp; ] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `force_ignore = [272, 49026]`
 
 ## Running
-Download and extract the zip or clone with git to a location of your choice. Edit config.py with you values then in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py [options]` to initiate a scan.<br>
+Download and extract the zip or clone with git to a location of your choice. Edit config.py with your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan.<br>
+
+After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again in the default mode will run an update scan, only checking movies that have been added to Radarr since and then rechecking the collections for new additions. 
 
 #### Options
+
+You are able to change the function and output by running as `python rcm.py [options]`
 
 |	Short	|	Long	|	Use	|
 |	---		|	---		|	---	|
 | `-h` | `--help`		|	Displays this help.	|
-| `-f` | `--full`		|	Run full scan, check all items	|
+| `-f` | `--full`		|	Run full scan, recheck all movies.	|
+| `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
 | `-n` | `--nolog` 	|	Disables text file log output.	|
-| `-c` | `--cache`		|	Disables automatic adding to Radarr, only saves list of missing movies to text file.	|
-| `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
-| `-s <num>` | `--start <num>`	|	Specify start point, useful for fatal error restarts.	|
+| `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
+| `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
-Every time the script is run it will save a list of all the TMDB IDs in your Radarr database at that moment.
-- Passing the `-f` or `--full` option will not import this list and will run a full scan and recheck every item.
-- **Not** passing the `-f` option will initiate an update scan, import the list and only check items added to Radarr since to save on unnecessary API calls to TMDB.
-
-Multiple options can be passed in. `python rcm.py -d -q -f` would work for example.
+Multiple options can be passed in, in any order. `python rcm.py -d -q -f` would work for example.
 
 ## Additional Output Files
 
