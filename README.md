@@ -48,7 +48,7 @@ Is there a sequel that you just don't want? Simply search for it on TMDB and gra
 
 ### People Monitoring
 
-Do you want everything by a certain Actor or Director? Grab their TMDB ID from their profile web address and using the tempalte below, select which credits you would like to monitor.
+Do you want everything by a certain Actor or Director? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor.
 
 **people** needs to have { &nbsp; } around the whole thing and each entry needs to be comma separated. The Name varaible is only for easy file management and not used by the script.
 Filter out certain roles by removing them from the monitor list.
