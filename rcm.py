@@ -233,8 +233,8 @@ def person_check(per_id):
             white_name = " "*(top_p - len(per_gen_json['name'] + " - Cast"))
             item_check(per_cred_json["cast"][k]['id'], white_name, per_gen_json, "Cast")
     if any(['directing' in people[per_id]['monitor'],
-                      'production' in people[per_id]['monitor'],
-                      'writing' in people[per_id]['monitor']]):
+            'production' in people[per_id]['monitor'],
+            'writing' in people[per_id]['monitor']]):
         log("")
         log(words.crew.format(len(per_cred_json['crew'])))
         log("")
@@ -265,7 +265,7 @@ found_col, found_per, col_art, col_ids, memory = [],[],[],[],[]
 fails = 0
 
 if cache: log(words.cache)
-if art and not nolog: log(words.art)
+if art: log(words.art)
 if start != 0: log(words.start.format(start))
 
 try: 
@@ -317,7 +317,6 @@ log("")
 
 #%% Collection Monitor
 stage = 2
-"""
 if not full:
     printtime = False
     log(words.run_col_mon.format(*numbers) + ":" + "\n")
@@ -326,7 +325,7 @@ if not full:
         white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
         collection_check(col_id)
         log("")
-"""
+
 #%% Person Monitor
 stage = 3
 if len(people) != 0:
