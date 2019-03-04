@@ -13,7 +13,7 @@ helptext = ["rcm.py <option>",
             "| -a       | --art         | Saves list of Collection artwork URLs to text file."
             ]
             
-hello = "Welcome to Radarr Collection Manager by RhinoRhys" + "\n"
+hello = "Welcome to Radarr Collection and People Manager by RhinoRhys" + "\n"
 
 start_err = "Error - Start point {0} greater that data length {1} - Exiting"
 
@@ -69,6 +69,6 @@ found_start = "From Collections: {1}" + "\n"
 found_middle = "From People: {2}" + "\n"
 
 auto_cache = "Too many errors adding to Radarr, found_{0}.txt has been saved in the output folder instead"
-bye = "Found {0} Movies" + "\n\n" + "Thank You for using Radarr Collection Manager by RhinoRhys"
+bye = "Found {0} Movies" + "\n\n" + "Thank You for using Radarr Collection and People Manager by RhinoRhys"
 
 
