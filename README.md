@@ -21,8 +21,7 @@ People can also be monitored to automatically find missing Movies from their Act
 - Python requests module<br>
 	`pip install requests`
   
-### Getting a TMDB API key:
-TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
+**Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings.
   
 ## Setting up config.py
 ### Radarr settings
