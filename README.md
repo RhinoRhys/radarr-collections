@@ -60,7 +60,7 @@ You are able to change the function and output by running as `python rcm.py [opt
 | `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
 | `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
-| `-n` | `--nolog` 	|	Disables log file creation.	|
+| `-n` | `--nolog` 	|	Disables log file creation. Verbose logging still visible.	|
 | `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
