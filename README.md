@@ -1,16 +1,19 @@
-# Radarr Collection Manager
+# Radarr Collection and People Manager
 
-A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections. <br>
+A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections and Credits.<br>
 
-This downloads information directly from the movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. 
+This downloads information directly from the Movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. 
+
+People can also be monitored to automatically find missing Movies from their Acting, Writng, Directing and Producing credits as listed on their [TMDB page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US). 
 
 ## Optional Features: <br>
-- Automatically added into Radarr (default) _or_ save results to text file, <br> 
+- Automatically added into Radarr _or_ save results to text file, <br> 
 	- Add Monitored _or_ Unmonitored, <br>
     - Automatic search, <br>
 - Ignore wanted list - only check movies with files, <br>
 - Save list of collection artwork URLs to text file, <br>
-- Set blacklist of TMDB IDs to ignore. <br>
+- Set blacklist of TMDB IDs to ignore, <br>
+- Follow People and grab everything with/by them. <br>
   
 ## Requirements:
 - Radarr, <br>
@@ -18,7 +21,7 @@ This downloads information directly from the movie's TMDB page and Collections a
 - Python requests module<br>
 	`pip install requests`
   
-## Getting a TMDB API key:
+### Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
   
 ## Setting up config.py
@@ -43,6 +46,23 @@ The first time you run the script, it is reccomended to have both set to False. 
 Is there a sequel that you just don't want? Simply search for it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
 
 **force_ignore** should be a comma separated list of TMDB IDs in [ &nbsp; ] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `force_ignore = [272, 49026]`
+
+### People Monitoring
+
+Do you want everything by a certain Actor or Director? Grab their TMDB ID from their profile web address and using the tempalte below, select which credits you would like to monitor.
+
+**people** needs to have { &nbsp; } around the whole thing and each entry needs to be comma separated. The Name varaible is only for easy file management and not used by the script.
+Filter out certain roles by removing them from the monitor list.
+
+Template: `          "<<TMDB ID>>" : { "name" : "<<NAME>>", "monitor" : ['cast','directing','production','writing']},`
+<br>
+Example:
+
+```python
+people = {'15277' : { 'name' : 'Jon Favreau', 'monitor' : ['cast','production']}, 
+          '138' : { 'name' : 'Quentin Tarantino', 'monitor' : ['directing','production']},
+        }
+```
 
 ## Running
 Download and extract the zip or clone with git to a location of your choice. Edit config.py with your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan.<br>

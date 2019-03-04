@@ -17,6 +17,20 @@ monitored = False
 # Automatically run a historical / backlog search when new items added
 autosearch = False
 
-# Blacklist
-# Comma separated list of TMDB IDs to ignore if missing from database eg [272, 49026]
+"""
+Blacklist
+Comma separated list of TMDB IDs to ignore if missing from database eg [272, 49026]
+"""
 force_ignore = []
+
+"""
+People to follow
+
+NAME for easy identification in file, not actually used.
+
+Template: 
+          '<<TMDB ID>>' : { 'name' : '<<NAME>>', 'monitor' : ['cast','directing','production','writing']},
+
+"""
+people = {
+        }
