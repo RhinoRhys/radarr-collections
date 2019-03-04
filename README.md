@@ -1,6 +1,6 @@
 # Radarr Collection and People Manager
 
-A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections and Credits.<br>
+A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections and following People's work.<br>
 
 This downloads information directly from the Movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. 
 
@@ -13,7 +13,8 @@ People can also be monitored to automatically find missing Movies from their Act
 - Ignore wanted list - only check movies with files, <br>
 - Save list of collection artwork URLs to text file, <br>
 - Set blacklist of TMDB IDs to ignore, <br>
-- Follow People and grab everything with/by them. <br>
+- Follow People and grab everything with/by them, <br>
+	- People only mode - disable scanning collections.<br>
   
 ## Requirements:
 - Radarr, <br>
@@ -21,7 +22,7 @@ People can also be monitored to automatically find missing Movies from their Act
 - Python requests module<br>
 	`pip install requests`
   
-**Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings.
+**Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
 ## Setting up config.py
 ### Radarr settings
@@ -48,7 +49,7 @@ Is there a sequel that you just don't want? Simply search for it on TMDB and gra
 
 ### People Monitoring
 
-Do you want everything by a certain Actor or Director? Grab their TMDB ID from their profile web address and using the tempalte below, select which credits you would like to monitor.
+Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor.
 
 **people** needs to have { &nbsp; } around the whole thing and each entry needs to be comma separated. The Name varaible is only for easy file management and not used by the script.
 Filter out certain roles by removing them from the monitor list.
@@ -78,8 +79,9 @@ You are able to change the function and output by running as `python rcm.py [opt
 | `-f` | `--full`		|	Repeat initial scan, recheck all movies.	|
 | `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
 | `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
+| `-p` | `--people`		| 	Disable all Collection scanning, only scan People.	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
-| `-n` | `--nolog` 	|	Disables log file creation. Verbose logging still visible.	|
+| `-n` | `--nolog` 		|	Disables log file creation. Verbose logging still visible.	|
 | `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
@@ -88,9 +90,15 @@ Multiple options can be passed in, in any order. `python rcm.py -d -q -f` would 
 ## Additional Output Files
 
 - When running with the `-c` option, found\_date\_time.txt is the scan results file that lists the movies that have been found on that run. It is not created if 0 movies are found.  <br>
-> Movies Found: 1
+> Total Movies Found: 2
+> 
+> From Collections: 1
 > 
 > The Dark Knight Collection    TMDB ID: 272    Batman Begins (2005)
+> 
+> From People: 1
+> 
+> Quentin Tarantino - Directing                                TMDB ID: 187            Sin City (2005)
 
 - When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
 > The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg 
