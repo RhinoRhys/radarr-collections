@@ -283,7 +283,7 @@ if full:
 else:
     skip = s[0].strip('[]\n').split(', ')
     skip = [int(skip[i]) for i in range(len(skip))]
-    numbers = len(data) - len(skip), len(col_ids), len(people)
+    numbers = max(0, len(data) - len(skip)), len(col_ids), len(people)
     log(words.update.format(*numbers))
 
 if ignore_wanted: log(words.wanted)
