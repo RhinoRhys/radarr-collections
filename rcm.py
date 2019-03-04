@@ -37,7 +37,7 @@ start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 if radarr['base_url'] == "off": radarr['url'] = "http://{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
 else: radarr['url'] = "http://{0}{1}/api/movie".format(radarr['host'].strip(), radarr['base_url'].strip())
 
-if not full and start != 0: full = True
+if start != 0: full = True
    
 #%% Output files
 
@@ -63,12 +63,12 @@ def mov_info(index):
     return data[index]['id'], w_rad, data[index]["tmdbId"], w_id, data[index]['title'], data[index]['year'], w_title
 
 def datadump():
-    if len(found) != 0 and cache:
+    if len(found_col) != 0 and cache:
         if fails == 10: log(words.auto_cache.format(start_time))
-        found.sort()
+        found_col.sort()
         g = open(os.path.join('output','found_{0}.txt'.format(start_time)),'w+')
-        g.write("Movies Found: {0} \n\n".format(len(found)))
-        for item in found: g.write(item.encode("utf-8", "replace") + '\n')
+        g.write(words.found_open.format(len(found_col),len(found_col)))
+        for item in found_col: g.write(item.encode("utf-8", "replace") + '\n')
         g.close()
         
     if art:
@@ -84,7 +84,7 @@ def datadump():
     
     global printtime
     printtime = False
-    log(words.bye.format(len(found)))
+    log(words.bye.format(len(found_col)))
     if not nolog: f.close() 
  
 #%%  API function
@@ -146,7 +146,7 @@ def api(host, com = "get", args = {}):
 def collection_check(col_id):
     global cache, fails
     col_json = api("TMDB", args = {"end": "col", "id": col_id})
-    if len(col_json['name']) < 50: top_c = 50
+    if len(col_json['name']) < 60: top_c = 60
     else: top_c = len(col_json['name']) + 5
     white_name = " "*(top_c - len(col_json['name'])) 
     if art: col_art.append(words.col_art.format(col_json['name'], white_name, col_json['poster_path']))
@@ -176,7 +176,7 @@ def collection_check(col_id):
                              "addOptions" : {"searchForMovie" : autosearch}}
                 for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
                 white_cid = " "*(15 - len(str(post_data["tmdbId"])))
-                found.append(words.found.format(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
+                found_col.append(words.found.format(col_json['name'], white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year']))
                 if not cache:
                     post = api("Radarr", com = "post", args = post_data)
                     white_yn = " "*(rad_top + 10)
@@ -205,7 +205,7 @@ tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
-found, col_art, col_ids = [],[],[]
+found_col, col_art, col_ids = [],[],[]
 fails = 0
 
 if cache: log(words.cache)
