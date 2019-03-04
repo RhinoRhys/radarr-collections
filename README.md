@@ -21,7 +21,7 @@ This downloads information directly from the movie's TMDB page and TMDB Collecti
 ## Getting a TMDB API key:
 TMDB offers free API keys to anyone with an account. Simply sign up for an account and request a key via your account settings. I did intend to embed a key into the code but couldn't work out how to hide it from public view so I'm afraid you'll need to get your own.
   
-## config.py
+## Setting up config.py
 ### Radarr settings
 
 All values need to be in ""<br>
@@ -29,16 +29,14 @@ All values need to be in ""<br>
 - **Host and Port** <br>
 If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
 
-- **base url** <br>
-Used for reverse proxies. Should be set as `"off"` unless needed, if used needs to have / included eg. `"/radarr"`. <br>
+- **base_url** - used for reverse proxies. Should be set as `"off"` unless needed, if used needs to have / included eg. `"/radarr"`. <br>
 
-- **api key** <br>
-Can be found under Settings > General <br>
+- **api_key** - can be found under Settings > General <br>
 
 ### Other Variables 
 **tmdbkey** is where to paste your TMDB API key, also needs "".
 
-**Monitored** and **Autosearch** are boolean (`True`/`False`) switches, need the capital first letter but do not need the "" <br>
+**monitored** and **autosearch** are boolean (`True`/`False`) switches, need the capital first letter but do not need the "" <br>
 The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. Having them unmonitored makes them easy to filter in Radarr movie editor for bulk editing.
 
 ### Blacklist
@@ -49,7 +47,7 @@ Is there a sequel that you just don't want? Simply search for it on TMDB and gra
 ## Running
 Download and extract the zip or clone with git to a location of your choice. Edit config.py with your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan.<br>
 
-After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again in the default mode will run an update scan, only checking movies that have been added to Radarr since and then rechecking the collections for new additions. 
+After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the collections for new additions. 
 
 #### Options
 
@@ -58,12 +56,12 @@ You are able to change the function and output by running as `python rcm.py [opt
 |	Short	|	Long	|	Use	|
 |	---		|	---		|	---	|
 | `-h` | `--help`		|	Displays this help.	|
-| `-f` | `--full`		|	Run full scan, recheck all movies.	|
+| `-f` | `--full`		|	Repeat initial scan, recheck all movies.	|
+| `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
 | `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|
-| `-n` | `--nolog` 	|	Disables text file log output.	|
+| `-n` | `--nolog` 	|	Disables log file creation.	|
 | `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
-| `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
 Multiple options can be passed in, in any order. `python rcm.py -d -q -f` would work for example.
