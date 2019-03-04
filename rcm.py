@@ -8,6 +8,7 @@ import words
 verbose = True # T
 ignore_wanted = False # F
 full = False # F
+peeps = False # F
 art = False # F
 nolog = False # F
 cache = False # F
@@ -15,7 +16,7 @@ start = 0 # 0
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hqdfas:nc",["help","quiet","down","full","art","start=","nolog","cache"])
+        opts, args = getopt.getopt(sys.argv[1:],"hqdfas:ncp",["help","quiet","down","full","art","start=","nolog","cache","people"])
     except getopt.GetoptError:
         print('Error in options\n\n')
         for line in words.helptext: print(line)
@@ -27,6 +28,7 @@ if __name__ == '__main__':
         elif opt in ("-q", "--quiet"): verbose = False
         elif opt in ("-d", "--down"): ignore_wanted = True
         elif opt in ("-f", "--full"): full = True
+        elif opt in ("-p", "--people"): peeps = True
         elif opt in ("-a", "--art"): art = True
         elif opt in ("-s", "--start"): start = int(arg)
         elif opt in ("-n", "--nolog"): nolog = True
@@ -80,7 +82,7 @@ def datadump():
         for item in found_per: g.write(item.encode("utf-8", "replace") + '\n')
         g.close()
         
-    if art:
+    if art and not peeps:
         col_art.sort()
         g = open(os.path.join('output','art_{0}.txt'.format(start_time)), 'w+')
         for line in col_art: g.write(line.encode("utf-8", "replace") + '\n')
@@ -265,8 +267,8 @@ found_col, found_per, col_art, col_ids, memory = [],[],[],[],[]
 fails = 0
 
 if cache: log(words.cache)
-if art: log(words.art)
-if start != 0: log(words.start.format(start))
+if art and not peeps: log(words.art)
+if start != 0 and not peeps: log(words.start.format(start))
 
 try: 
     s = open("memory.dat", "r+")
@@ -276,17 +278,19 @@ try:
 except: 
     full = True
 
+
 if full:
     skip = []
     numbers = len(data) - start, len(col_ids), len(people)
-    log(words.full.format(*numbers))
+    if not peeps: log(words.full.format(*numbers))
 else:
     skip = s[0].strip('[]\n').split(', ')
     skip = [int(skip[i]) for i in range(len(skip))]
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people)
-    log(words.update.format(*numbers))
+    if not peeps: log(words.update.format(*numbers))
 
-if ignore_wanted: log(words.wanted)
+if peeps: log(words.peeps)
+if ignore_wanted and not peeps: log(words.wanted)
 
 atexit.register(datadump)
 
@@ -294,30 +298,30 @@ two_dex = " "*len(str(len(data)))
 
 #%%  Database Search
 stage = 1
-
-if numbers[0] != 0: log(words.run_mov_mon.format(*numbers) + ":" + "\n")
-printtime= True
-for i in range(start,len(data)):
-    white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
-    payload = mov_info(i)
-    logtext = "{0}:{1}".format(i + 1, white_dex) + words.radarr.format(*payload) + words.mov_info.format(*payload)
-    
-    if any([not all([ignore_wanted, not data[i]['hasFile']]), not ignore_wanted]) \
-    and data[i]["tmdbId"] not in skip:
-        mov_json = api("TMDB", com = "mov", args = data[i]["tmdbId"])
-        if mov_json == 404: log(logtext + "Error - Not Found")
-        elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
-            col_id = mov_json['belongs_to_collection']['id']
-            if col_id not in col_ids: col_ids.append(col_id)
-            log(logtext + "In Collection")
-            collection_check(col_id)            
-        else: log(logtext + "Not in Collection") # if mov_json == 404
-    elif full: log(logtext + "Skipping") # if id in list
-log("")
+if not peeps:    
+    if numbers[0] != 0: log(words.run_mov_mon.format(*numbers) + ":" + "\n")
+    printtime= True
+    for i in range(start,len(data)):
+        white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
+        payload = mov_info(i)
+        logtext = "{0}:{1}".format(i + 1, white_dex) + words.radarr.format(*payload) + words.mov_info.format(*payload)
+        
+        if any([not all([ignore_wanted, not data[i]['hasFile']]), not ignore_wanted]) \
+        and data[i]["tmdbId"] not in skip:
+            mov_json = api("TMDB", com = "mov", args = data[i]["tmdbId"])
+            if mov_json == 404: log(logtext + "Error - Not Found")
+            elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
+                col_id = mov_json['belongs_to_collection']['id']
+                if col_id not in col_ids: col_ids.append(col_id)
+                log(logtext + "In Collection")
+                collection_check(col_id)            
+            else: log(logtext + "Not in Collection") # if mov_json == 404
+        elif full: log(logtext + "Skipping") # if id in list
+    log("")
 
 #%% Collection Monitor
 stage = 2
-if not full:
+if not full and not peeps:
     printtime = False
     log(words.run_col_mon.format(*numbers) + ":" + "\n")
     printtime= True

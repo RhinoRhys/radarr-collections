@@ -7,6 +7,7 @@ helptext = ["rcm.py <option>",
             "| -f       | --full        | Repeat initial scan, recheck all movies.	",
             "| -s <num> | --start <num> | Specify start point, useful for big libraries if errors occur. (forces -f)",
             "| -d       | --down        | Only search movies with files. Ignore Wanted list.",
+            "| -p       | --people      | Disable all Collection scanning, only scan People."
             "| -q       | --quiet       | Disables verbose logging in command line. Log file still created.",
             "| -n       | --nolog       | Disables log file creation. Verbose logging still visible.",
             "| -c       | --cache       | Disables automatic adding to Radarr, instead saves list of missing movies to text file.",
@@ -16,6 +17,8 @@ helptext = ["rcm.py <option>",
 hello = "Welcome to Radarr Collection and People Manager by RhinoRhys" + "\n"
 
 start_err = "Error - Start point {0} greater that data length {1} - Exiting"
+
+peeps = "People only mode: Ignoring Collections" + "\n"
 
 run_mov_mon = "Checking {0} Movies"
 run_col_mon = "Checking {1} existing Collections"
