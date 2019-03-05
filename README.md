@@ -63,6 +63,7 @@ Template: `          "<<TMDB ID>>" : { "name" : "<<NAME>>", "monitor" : ['Cast',
 Example:
 
 ```python
+profile = 49026
 people = {'15277' : { 'name' : 'Jon Favreau', 'monitor' : ['Cast','Production']}, 
           '138' : { 'name' : 'Quentin Tarantino', 'monitor' : ['Directing','Production']},
         }
