@@ -27,6 +27,9 @@ People can also be monitored to automatically find missing Movies from their Act
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
 ## Setting up config.py
+
+Please rename `config.default.py` to `config.py`
+
 ### Radarr settings
 
 All values need to be in ""<br>
@@ -76,6 +79,8 @@ After the initial scan, it will save a list of all the TMDB IDs in your Radarr d
 
 Movies added into Radarr from Collection scans will use the same Profile and Root Folder Path for the whole collection. Movies added from People Monitoring will copy the settings from the declared movie.
 
+Please be aware automatic adding does not currently work with Docker. [ Issue #65 ]
+
 #### Options
 
 You are able to change the function and output by running as `python rcm.py [options]`
@@ -106,7 +111,7 @@ Multiple options can be passed in, in any order. `python rcm.py -d -q -f` would 
 > 
 > From People: 1
 > 
-> Quentin Tarantino - Directing                                TMDB ID: 187            Sin City (2005)
+> Quentin Tarantino - Directing - Director                            TMDB ID: 187            Sin City (2005)
 
 - When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
 > The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg 
