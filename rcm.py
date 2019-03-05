@@ -223,7 +223,7 @@ def database_check(part, white_name, json, crew=None):
                     log(words.add_true.format(white_yn))
                     tmdb_ids.append(post_data['tmdbId'])
                 else:
-                    log(words.add_fail.format(post))
+                    log(words.add_fail.format(white_yn, post))
                     fails += 1
                     if fails == 10:
                         cache = True

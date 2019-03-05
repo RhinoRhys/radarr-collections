@@ -81,7 +81,7 @@ crew = two + "Credited for {0} on {1} Movies:"
 
 three = " "*3 + ">>>" + " "*21 + "{0}"
 add_true = three + dent + "Added sucessfully"
-add_fail = three + dent + "Failed to add [Response Code: {0}]"
+add_fail = three + dent + "Failed to add [Response Code: {1}]"
 
 exiting = " - Exiting at item {1}"
 api_retry = "{0} API Error - Retry limit reached" + exiting
