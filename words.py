@@ -24,12 +24,13 @@ helptext = ["rcm.py <option>",
             ]
 
 name = "Radarr Collection and People Manager by u/RhinoRhys"            
-hello = "Welcome to " + name + "\n"
+hello = "Welcome to " + name
 
 start_err = "Error - Start point {0} greater that data length {1} - Exiting"
 template_err = "Error - Profile template TMDB ID for People Monitoring not in database - Exiting"
+tp_err = "Error - t and p options not compatible"
 
-peeps = "People only mode: Ignoring Collections" + "\n"
+peeps = "People only mode: Ignoring Collections"
 
 run_mov_mon = "Checking {0} Movies"
 run_col_mon = "Checking {1} existing Collections"
@@ -47,12 +48,12 @@ update = "Running update scan:" + "\n" \
         + dent + run_col_mon + "\n" \
         + dent + run_per_mon 
 
-wanted = "Ignore wanted list active: only checking Movies with files" + "\n"
-art = "Collection Artwork URLs file will be created" + "\n"
-cache = "Auto adding disabled: saving results to file" + "\n"
-start = "Start point specified: skipping {0} items" + "\n"
+wanted = "Ignore wanted list active: only checking Movies with files"
+art = "Collection Artwork URLs file will be created"
+cache = "Auto adding disabled: saving results to file"
+start = "Start point specified: skipping {0} items"
 
-api_auth = "Unauthorized - Please check your {0} API key" + "\n"
+api_auth = "Unauthorized - Please check your {0} API key" 
 api_wait = ">>> Too many requests - waiting {0} seconds <<<"
 api_misc = ">>> Unplanned error from {0} API, return code: {1} - Retrying, attempt {2} <<<"
 
@@ -88,9 +89,9 @@ api_retry = "{0} API Error - Retry limit reached" + exiting
 offline = "Error {0} offline" + exiting
 retry_err = "Too many errors adding to Radarr - Switching to caching mode"
 
-found_open = "Total Movies Found: {0}" + "\n"
-found_start = "From Collections: {1}" + "\n" 
-found_middle = "From People: {2}" + "\n"
+found_open = "Total Movies Found: {0}"
+found_start = "From Collections: {1}"
+found_middle = "From People: {2}"
 
 auto_cache = "Too many errors adding to Radarr, found_{0}.txt has been saved in the output folder instead"
 bye = "Found {0} Movies" + "\n\n" + "Thank You for using " + name

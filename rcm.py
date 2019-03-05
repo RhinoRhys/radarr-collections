@@ -78,11 +78,12 @@ def datadump():
         found_per.sort()
         g = open(os.path.join('output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        g.write(words.found_open.format(*payload) + "\n")
-        if len(found_col) != 0: g.write(words.found_start.format(*payload) + "\n")
-        for item in found_col: g.write(item.encode("utf-8", "replace") + '\n')
-        if len(found_col) != 0: g.write("\n")
-        if len(found_per) != 0: g.write(words.found_middle.format(*payload) + "\n")
+        g.write(words.found_open.format(*payload) + "\n\n")
+        if len(found_col) != 0: 
+            g.write(words.found_start.format(*payload) + "\n\n")
+            for item in found_col: g.write(item.encode("utf-8", "replace") + '\n')
+            g.write("\n")
+        if len(found_per) != 0: g.write(words.found_middle.format(*payload) + "\n\n")
         for item in found_per: g.write(item.encode("utf-8", "replace") + '\n')
         g.close()
         
@@ -137,7 +138,7 @@ def api(host, com = "get", args = None ):
         if code == 200:                                     # GOOD
             good = True
             return response.json()
-        elif code == 401: fatal(words.api_auth.format(host))       # FATAL
+        elif code == 401: fatal(words.api_auth.format(host) + "\n")       # FATAL
         elif code == 404:                                   # MINOR
             good = True
             return code
@@ -268,7 +269,7 @@ def person_check(per_id):
         
 if not nolog: f = open(os.path.join('logs',"log_{}.txt".format(start_time)),'w+')
 
-log(words.hello)
+log(words.hello + "\n")
 data = api("Radarr")
 
 if start > len(data): fatal(words.start_err.format(start, int(len(data))))
@@ -284,9 +285,10 @@ white_top = 60 # Whitespace Maximum for output
 found_col, found_per, col_art, col_ids = [],[],[],[]
 fails = 0
 
-if cache: log(words.cache)
-if art and not peeps: log(words.art)
-if start != 0 and not peeps and not single: log(words.start.format(start))
+if cache: log(words.cache + "\n")
+if art and not peeps: log(words.art + "\n")
+if start != 0 and not peeps and not single: log(words.start.format(start) + "\n")
+if single and peeps: log(words.tp_err + "\n")
 
 try: 
     s = open("memory.dat", "r+")
@@ -306,8 +308,8 @@ else:
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people)
     if not peeps and not single: log(words.update.format(*numbers))
 
-if peeps and not single: log(words.peeps)
-if ignore_wanted and not peeps and not single: log(words.wanted)
+if peeps and not single: log(words.peeps + "\n")
+if ignore_wanted and not peeps and not single: log(words.wanted + "\n")
 
 atexit.register(datadump)
 
