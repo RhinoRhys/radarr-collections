@@ -150,7 +150,7 @@ def api(host, com = "get", args = None ):
         else:                                               # UNKNOWN
             if tries < 5 :                                     ## RETRY
                 tries += 1
-                print(words.api_misc.encode('utf-8', 'replace').format(host,code,tries))
+                print(words.api_misc.encode('utf-8', 'replace').format(host, code, tries))
                 time.sleep(5 + tries) 
             else: fatal("\n" + words.api_retry.format(host,i))           ## LIMITED
                 
@@ -223,7 +223,7 @@ def database_check(part, white_name, json, crew=None):
                     log(words.add_true.format(white_yn))
                     tmdb_ids.append(post_data['tmdbId'])
                 else:
-                    log(words.add_fail.format(white_yn,post))
+                    log(words.add_fail.format(white_yn, post))
                     fails += 1
                     if fails == 10:
                         cache = True
