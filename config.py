@@ -2,6 +2,7 @@
 Radarr settings
 api key can be found under Settings > General
 """
+docker = False
 radarr = {"host" : "localhost",
           "port": "7878",
           "base_url": "off",
