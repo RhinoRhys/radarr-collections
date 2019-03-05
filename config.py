@@ -21,8 +21,8 @@ autosearch = False
 Blacklist
 Comma separated list of TMDB IDs to ignore if missing from database eg [272, 49026]
 """
-min_rating = 6.5
-min_votes = 100
+min_rating = 0
+min_votes = 0
 
 force_ignore = []
 
@@ -37,6 +37,6 @@ Template:
           '<<TMDB ID>>' : { 'name' : '<<NAME>>', 'monitor' : ['Cast','Directing','Production','Writing']},
 
 """
-profile = 
+profile = 0
 people = {
           }
