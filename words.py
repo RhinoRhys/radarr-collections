@@ -27,6 +27,7 @@ name = "Radarr Collection and People Manager by u/RhinoRhys"
 hello = "Welcome to " + name + "\n"
 
 start_err = "Error - Start point {0} greater that data length {1} - Exiting"
+template_err = "Error - Profile template TMDB ID for People Monitoring not in database - Exiting"
 
 peeps = "People only mode: Ignoring Collections" + "\n"
 

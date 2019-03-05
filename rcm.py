@@ -275,6 +275,8 @@ if start > len(data): fatal(words.start_err.format(start, int(len(data))))
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 
+if len(people) != 0 and config.profile not in tmdb_ids: fatal(words.template_err)
+
 title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 white_top = 60 # Whitespace Maximum for output
