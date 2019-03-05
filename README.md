@@ -41,22 +41,22 @@ If running Radarr in a Docker or on a different machine, the host will need to b
 ### Other Variables 
 **tmdbkey** is where to paste your TMDB API key, also needs "".
 
-**monitored** and **autosearch** are boolean (`True`/`False`) switches, need the capital first letter but do not need the "" <br>
-The first time you run the script, it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea. Having them unmonitored makes them easy to filter in Radarr movie editor for bulk editing.
+**monitored** and **autosearch** can be set to `True` or `False`, need the capital first letter but do not need the "" <br>
+If using automatic adding, the first time you run the script it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea, having them unmonitored makes them easy to filter in Radarr.
 
 ### Blacklist
-Is there a sequel that you just don't want? Simply search for it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
+Is there a sequel that you just don't want? Simply find it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
 
 **force_ignore** should be a comma separated list of TMDB IDs in [ &nbsp; ] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `force_ignore = [272, 49026]`
 
 ### People Monitoring
 
-Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor.
+Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor. 
 
 **profile** is the TMDB ID of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies via People Monitoring.
 
 **people** needs to have { &nbsp; } around the whole thing and each entry needs to be comma separated. The Name varaible is only for easy file management and not used by the script.
-Filter out certain roles by removing them from the monitor list.
+Filter out certain roles by removing them from the monitor list. 
 
 Template: `          "<<TMDB ID>>" : { "name" : "<<NAME>>", "monitor" : ['Cast','Directing','Production','Writing']},`
 <br>
