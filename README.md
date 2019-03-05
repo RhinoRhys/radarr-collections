@@ -10,11 +10,13 @@ People can also be monitored to automatically find missing Movies from their Act
 - Automatically added into Radarr _or_ save results to text file, <br> 
 	- Add Monitored _or_ Unmonitored, <br>
     - Automatic search, <br>
+- Follow People and grab everything with / by them, <br>
+	- People only mode - disable scanning collections,<br>
 - Ignore wanted list - only check movies with files, <br>
 - Save list of collection artwork URLs to text file, <br>
 - Set blacklist of TMDB IDs to ignore, <br>
-- Follow People and grab everything with/by them, <br>
-	- People only mode - disable scanning collections.<br>
+- Exclude results by minimum ratings and votes, <br>
+- Single movie scan. <br>
   
 ## Requirements:
 - Radarr, <br>
@@ -51,23 +53,27 @@ Is there a sequel that you just don't want? Simply search for it on TMDB and gra
 
 Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor.
 
+**profile** is the TMDB ID of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies via People Monitoring.
+
 **people** needs to have { &nbsp; } around the whole thing and each entry needs to be comma separated. The Name varaible is only for easy file management and not used by the script.
 Filter out certain roles by removing them from the monitor list.
 
-Template: `          "<<TMDB ID>>" : { "name" : "<<NAME>>", "monitor" : ['cast','directing','production','writing']},`
+Template: `          "<<TMDB ID>>" : { "name" : "<<NAME>>", "monitor" : ['Cast','Directing','Production','Writing']},`
 <br>
 Example:
 
 ```python
-people = {'15277' : { 'name' : 'Jon Favreau', 'monitor' : ['cast','production']}, 
-          '138' : { 'name' : 'Quentin Tarantino', 'monitor' : ['directing','production']},
+people = {'15277' : { 'name' : 'Jon Favreau', 'monitor' : ['Cast','Production']}, 
+          '138' : { 'name' : 'Quentin Tarantino', 'monitor' : ['Directing','Production']},
         }
 ```
 
 ## Running
-Download and extract the zip or clone with git to a location of your choice. Edit config.py with your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan.<br>
+Download and extract the zip or clone with git to a location of your choice. Edit config.py with your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan. <br>
 
-After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions. 
+After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
+
+Movies added into Radarr from Collection scans will use the same Profile and Root Folder Path for the whole collection. Movies added from People Monitoring will copy the settings from the declared movie.
 
 #### Options
 
@@ -78,6 +84,7 @@ You are able to change the function and output by running as `python rcm.py [opt
 | `-h` | `--help`		|	Displays this help.	|
 | `-f` | `--full`		|	Repeat initial scan, recheck all movies.	|
 | `-s <num>` | `--start <num>`	|	Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
+| `-t <num>` | `--tmdbid <num>` |	Check single TMDB ID for Collections.	|
 | `-d` | `--down`		|	Only search movies with files. Ignore Wanted list.	|
 | `-p` | `--people`		| 	Disable all Collection scanning, only scan People.	|
 | `-q` | `--quiet`		|	Disables verbose logging in command line. Log file still created.	|

@@ -21,16 +21,22 @@ autosearch = False
 Blacklist
 Comma separated list of TMDB IDs to ignore if missing from database eg [272, 49026]
 """
+min_rating = 6.5
+min_votes = 100
+
 force_ignore = []
 
 """
 People to follow
 
+profile is the TMDB ID of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies from People Monitoring
+
 NAME for easy identification in file, not actually used.
 
 Template: 
-          '<<TMDB ID>>' : { 'name' : '<<NAME>>', 'monitor' : ['cast','directing','production','writing']},
+          '<<TMDB ID>>' : { 'name' : '<<NAME>>', 'monitor' : ['Cast','Directing','Production','Writing']},
 
 """
+profile = 
 people = {
-        }
+          }
