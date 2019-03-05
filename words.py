@@ -3,7 +3,6 @@ Library of written output
 
 To customise your logging and results files, feel free to change any of the words in " "
 Changing any of the {#} variables WILL cause errors.
-Anything ending in + "\n" adds a blank line in the output
 
 """
 helptext = ["rcm.py <option>",

@@ -171,7 +171,7 @@ def tmdb_check(tmdbId):
 def collection_check(col_id, tmdbId = None):
     if single: log("")
     col_json = api("TMDB", com = "col", args = col_id)
-    if len(col_json['name']) < white_top: top_c = white_top
+    if len(col_json['name']) < config.column: top_c = config.column
     else: top_c = len(col_json['name']) + 5
     white_name = " "*(top_c - len(col_json['name'])) 
     if art: col_art.append(words.col_art.format(col_json['name'], white_name, col_json['poster_path']))
@@ -235,7 +235,7 @@ def person_check(per_id):
     per_gen_json = api("TMDB", com = "per", args = per_id)
     per_cred_json = api("TMDB", com = "cred", args = per_id)
     
-    if len(per_gen_json['name']) < white_top: top_p = white_top
+    if len(per_gen_json['name']) < config.column: top_p = config.column
     else: top_p = len(per_gen_json['name']) + 5
     
     payload = str(i+1) + ":", white_dex, per_gen_json['name'], per_id, str([hold.title() for hold in people[per_id]['monitor']]).strip("[]").replace("'","").replace("\"","")
@@ -280,7 +280,6 @@ if len(people) != 0 and config.profile not in tmdb_ids: fatal(words.template_err
 
 title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
-white_top = 60 # Whitespace Maximum for output
 
 found_col, found_per, col_art, col_ids = [],[],[],[]
 fails = 0
