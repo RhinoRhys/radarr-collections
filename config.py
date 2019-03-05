@@ -17,6 +17,9 @@ monitored = False
 # Automatically run a historical / backlog search when new items added
 autosearch = False
 
+# Minimum column width for output files
+column = 60
+
 """
 Blacklist
 Comma separated list of TMDB IDs to ignore if missing from database eg [272, 49026]
