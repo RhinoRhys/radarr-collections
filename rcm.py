@@ -205,10 +205,10 @@ def database_check(part, white_name, json, crew=None):
             log(words.not_data.format(*payload))
             if stage == 3: index = tmdb_ids.index(config.profile)
             else: index = i
-            if config.docker: coding = "utf-8"
-            else: coding = sys.getfilesystemencoding()
+            if config.docker: path = "/".join(data[index]['path'].split("/")[:-1]).encode("utf-8")
+            else: path = os.path.split(data[index]['path'])[0].encode(sys.getfilesystemencoding())
             post_data = {"qualityProfileId" : int(data[index]['qualityProfileId']),
-                         "rootFolderPath": os.path.split(data[index]['path'])[0].encode(coding),
+                         "rootFolderPath": path,
                          "monitored" : config.monitored,
                          "addOptions" : {"searchForMovie" : config.autosearch}}
             for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
