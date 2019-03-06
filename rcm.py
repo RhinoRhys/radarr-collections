@@ -15,7 +15,7 @@ start = 0 # 0
 config_path = get_dir(sys.argv[1])
 #print("Config Loading from: {}".format(config_path))
 
-words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
+words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(), allow_no_value=True)
 words.read(os.path.join(config_path,u'words.conf'))
  
 if __name__ == '__main__':
@@ -43,9 +43,9 @@ if __name__ == '__main__':
 
 start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
-config = configparser.ConfigParser()
+config = configparser.ConfigParser(allow_no_value=True)
 config.read(os.path.join(config_path,u'rcm.conf'))
-people = configparser.ConfigParser()
+people = configparser.ConfigParser(allow_no_value=True)
 people.read(os.path.join(config_path,u'people.conf'))
 
 if config['output']['path'] == "": config['output']['path'] = "./"
