@@ -35,8 +35,8 @@ if __name__ == '__main__':
 
 start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S") 
 
-if radarr['base_url'] == "off": radarr['url'] = "https://{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
-else: radarr['url'] = "https://{0}{1}/api/movie".format(radarr['host'].strip(), radarr['base_url'].strip())
+if radarr['base_url'] == "off": radarr['url'] = "http://{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
+else: radarr['url'] = "http://{0}{1}/api/movie".format(radarr['host'].strip(), radarr['base_url'].strip())
 
 if start != 0: full = True
 printtime = False
