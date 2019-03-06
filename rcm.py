@@ -207,7 +207,7 @@ def collection_check(col_id, tmdbId = None):
         source = []
         for id_check in parts:
             if id_check in tmdb_ids: source.append(id_check)
-        if len(source) > 0: crew = tmdb_ids.index(source[0])
+        if len(source) > 0: crew = source[0]
         else: crew = config.profile
     log(words.other.format(*payload) +  u"\n")
     if stage == 2:
@@ -234,7 +234,7 @@ def database_check(id_check, white_name, json, crew=None):
             log(words.not_data.format(*payload))
             if stage == 0 and single_id in tmdb_ids: index = tmdb_ids.index(single_id)
             elif stage == 1: index = i
-            elif stage == 2: index = crew 
+            elif stage == 2: index = tmdb_ids.index(crew) 
             elif stage == 3 or all([stage == 0, single_id not in tmdb_ids]): index = tmdb_ids.index(config.profile)
             if config.docker: path = "/".join(data[index]['path'].split("/")[:-1]).encode("utf-8")
             else: path = os.path.split(data[index]['path'])[0].encode(sys.getfilesystemencoding())
