@@ -1,7 +1,9 @@
-config.py
-*.pyc
-memory.dat
-output/
-logs/
 config/rcm.conf
 config/people.conf
+config/memory.dat
+output/
+logs/
+
+
+
+

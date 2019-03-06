@@ -22,65 +22,82 @@ People can also be monitored to automatically find missing Movies from their Act
 - Radarr, <br>
 - Your own TMDB API key, <br>
 - Python requests module<br>
-	`pip install requests`
+	usually `pip install requests` to get
   
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
-## Setting up config.py
+## Setting up configuration file
+
+In the config folder, change `rcm.default.conf` to `rcm.conf`
+
 ### Radarr settings
 
-**docker** - forces a unix type filepath but it didn't fix the issue. <br>
-**reverse_proxy** - enabling changes your Radarr URL to `host/base_url` instead of `host:port`. <br>
-**ssl** - enabling forces `https://` in Radarr URL instead of `http://`. <br>
-
-All values need to be in "&nbsp;"<br>
-
 - **Host and Port** <br>
-If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
+If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"`.<br>
 
-- **base_url** - Used for reverse proxies. Ignored unless above is set to True, if used needs to have / included eg. `"/radarr"`. <br>
+- **base_url** - Used for reverse proxies. Ignored unless reverse_proxy is set to True, if used needs to have / included eg. `"/radarr"`.<br>
 
-- **api_key** - Can be found under Settings > General <br>
+- **api_key** - Can be found under Settings > General.<br>
 
-### Other Variables 
-**tmdbkey** is where to paste your TMDB API (v3) key, also needs " &nbsp; ". <br>
+- **reverse_proxy** [`True`|`False`] - Changes your Radarr URL to `host/base_url` instead of `host:port`.<br>
 
-**monitored** and **autosearch** can be set to `True` or `False`, need the capital first letter but do not need the "&nbsp;" <br>
-If using automatic adding, the first time you run the script it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea, having them unmonitored makes them easy to filter in Radarr.
+- **docker** [`True`|`False`] - Forces a unix type filepath for when running from Windows into Docker.<br>
+
+- **ssl** [`True`|`False`] - Changes to `https://` in Radarr URL instead of `http://`.<br>
+
+
+### TMDB 
+- **api_key** - Your TMDB API (v3) key. <br>
+
+### Adding
+Settings for automatic adding into Radarr. If using, the first time you run the script it is reccomended to have both set to False. This will find a lot of movies on the first run and having it autosearch all of these is a bad idea, having them unmonitored makes them easier to filter in Radarr.
+- **monitored** [`True`|`False`] - Add new movies monitored.<br>
+- **autosearch** [`True`|`False`] - Automatically run a historical / backlog search when added.<br>
+- **profile** is the TMDB ID of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies via People Monitoring and as a back-up for single scan mode if no movies in the collection are in the database.
+
+### Output
+- **column** - Minimum width for first column in output files, I had to give it a number to make everything line up so it might as well be here.
 
 ### Blacklist
-Is there a sequel that you just don't want? Simply find it on TMDB and grab the ID from the web address and add it to the blacklist. For example the web address for The Dark Knight Rises has the ID 49026 in it.
+While checking for movie information, TMDB ratings and the number of votes that contributed were also included so can be used to exclude poorly rated movies.
+- **min_rating** - Scale from 0.0 to 10.0
+- **min_votes** - Minimum number of votes
 
-**force_ignore** should be a comma separated list of TMDB IDs in [ &nbsp; ] to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `force_ignore = [272, 49026]`
+There are a lot of bad sequels out there. To block a movie from being imported, simply find it on TMDB and grab the ID number from the web address and add it to the blacklist. Alternatively, the save file option lists the TMDB IDs in in the results file.<br>
+**blacklist** - Comma separated list of TMDB IDs to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `blacklist = 272, 49026`
 
-### People Monitoring
+## Setting up People Monitoring
 
-Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor. 
+Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor. Should work with 'Cast' for acting roles and any of the separating headers on their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601).<br>
 
-**profile** is the TMDB ID of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies via People Monitoring.
+In the config folder, change `people.default.conf` to `people.conf`<br>
 
-**people** needs to have { &nbsp; } around the whole thing and each entry needs to be comma separated. The Name varaible is only for easy file management and not used by the script.
-Filter out certain roles by removing them from the monitor list. 
+Each person needs a header, their name inside [ &nbsp; ]<br>
+- **id** - The person's TMDB ID.<br>
+- **monitor** - Comma separated list of the roles you wish to follw for that person.<br>
 
-Template: `          "<<TMDB ID>>" : { "name" : "<<NAME>>", "monitor" : ['Cast','Directing','Production','Writing']},`
-<br>
-Example:
+Template:<br>
+> [<<NAME>>]
+> id = <<TMDB ID>>
+> monitor = Cast, Directing, Production, Writing
 
-```python
-profile = 49026
-people = {'15277' : { 'name' : 'Jon Favreau', 'monitor' : ['Cast','Production']}, 
-          '138' : { 'name' : 'Quentin Tarantino', 'monitor' : ['Directing','Production']},
-        }
-```
+Example:<br>
+> [Quentin Tarantino]
+> id = 138
+> monitor = Directing, Production, Writing
 
 ## Running
-Download and extract the zip or clone with git to a location of your choice. Rename `config.default.py` to `config.py` and edit it for your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan. Python v2 or v3 compatible. <br>
+- Download and extract the zip or clone with git to a location of your choice, <br>
+- Rename `rcm.default.conf` to `rcm.conf` in the config folder, edit it for your values and optionally set up `people.conf` as per above, and <br>
+- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan. <br>
+	Python v2 or v3 compatible (auto add not currently v3 compatible).<br>
 
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
 
-Movies added into Radarr from Collection scans will use the same Profile and Root Folder Path for the whole collection. Movies added from People Monitoring will copy the settings from the declared movie.
-
-Please be aware automatic adding does not currently work with Python v3.
+Movies added into Radarr automatically from;
+- Collection scans will use the same Profile and Root Folder Path for the whole collection. 
+- People Monitoring will copy the Profile and Root Folder Path from the declared movie in the config file. 
+- Single scan mode will check if any of the collection are already in the database and copy that or copy the declared movie if none are found.
 
 #### Options
 
