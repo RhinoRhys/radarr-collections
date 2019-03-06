@@ -3,3 +3,5 @@ config.py
 memory.dat
 output/
 logs/
+config/rcm.conf
+config/people.conf
