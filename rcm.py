@@ -14,7 +14,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:],"hqdfas:ncpt:",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
     except getopt.GetoptError:
-        print(u'Error in options\n\n')
+        print(u'Error in options\n')
         for line in words.helptext: print(line.encode('utf-8', 'replace'))
         sys.exit()
     for opt, arg in opts:
