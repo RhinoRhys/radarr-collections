@@ -114,7 +114,7 @@ You are able to change the function and output by running as `python rcm.py ~/co
 | `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
-Multiple options can be passed in, in any order. `python rcm.py -d -q -f` would work for example.
+Multiple options can be passed in, in any order. `python rcm.py ~/config -d -q -f` would work for example.
 
 ## Additional Output Files
 
