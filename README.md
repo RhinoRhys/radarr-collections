@@ -80,7 +80,7 @@ After the initial scan, it will save a list of all the TMDB IDs in your Radarr d
 
 Movies added into Radarr from Collection scans will use the same Profile and Root Folder Path for the whole collection. Movies added from People Monitoring will copy the settings from the declared movie.
 
-Please be aware automatic adding does not currently work with Python v3 and might not work with Docker [ Issue #65 ].
+Please be aware automatic adding does not currently work with Python v3.
 
 #### Options
 
