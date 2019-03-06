@@ -30,7 +30,7 @@ People can also be monitored to automatically find missing Movies from their Act
 ### Radarr settings
 
 **docker** - forces a unix type filepath but it didn't fix the issue. <br>
-**reverse_proxy** - enabling changes your Radarr url to `host/base_url` instead of `host:port`. <br>
+**reverse_proxy** - enabling changes your Radarr URL to `host/base_url` instead of `host:port`. <br>
 **ssl** - enabling forces `https://` in Radarr URL instead of `http://`. <br>
 
 All values need to be in "&nbsp;"<br>
@@ -80,7 +80,7 @@ After the initial scan, it will save a list of all the TMDB IDs in your Radarr d
 
 Movies added into Radarr from Collection scans will use the same Profile and Root Folder Path for the whole collection. Movies added from People Monitoring will copy the settings from the declared movie.
 
-Please be aware automatic adding does not currently work with Docker [ Issue #65 ] or Python v3. 
+Please be aware automatic adding does not currently work with Python v3 and might not work with Docker [ Issue #65 ].
 
 #### Options
 
