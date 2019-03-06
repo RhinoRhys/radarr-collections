@@ -247,7 +247,7 @@ def database_check(id_check, white_name, json, crew=None):
             if stage == 3: name = json['name'] + " - " + crew
             else: name = json['name']
             payload = words.found.format(name, white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year'])
-            if stage == 2: found_col.append(payload)
+            if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             if not cache:
                 post = api("Radarr", com = "post", args = post_data)    
