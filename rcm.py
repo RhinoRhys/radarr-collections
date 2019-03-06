@@ -15,11 +15,11 @@ if __name__ == '__main__':
         opts, args = getopt.getopt(sys.argv[1:],"hqdfas:ncpt:",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
     except getopt.GetoptError:
         print(u'Error in options\n')
-        for line in [x.strip("\n") for x in words['help']['text'].split(",")]: print(line)
+        print(words['help']['text'])
         sys.exit()
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            for line in [x.strip("\n") for x in words['help']['text'].split(",")]: print(line)
+            print(words['help']['text'])
             sys.exit()
         elif opt in ("-q", "--quiet"): quiet = True
         elif opt in ("-d", "--down"): ignore_wanted = True
