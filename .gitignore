@@ -1,3 +1,7 @@
+logs/
+output/
+*.dat
+*.pyc
 config.py
 *.pyc
 memory.dat
