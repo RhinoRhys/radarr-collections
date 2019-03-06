@@ -52,12 +52,18 @@ def fatal(error):
 
 if not os.path.exists("logs"): os.mkdir("logs")
 if not os.path.exists("output"): os.mkdir("output")
-    
+
 def log(text):
-    if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
-    else: pay = text
-    if not quiet: print(pay.encode("utf-8", "replace"))
-    if not nolog: f.write(pay.encode("utf-8", "replace") + "\n")
+    if sys.version_info[0] == 2:   
+        if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
+        else: pay = text
+        if not quiet: print(pay.encode("utf-8", "replace"))
+        if not nolog: f.write(pay.encode("utf-8", "replace") + "\n")
+    elif sys.version_info[0] == 3:
+        if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
+        else: pay = text
+        if not quiet: print(pay)
+        if not nolog: f.write(pay + u"\n")
 
 def whitespace(tmdbId, title, year, rad_id):
     w_id = " "*(10 - len(str(tmdbId)))
@@ -80,24 +86,37 @@ def datadump():
         found_per.sort()
         g = open(os.path.join('output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        g.write(words.found_open.format(*payload) +  u"\n\n")
-        if len(found_col) != 0: 
-            g.write(words.found_start.format(*payload) +  "\n\n")
-            for item in found_col: g.write(item.encode("utf-8", "replace") +  "\n")
-            g.write("\n")
-        if len(found_per) != 0: g.write(words.found_middle.format(*payload) +  "\n\n")
-        for item in found_per: g.write(item.encode("utf-8", "replace") +  "\n")
+        if sys.version_info[0] == 2:    
+            g.write(words.found_open.format(*payload) +  "\n\n")
+            if len(found_col) != 0: 
+                g.write(words.found_start.format(*payload) +  "\n\n")
+                for item in found_col: g.write(item.encode("utf-8", "replace") +  "\n")
+                g.write("\n")
+            if len(found_per) != 0: g.write(words.found_middle.format(*payload) +  "\n\n")
+            for item in found_per: g.write(item.encode("utf-8", "replace") +  "\n")
+        elif sys.version_info[0] == 3:
+            g.write(words.found_open.format(*payload) +  u"\n\n")
+            if len(found_col) != 0: 
+                g.write(words.found_start.format(*payload) +  u"\n\n")
+                for item in found_col: g.write(item +  u"\n")
+                g.write( u"\n")
+            if len(found_per) != 0: g.write(words.found_middle.format(*payload) +  u"\n\n")
+            for item in found_per: g.write(item +  u"\n")
         g.close()
         
     if art and not peeps:
         col_art.sort()
         g = open(os.path.join('output','art_{0}.txt'.format(start_time)), 'w+')
-        for line in col_art: g.write(line.encode("utf-8", "replace") +  "\n")
+        if sys.version_info[0] == 2: 
+            for line in col_art: g.write(line.encode("utf-8", "replace") +  "\n")
+        elif sys.version_info[0] == 3:
+            for line in col_art: g.write(line +  u"\n")
         g.close()
     
     col_ids.sort()
     g = open('memory.dat','w+')
-    g.write(str(tmdb_ids) + "\n")
+    if sys.version_info[0] == 2: g.write(str(tmdb_ids) + "\n")
+    elif sys.version_info[0] == 3: g.write(str(tmdb_ids) +  u"\n")
     g.write(str(col_ids))
     g.close()
     
