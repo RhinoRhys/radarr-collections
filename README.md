@@ -16,7 +16,7 @@ People can also be monitored to automatically find missing Movies from their Act
 - Save list of collection artwork URLs to text file, <br>
 - Set blacklist of TMDB IDs to ignore, <br>
 - Exclude results by minimum ratings and votes, <br>
-- Single movie scan. <br>
+- Single TMDB ID scan. <br>
   
 ## Requirements:
 - Radarr, <br>
@@ -34,17 +34,11 @@ In the config folder, change `rcm.default.conf` to `rcm.conf`
 
 - **Host and Port** <br>
 If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"`.<br>
-
 - **base_url** - Used for reverse proxies. Ignored unless reverse_proxy is set to True, if used needs to have / included eg. `"/radarr"`.<br>
-
 - **api_key** - Can be found under Settings > General.<br>
-
 - **reverse_proxy** [`True`|`False`] - Changes your Radarr URL to `host/base_url` instead of `host:port`.<br>
-
 - **docker** [`True`|`False`] - Forces a unix type filepath for when running from Windows into Docker.<br>
-
 - **ssl** [`True`|`False`] - Changes to `https://` in Radarr URL instead of `http://`.<br>
-
 
 ### TMDB 
 - **api_key** - Your TMDB API (v3) key. <br>
