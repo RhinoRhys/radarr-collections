@@ -29,11 +29,11 @@ People can also be monitored to automatically find missing Movies from their Act
 ## Setting up config.py
 ### Radarr settings
 
-**docker** - forces a unix type filepath but it didn't fix the issue
-**reverse_proxy** - enabling changes your Radarr url to `host/base_url` instead of `host:port`
-**ssl** - enabling forces `https://` in Radarr URL instead of `http://`
+**docker** - forces a unix type filepath but it didn't fix the issue. <br>
+**reverse_proxy** - enabling changes your Radarr url to `host/base_url` instead of `host:port`. <br>
+**ssl** - enabling forces `https://` in Radarr URL instead of `http://`. <br>
 
-All values need to be in ""<br>
+All values need to be in "&nbsp;"<br>
 
 - **Host and Port** <br>
 If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
@@ -43,9 +43,9 @@ If running Radarr in a Docker or on a different machine, the host will need to b
 - **api_key** - Can be found under Settings > General <br>
 
 ### Other Variables 
-**tmdbkey** is where to paste your TMDB API (v3) key, also needs "".
+**tmdbkey** is where to paste your TMDB API (v3) key, also needs " &nbsp; ". <br>
 
-**monitored** and **autosearch** can be set to `True` or `False`, need the capital first letter but do not need the "" <br>
+**monitored** and **autosearch** can be set to `True` or `False`, need the capital first letter but do not need the "&nbsp;" <br>
 If using automatic adding, the first time you run the script it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea, having them unmonitored makes them easy to filter in Radarr.
 
 ### Blacklist
