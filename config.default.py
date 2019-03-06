@@ -15,7 +15,7 @@ radarr = {"host" : "localhost",
           "api_key" : "insert api key",
           }
 
-# API key for TMDB
+# API key (v3) for TMDB
 tmdbkey = "insert api key"
 
 # Reccomended defaults below are False, you'll be suprised how many movies will be added on the first run!

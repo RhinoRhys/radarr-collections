@@ -42,7 +42,7 @@ If running Radarr in a Docker or on a different machine, the host will need to b
 - **api_key** - can be found under Settings > General <br>
 
 ### Other Variables 
-**tmdbkey** is where to paste your TMDB API key, also needs "".
+**tmdbkey** is where to paste your TMDB API (v3) key, also needs "".
 
 **monitored** and **autosearch** can be set to `True` or `False`, need the capital first letter but do not need the "" <br>
 If using automatic adding, the first time you run the script it is reccomended to have both set to False. From a database of 1200 movies, this added 180 more on my first run and having it autosearch all of these is a bad idea, having them unmonitored makes them easy to filter in Radarr.
