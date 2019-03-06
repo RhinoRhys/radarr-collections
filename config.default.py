@@ -2,10 +2,16 @@
 Radarr settings
 api key can be found under Settings > General
 """
+# Force unix style file path
 docker = False
+# Use host/base_url instead of host:port
+reverse_proxy = False
+# Use https:// instead of http://
+ssl = False
+
 radarr = {"host" : "localhost",
           "port": "7878",
-          "base_url": "off",
+          "base_url": "",
           "api_key" : "insert api key",
           }
 

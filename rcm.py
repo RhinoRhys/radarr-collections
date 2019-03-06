@@ -35,8 +35,12 @@ if __name__ == '__main__':
 
 start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S") 
 
-if radarr['base_url'] == "off": radarr['url'] = "http://{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
-else: radarr['url'] = "http://{0}{1}/api/movie".format(radarr['host'].strip(), radarr['base_url'].strip())
+if config.ssl: http = "https://"
+else: http = "http://"
+if config.reverse_proxy: radarr['url'] = http + "{0}:{1}{2}/api/movie".format(radarr['host'].strip(), radarr['port'].strip(), radarr['base_url'].strip())
+else: radarr['url'] = http + "{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
+
+print(radarr['url'])
 
 if start != 0: full = True
 printtime = False
@@ -126,7 +130,7 @@ def api(host, com = "get", args = None ):
         elif com == "per": payload = "person/", str(args), ""
         elif com == "cred": payload = "person/", str(args), "/movie_credits"
         url = "https://api.themoviedb.org/3/{0}{1}{2}".format(*payload)
-        key = {"api_key": config.tmdbkey }
+        key = {"api_key": config.tmdbkey.strip(" ") }
     
     good = False
     tries = 0
