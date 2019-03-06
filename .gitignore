@@ -1,1 +1,5 @@
 config.py
+*.pyc
+memory.dat
+output/
+logs/
