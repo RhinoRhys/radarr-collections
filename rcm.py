@@ -3,16 +3,24 @@
 
 import requests, json, datetime, os, sys, getopt, time, atexit, configparser
 
+def get_dir(input_path):
+    path = list(os.path.split(input_path))
+    if path[0] in ["~","."]: path[0] = os.getcwd()
+    return os.path.join(*path)
+
 for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single']:
     exec("{} = False".format(var))
 start = 0 # 0
 
+config_path = get_dir(sys.argv[1])
+#print("Config Loading from: {}".format(config_path))
+
 words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation())
-words.read(os.path.join(u'config',u'words.conf'))
+words.read(os.path.join(config_path,u'words.conf'))
  
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[1:],"hqdfas:ncpt:",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
+        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
     except getopt.GetoptError:
         print(u'Error in options\n')
         print(words['help']['text'])
@@ -33,12 +41,17 @@ if __name__ == '__main__':
             single = True
             single_id = int(arg)
 
-start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S") 
+start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
 config = configparser.ConfigParser()
-config.read(os.path.join(u'config',u'rcm.conf'))
+config.read(os.path.join(config_path,u'rcm.conf'))
 people = configparser.ConfigParser()
-people.read(os.path.join(u'config',u'people.conf'))
+people.read(os.path.join(config_path,u'people.conf'))
+
+if config['output']['path'] == "": config['output']['path'] = "./"
+output_path = get_dir(config['output']['path'])
+#print("Output saved to: {}".format(output_path))
+
 blacklist = config['blacklist']['blacklist'].split(",")
 blacklist = [int(item) for item in blacklist]
 
@@ -59,8 +72,8 @@ def fatal(error):
     
 #%% Output files
 
-if not os.path.exists("logs"): os.mkdir("logs")
-if not os.path.exists("output"): os.mkdir("output")
+if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(output_path,"logs"))
+if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
 
 def log(text):
     if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
@@ -88,7 +101,7 @@ def datadump():
             log(words['output']['auto_cache'].format(start_time) + u"\n")
         found_col.sort()
         found_per.sort()
-        g = open(os.path.join('output','found_{0}.txt'.format(start_time)),'w+')
+        g = open(os.path.join(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
         if sys.version_info[0] == 2:    
             g.write(words['output']['found_open'].format(*payload) + "\n\n")
@@ -110,7 +123,7 @@ def datadump():
         
     if art and not peeps:
         col_art.sort()
-        g = open(os.path.join('output','art_{0}.txt'.format(start_time)), 'w+')
+        g = open(os.path.join(output_path,'output','art_{0}.txt'.format(start_time)), 'w+')
         if sys.version_info[0] == 2: 
             for line in col_art: g.write(line.encode("utf-8", "replace") +  "\n")
         elif sys.version_info[0] == 3:
@@ -118,7 +131,7 @@ def datadump():
         g.close()
     
     col_ids.sort()
-    g = open(os.path.join(u'config',u'memory.dat'),'w+')
+    g = open(os.path.join(config_path,u'memory.dat'),'w+')
     if sys.version_info[0] == 2: g.write(str(tmdb_ids) + "\n")
     elif sys.version_info[0] == 3: g.write(str(tmdb_ids) +  u"\n")
     g.write(str(col_ids))
@@ -305,7 +318,7 @@ def person_check(person):
     
 #%% Opening
         
-if not nolog: f = open(os.path.join('logs',"log_{}.txt".format(start_time)),'w+')
+if not nolog: f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'w+')
 
 log(words['output']['hello'] +  u"\n")
 data = api("Radarr")
@@ -328,7 +341,7 @@ if start != 0 and not peeps and not single: log(words['output']['start'].format(
 if single and peeps: log(words['output']['tp_err'] +  u"\n")
 
 try: 
-    s = open(os.path.join(u'config',u'memory.dat'), "r+")
+    s = open(os.path.join(config_path,u'memory.dat'), "r+")
     s = s.readlines()
     col_ids = s[1].strip('[]\n').split(', ')
     col_ids = [int(col_ids[i]) for i in range(len(col_ids))]
@@ -351,7 +364,6 @@ if ignore_wanted and not peeps and not single: log(words['output']['wanted'] +  
 atexit.register(datadump)
 
 #%% Single Scan Mode
-
 stage = 0
 if not peeps and single:
     printtime = True
