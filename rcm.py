@@ -40,8 +40,6 @@ else: http = "http://"
 if config.reverse_proxy: radarr['url'] = http + "{0}:{1}{2}/api/movie".format(radarr['host'].strip(), radarr['port'].strip(), radarr['base_url'].strip())
 else: radarr['url'] = http + "{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
 
-print(radarr['url'])
-
 if start != 0: full = True
 printtime = False
 
