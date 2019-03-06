@@ -15,11 +15,11 @@ if __name__ == '__main__':
         opts, args = getopt.getopt(sys.argv[1:],"hqdfas:ncpt:",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
     except getopt.GetoptError:
         print(u'Error in options\n')
-        for line in words.helptext: print(line.encode('utf-8', 'replace'))
+        for line in words.helptext: print(line)
         sys.exit()
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            for line in words.helptext: print(line.encode('utf-8', 'replace'))
+            for line in words.helptext: print(line)
             sys.exit()
         elif opt in ("-q", "--quiet"): quiet = True
         elif opt in ("-d", "--down"): ignore_wanted = True
@@ -43,8 +43,10 @@ else: radarr['url'] = http + "{0}:{1}/api/movie".format(radarr['host'].strip(), 
 if start != 0: full = True
 printtime = False
 
+if sys.version_info[0] == 3: cache = True ## BUG
+
 def fatal(error):
-    if quiet: print(error.encode('utf-8', 'replace'))
+    if quiet: print(error)
     log(error)
     sys.exit(2)
     
@@ -54,16 +56,11 @@ if not os.path.exists("logs"): os.mkdir("logs")
 if not os.path.exists("output"): os.mkdir("output")
 
 def log(text):
-    if sys.version_info[0] == 2:   
-        if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
-        else: pay = text
-        if not quiet: print(pay.encode("utf-8", "replace"))
-        if not nolog: f.write(pay.encode("utf-8", "replace") + "\n")
-    elif sys.version_info[0] == 3:
-        if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
-        else: pay = text
-        if not quiet: print(pay)
-        if not nolog: f.write(pay + u"\n")
+    if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
+    else: pay = text
+    if not quiet: print(pay)
+    if sys.version_info[0] == 2 and not nolog: f.write(pay.encode("utf-8", "replace") + "\n")
+    elif sys.version_info[0] == 3 and not nolog: f.write(pay + u"\n")
 
 def whitespace(tmdbId, title, year, rad_id):
     w_id = " "*(10 - len(str(tmdbId)))
@@ -81,25 +78,25 @@ def datadump():
     if len(found_col)+len(found_per) != 0 and cache:
         if fails == 10: 
             printtime = False
-            log(u"\n" + words.auto_cache.format(start_time))
+            log(words.auto_cache.format(start_time) + u"\n")
         found_col.sort()
         found_per.sort()
         g = open(os.path.join('output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
         if sys.version_info[0] == 2:    
-            g.write(words.found_open.format(*payload) +  "\n\n")
+            g.write(words.found_open.format(*payload) + "\n\n")
             if len(found_col) != 0: 
-                g.write(words.found_start.format(*payload) +  "\n\n")
-                for item in found_col: g.write(item.encode("utf-8", "replace") +  "\n")
+                g.write(words.found_start.format(*payload) + "\n\n")
+                for item in found_col: g.write(item.encode("utf-8", "replace") + "\n")
                 g.write("\n")
-            if len(found_per) != 0: g.write(words.found_middle.format(*payload) +  "\n\n")
-            for item in found_per: g.write(item.encode("utf-8", "replace") +  "\n")
+            if len(found_per) != 0: g.write(words.found_middle.format(*payload) + "\n\n")
+            for item in found_per: g.write(item.encode("utf-8", "replace") + "\n")
         elif sys.version_info[0] == 3:
-            g.write(words.found_open.format(*payload) +  u"\n\n")
+            g.write(words.found_open.format(*payload) + u"\n\n")
             if len(found_col) != 0: 
-                g.write(words.found_start.format(*payload) +  u"\n\n")
-                for item in found_col: g.write(item +  u"\n")
-                g.write( u"\n")
+                g.write(words.found_start.format(*payload) + u"\n\n")
+                for item in found_col: g.write(item + u"\n")
+                g.write(u"\n")
             if len(found_per) != 0: g.write(words.found_middle.format(*payload) +  u"\n\n")
             for item in found_per: g.write(item +  u"\n")
         g.close()
@@ -139,7 +136,9 @@ def api(host, com = "get", args = None ):
             key.update({"tmdbid" : int(args)})
         elif com == "post":
             url += "?apikey=" + radarr['api_key']
-            response = requests.post(url, data = json.dumps(args))
+            if sys.version_info[0] == 2: args = json.dumps(args)
+            elif sys.version_info[0] == 3: args = json.dumps(args).strip("{}").encode("utf-8")
+            response = requests.post(url, data = args)
             return response.status_code
     elif host == "TMDB":
         if   com == "mov": payload = "movie/", str(args), ""
@@ -165,13 +164,13 @@ def api(host, com = "get", args = None ):
             return code
         elif code == 429:                                   # RETRY
             wait = int(response.headers["Retry-After"]) + 1
-            if not quiet: print(words.api_wait.encode('utf-8', 'replace').format(wait))
+            if not quiet: print(words.api_wait.format(wait))
             time.sleep(wait)
         elif code in (502,503): fatal( u"\n" + words.offline.format(host,i)) # FATAL
         else:                                               # UNKNOWN
             if tries < 5 :                                     ## RETRY
                 tries += 1
-                print(words.api_misc.encode('utf-8', 'replace').format(host, code, tries))
+                print(words.api_misc.format(host, code, tries))
                 time.sleep(5 + tries) 
             else: fatal( u"\n" + words.api_retry.format(host,i))           ## LIMITED
                 
@@ -198,38 +197,49 @@ def collection_check(col_id, tmdbId = None):
     if art: col_art.append(words.col_art.format(col_json['name'], white_name, col_json['poster_path']))
     parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
     number = len(parts)
-    if tmdbId != None and any([full, all([not full, tmdbId not in skip])]):
+    if stage != 0 and tmdbId != None and any([full, all([not full, tmdbId not in skip])]):
         try: parts.remove(int(tmdbId))
         except: pass
         log("")
-    if stage == 1: payload = " "*(len(str(len(data)))), "> ", col_json['name'], col_id, number
-    elif stage == 2: payload = str(i + 1) + ":", white_dex, col_json['name'], col_id, number
+    if stage in [0, 1]: payload = " "*(len(str(len(data)))), "> ", col_json['name'], col_id, number
+    elif stage == 2: 
+        payload = str(i + 1) + ":", white_dex, col_json['name'], col_id, number
+        source = []
+        for id_check in parts:
+            if id_check in tmdb_ids: source.append(id_check)
+        if len(source) > 0: crew = source[0]
+        else: crew = config.profile
     log(words.other.format(*payload) +  u"\n")
-    for part in parts:  database_check(part, white_name, col_json)
+    if stage == 2:
+        for id_check in parts:  database_check(id_check, white_name, col_json, crew=crew)
+    else:
+        for id_check in parts:  database_check(id_check, white_name, col_json)
     if any([full, all([not full, tmdbId not in skip])]): log("")
     
 #%% Movie in Database Check Function
 
-def database_check(part, white_name, json, crew=None):
+def database_check(id_check, white_name, json, crew=None):
     global cache, fails
-    if part in tmdb_ids:
-        skip.append(part) 
-        log(words.in_data.format(*mov_info(tmdb_ids.index(part))))
+    if id_check in tmdb_ids:
+        skip.append(id_check) 
+        log(words.in_data.format(*mov_info(tmdb_ids.index(id_check))))
     else:
-        lookup_json = api("Radarr", com = "lookup", args = part)
-        w_rad, w_id, w_title = whitespace(part, lookup_json['title'], lookup_json['year'], "")
-        payload = "", w_rad, part, w_id, lookup_json['title'], lookup_json['year'], w_title
-        if part in force_ignore: log(words.ignore.format(*payload))
+        lookup_json = api("Radarr", com = "lookup", args = id_check)
+        w_rad, w_id, w_title = whitespace(id_check, lookup_json['title'], lookup_json['year'], "")
+        payload = "", w_rad, id_check, w_id, lookup_json['title'], lookup_json['year'], w_title
+        if id_check in force_ignore: log(words.ignore.format(*payload))
         elif lookup_json['ratings']['value'] < config.min_rating \
         or lookup_json['ratings']['votes'] < config.min_votes: log(words.rated.format(*payload))
         else:
             log(words.not_data.format(*payload))
-            if stage == 3: index = tmdb_ids.index(config.profile)
-            else: index = i
+            if stage == 0 and single_id in tmdb_ids: index = tmdb_ids.index(single_id)
+            elif stage == 1: index = i
+            elif stage == 2: index = crew 
+            elif stage == 3 or all([stage == 0, single_id not in tmdb_ids]): index = tmdb_ids.index(config.profile)
             if config.docker: path = "/".join(data[index]['path'].split("/")[:-1]).encode("utf-8")
             else: path = os.path.split(data[index]['path'])[0].encode(sys.getfilesystemencoding())
             post_data = {"qualityProfileId" : int(data[index]['qualityProfileId']),
-                         "rootFolderPath": path,
+                         "rootFolderPath": str(path),
                          "monitored" : config.monitored,
                          "addOptions" : {"searchForMovie" : config.autosearch}}
             for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
@@ -240,7 +250,7 @@ def database_check(part, white_name, json, crew=None):
             if stage == 2: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             if not cache:
-                post = api("Radarr", com = "post", args = post_data)
+                post = api("Radarr", com = "post", args = post_data)    
                 white_yn = " "*(rad_top + 10)
                 if post == 201: 
                     log(words.add_true.format(white_yn))
@@ -250,7 +260,7 @@ def database_check(part, white_name, json, crew=None):
                     fails += 1
                     if fails == 10:
                         cache = True
-                        print( u"\n" + words.retry_err.encode('utf-8', 'replace') +  u"\n") 
+                        print( u"\n" + words.retry_err +  u"\n") 
 
 #%% Person Credits Check Function
 
@@ -337,7 +347,7 @@ atexit.register(datadump)
 
 #%% Single Scan Mode
 
-stage = 1
+stage = 0
 if not peeps and single:
     printtime = True
     lookup_json = api("Radarr", com = "lookup", args = single_id)
@@ -350,7 +360,7 @@ if not peeps and single:
     sys.exit()
 
 #%%  Database Search Loop
-
+stage = 1
 if not peeps and not single:    
     if numbers[0] != 0: log(words.run_mov_mon.format(*numbers) + u":" + u"\n")
     printtime= True
