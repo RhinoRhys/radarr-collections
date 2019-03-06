@@ -197,28 +197,26 @@ def collection_check(col_id, tmdbId = None):
     if art: col_art.append(words.col_art.format(col_json['name'], white_name, col_json['poster_path']))
     parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
     number = len(parts)
-    if stage != 0 and tmdbId != None and any([full, all([not full, tmdbId not in skip])]):
+    if stage == 1:
         try: parts.remove(int(tmdbId))
         except: pass
         log("")
     if stage in [0, 1]: payload = " "*(len(str(len(data)))), "> ", col_json['name'], col_id, number
-    elif stage == 2: 
-        payload = str(i + 1) + ":", white_dex, col_json['name'], col_id, number
+    elif stage == 2: payload = str(i + 1) + ":", white_dex, col_json['name'], col_id, number
+    if stage == 1: input_id = i
+    elif stage in [0, 2]:
         source = []
         for id_check in parts:
             if id_check in tmdb_ids: source.append(id_check)
-        if len(source) > 0: crew = source[0]
-        else: crew = config.profile
+        if len(source) > 0: input_id = source[0]
+        else: input_id = config.profile
     log(words.other.format(*payload) +  u"\n")
-    if stage == 2:
-        for id_check in parts:  database_check(id_check, white_name, col_json, crew=crew)
-    else:
-        for id_check in parts:  database_check(id_check, white_name, col_json)
+    for id_check in parts:  database_check(id_check, white_name, col_json, input_id)
     if any([full, all([not full, tmdbId not in skip])]): log("")
     
 #%% Movie in Database Check Function
 
-def database_check(id_check, white_name, json, crew=None):
+def database_check(id_check, white_name, json, input_data):
     global cache, fails
     if id_check in tmdb_ids:
         skip.append(id_check) 
@@ -232,10 +230,9 @@ def database_check(id_check, white_name, json, crew=None):
         or lookup_json['ratings']['votes'] < config.min_votes: log(words.rated.format(*payload))
         else:
             log(words.not_data.format(*payload))
-            if stage == 0 and single_id in tmdb_ids: index = tmdb_ids.index(single_id)
-            elif stage == 1: index = i
-            elif stage == 2: index = tmdb_ids.index(crew) 
-            elif stage == 3 or all([stage == 0, single_id not in tmdb_ids]): index = tmdb_ids.index(config.profile)
+            if stage == 1: index = input_data
+            elif stage in [0, 2]: index = tmdb_ids.index(input_data) 
+            elif stage == 3: index = tmdb_ids.index(config.profile)
             if config.docker: path = "/".join(data[index]['path'].split("/")[:-1]).encode("utf-8")
             else: path = os.path.split(data[index]['path'])[0].encode(sys.getfilesystemencoding())
             post_data = {"qualityProfileId" : int(data[index]['qualityProfileId']),
@@ -244,7 +241,7 @@ def database_check(id_check, white_name, json, crew=None):
                          "addOptions" : {"searchForMovie" : config.autosearch}}
             for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
-            if stage == 3: name = json['name'] + " - " + crew
+            if stage == 3: name = json['name'] + " - " + input_data
             else: name = json['name']
             payload = words.found.format(name, white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
