@@ -3,7 +3,3 @@ output/
 *.dat
 *.pyc
 config.py
-*.pyc
-memory.dat
-output/
-logs/
