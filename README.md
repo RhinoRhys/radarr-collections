@@ -71,14 +71,14 @@ Each person needs a header, their name inside [ &nbsp; ]<br>
 - **monitor** - Comma separated list of the roles you wish to follw for that person.<br>
 
 Template:<br>
-> [<<NAME>>]
-> id = <<TMDB ID>>
-> monitor = Cast, Directing, Production, Writing
+> [NAME] <br>
+> id = TMDB ID <br>
+> monitor = Cast, Directing, Production, Writing <br>
 
 Example:<br>
-> [Quentin Tarantino]
-> id = 138
-> monitor = Directing, Production, Writing
+> [Quentin Tarantino] <br>
+> id = 138 <br>
+> monitor = Directing, Production, Writing <br>
 
 ## Running
 - Download and extract the zip or clone with git to a location of your choice, <br>
