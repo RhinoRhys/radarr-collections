@@ -1,1 +1,5 @@
+logs/
+output/
+*.dat
+*.pyc
 config.py
