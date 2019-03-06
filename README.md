@@ -27,9 +27,6 @@ People can also be monitored to automatically find missing Movies from their Act
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
 ## Setting up config.py
-
-Please rename `config.default.py` to `config.py`
-
 ### Radarr settings
 
 **docker** - forces a unix type filepath but it didn't fix the issue
