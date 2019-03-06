@@ -14,12 +14,12 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[1:],"hqdfas:ncpt:",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
     except getopt.GetoptError:
-        print('Error in options\n\n')
-        for line in words.helptext: print(line)
+        print(u'Error in options\n')
+        for line in words.helptext: print(line.encode('utf-8', 'replace'))
         sys.exit()
     for opt, arg in opts:
         if opt in ("-h", "--help"):
-            for line in words.helptext: print(line)
+            for line in words.helptext: print(line.encode('utf-8', 'replace'))
             sys.exit()
         elif opt in ("-q", "--quiet"): quiet = True
         elif opt in ("-d", "--down"): ignore_wanted = True
@@ -54,10 +54,10 @@ if not os.path.exists("logs"): os.mkdir("logs")
 if not os.path.exists("output"): os.mkdir("output")
     
 def log(text):
-    if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text.encode('utf-8', 'replace')
-    else: pay = text.encode('utf-8', 'replace')
-    if not quiet: print(pay)
-    if not nolog: f.write(pay + '\n')
+    if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
+    else: pay = text
+    if not quiet: print(pay.encode("utf-8", "replace"))
+    if not nolog: f.write(pay.encode("utf-8", "replace") + "\n")
 
 def whitespace(tmdbId, title, year, rad_id):
     w_id = " "*(10 - len(str(tmdbId)))
@@ -75,24 +75,24 @@ def datadump():
     if len(found_col)+len(found_per) != 0 and cache:
         if fails == 10: 
             printtime = False
-            log("\n" + words.auto_cache.format(start_time))
+            log(u"\n" + words.auto_cache.format(start_time))
         found_col.sort()
         found_per.sort()
         g = open(os.path.join('output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        g.write(words.found_open.format(*payload) + "\n\n")
+        g.write(words.found_open.format(*payload) +  u"\n\n")
         if len(found_col) != 0: 
-            g.write(words.found_start.format(*payload) + "\n\n")
-            for item in found_col: g.write(item.encode("utf-8", "replace") + '\n')
+            g.write(words.found_start.format(*payload) +  "\n\n")
+            for item in found_col: g.write(item.encode("utf-8", "replace") +  "\n")
             g.write("\n")
-        if len(found_per) != 0: g.write(words.found_middle.format(*payload) + "\n\n")
-        for item in found_per: g.write(item.encode("utf-8", "replace") + '\n')
+        if len(found_per) != 0: g.write(words.found_middle.format(*payload) +  "\n\n")
+        for item in found_per: g.write(item.encode("utf-8", "replace") +  "\n")
         g.close()
         
     if art and not peeps:
         col_art.sort()
         g = open(os.path.join('output','art_{0}.txt'.format(start_time)), 'w+')
-        for line in col_art: g.write(line.encode("utf-8", "replace") + '\n')
+        for line in col_art: g.write(line.encode("utf-8", "replace") +  "\n")
         g.close()
     
     col_ids.sort()
@@ -140,7 +140,7 @@ def api(host, com = "get", args = None ):
         if code == 200:                                     # GOOD
             good = True
             return response.json()
-        elif code == 401: fatal(words.api_auth.format(host) + "\n")       # FATAL
+        elif code == 401: fatal(words.api_auth.format(host) +  u"\n")       # FATAL
         elif code == 404:                                   # MINOR
             good = True
             return code
@@ -148,13 +148,13 @@ def api(host, com = "get", args = None ):
             wait = int(response.headers["Retry-After"]) + 1
             if not quiet: print(words.api_wait.encode('utf-8', 'replace').format(wait))
             time.sleep(wait)
-        elif code in (502,503): fatal("\n" + words.offline.format(host,i)) # FATAL
+        elif code in (502,503): fatal( u"\n" + words.offline.format(host,i)) # FATAL
         else:                                               # UNKNOWN
             if tries < 5 :                                     ## RETRY
                 tries += 1
                 print(words.api_misc.encode('utf-8', 'replace').format(host, code, tries))
                 time.sleep(5 + tries) 
-            else: fatal("\n" + words.api_retry.format(host,i))           ## LIMITED
+            else: fatal( u"\n" + words.api_retry.format(host,i))           ## LIMITED
                 
 #%% Movie in Collection Check Function
 
@@ -185,7 +185,7 @@ def collection_check(col_id, tmdbId = None):
         log("")
     if stage == 1: payload = " "*(len(str(len(data)))), "> ", col_json['name'], col_id, number
     elif stage == 2: payload = str(i + 1) + ":", white_dex, col_json['name'], col_id, number
-    log(words.other.format(*payload) + "\n")
+    log(words.other.format(*payload) +  u"\n")
     for part in parts:  database_check(part, white_name, col_json)
     if any([full, all([not full, tmdbId not in skip])]): log("")
     
@@ -231,7 +231,7 @@ def database_check(part, white_name, json, crew=None):
                     fails += 1
                     if fails == 10:
                         cache = True
-                        print("\n" + words.retry_err.encode('utf-8', 'replace') + "\n") 
+                        print( u"\n" + words.retry_err.encode('utf-8', 'replace') +  u"\n") 
 
 #%% Person Credits Check Function
 
@@ -273,7 +273,7 @@ def person_check(per_id):
         
 if not nolog: f = open(os.path.join('logs',"log_{}.txt".format(start_time)),'w+')
 
-log(words.hello + "\n")
+log(words.hello +  u"\n")
 data = api("Radarr")
 
 if start > len(data): fatal(words.start_err.format(start, int(len(data))))
@@ -288,10 +288,10 @@ rad_top = len(str(data[-1]['id'])) + 1
 found_col, found_per, col_art, col_ids = [],[],[],[]
 fails = 0
 
-if cache: log(words.cache + "\n")
-if art and not peeps: log(words.art + "\n")
-if start != 0 and not peeps and not single: log(words.start.format(start) + "\n")
-if single and peeps: log(words.tp_err + "\n")
+if cache: log(words.cache +  u"\n")
+if art and not peeps: log(words.art +  u"\n")
+if start != 0 and not peeps and not single: log(words.start.format(start) +  u"\n")
+if single and peeps: log(words.tp_err +  u"\n")
 
 try: 
     s = open("memory.dat", "r+")
@@ -304,15 +304,15 @@ except:
 if full:
     skip = []
     numbers = len(data) - start, len(col_ids), len(people)
-    if not peeps and not single: log(words.full.format(*numbers) + "\n")
+    if not peeps and not single: log(words.full.format(*numbers) +  u"\n")
 else:
     skip = s[0].strip('[]\n').split(', ')
     skip = [int(skip[i]) for i in range(len(skip))]
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people)
     if not peeps and not single: log(words.update.format(*numbers))
 
-if peeps and not single: log(words.peeps + "\n")
-if ignore_wanted and not peeps and not single: log(words.wanted + "\n")
+if peeps and not single: log(words.peeps +  u"\n")
+if ignore_wanted and not peeps and not single: log(words.wanted +  u"\n")
 
 atexit.register(datadump)
 
@@ -327,13 +327,13 @@ if not peeps and single:
     payload = "", " "*(len(str(len(data))) + 13 + len(w_rad) - len(words.single)), single_id, w_id, lookup_json['title'], lookup_json['year'], w_title
     logtext = words.single + words.mov_info.format(*payload)
     tmdb_check(single_id)
-    log("")
+    log(u"")
     sys.exit()
 
 #%%  Database Search Loop
 
 if not peeps and not single:    
-    if numbers[0] != 0: log(words.run_mov_mon.format(*numbers) + ":" + "\n")
+    if numbers[0] != 0: log(words.run_mov_mon.format(*numbers) + u":" + u"\n")
     printtime= True
     for i in range(start,len(data)):
         white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
@@ -350,7 +350,7 @@ if not peeps and not single:
 stage = 2
 if not full and not peeps and not single:
     printtime = False
-    log(words.run_col_mon.format(*numbers) + ":" + "\n")
+    log(words.run_col_mon.format(*numbers) + u":" +  u"\n")
     printtime= True
     for i, col_id in enumerate(col_ids):
         white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
@@ -360,7 +360,7 @@ if not full and not peeps and not single:
 stage = 3
 if len(people) != 0 and not single:
     printtime = False
-    log(words.run_per_mon.format(*numbers) + ":" + "\n")
+    log(words.run_per_mon.format(*numbers) + u":" +  u"\n")
     printtime= True  
     for i, per_id in enumerate(people.keys()):
         white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
