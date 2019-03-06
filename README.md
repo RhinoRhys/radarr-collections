@@ -41,7 +41,7 @@ All values need to be in ""<br>
 - **Host and Port** <br>
 If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
 
-- **base_url** - Used for reverse proxies. Ignored above is set to True, if used needs to have / included eg. `"/radarr"`. <br>
+- **base_url** - Used for reverse proxies. Ignored unless above is set to True, if used needs to have / included eg. `"/radarr"`. <br>
 
 - **api_key** - Can be found under Settings > General <br>
 
