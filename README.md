@@ -6,7 +6,7 @@ This downloads information directly from the Movie's TMDB page and Collections a
 
 People can also be monitored to automatically find missing Movies from their Acting, Writng, Directing, and / or Production credits as listed on their [TMDB page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US). 
 
-## Optional Features: <br>
+## Optional Features:
 - Automatically added into Radarr _or_ save results to text file, <br> 
 	- Add Monitored _or_ Unmonitored, <br>
     - Automatic search, <br>
@@ -26,7 +26,7 @@ People can also be monitored to automatically find missing Movies from their Act
   
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
-## Setting up configuration file
+## Setting up the configuration file
 
 In the config folder, change `rcm.default.conf` to `rcm.conf`
 
