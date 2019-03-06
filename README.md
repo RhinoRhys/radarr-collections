@@ -58,7 +58,7 @@ While checking for movie information, TMDB ratings and the number of votes that 
 - **min_votes** - Minimum number of votes
 
 There are a lot of bad sequels out there. To block a movie from being imported, simply find it on TMDB and grab the ID number from the web address and add it to the blacklist. Alternatively, the save file option lists the TMDB IDs in in the results file.<br>
-**blacklist** - Comma separated list of TMDB IDs to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `blacklist = 272, 49026`
+- **blacklist** - Comma separated list of TMDB IDs to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `blacklist = 272, 49026`
 
 ## Setting up People Monitoring
 
