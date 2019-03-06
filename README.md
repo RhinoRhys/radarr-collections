@@ -32,14 +32,18 @@ Please rename `config.default.py` to `config.py`
 
 ### Radarr settings
 
+**docker** - forces a unix type filepath but it didn't fix the issue
+**reverse_proxy** - enabling changes your Radarr url to `host/base_url` instead of `host:port`
+**ssl** - enabling forces `https://` in Radarr URL instead of `http://`
+
 All values need to be in ""<br>
 
 - **Host and Port** <br>
 If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"` <br>
 
-- **base_url** - used for reverse proxies. Should be set as `"off"` unless needed, if used needs to have / included eg. `"/radarr"`. <br>
+- **base_url** - Used for reverse proxies. Ignored unless above is set to True, if used needs to have / included eg. `"/radarr"`. <br>
 
-- **api_key** - can be found under Settings > General <br>
+- **api_key** - Can be found under Settings > General <br>
 
 ### Other Variables 
 **tmdbkey** is where to paste your TMDB API (v3) key, also needs "".
@@ -73,7 +77,7 @@ people = {'15277' : { 'name' : 'Jon Favreau', 'monitor' : ['Cast','Production']}
 ```
 
 ## Running
-Download and extract the zip or clone with git to a location of your choice. Edit config.py with your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan. <br> Python v2 or v3 compatible.
+Download and extract the zip or clone with git to a location of your choice. Rename `config.default.py` to `config.py` and edit it for your values then, in Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py` to initiate a scan. Python v2 or v3 compatible. <br>
 
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
 

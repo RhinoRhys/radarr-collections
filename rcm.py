@@ -37,7 +37,7 @@ start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
 
 if config.ssl: http = "https://"
 else: http = "http://"
-if config.reverse_proxy: radarr['url'] = http + "{0}:{1}{2}/api/movie".format(radarr['host'].strip(), radarr['port'].strip(), radarr['base_url'].strip())
+if config.reverse_proxy: radarr['url'] = http + "{0}{1}/api/movie".format(radarr['host'].strip(), radarr['base_url'].strip())
 else: radarr['url'] = http + "{0}:{1}/api/movie".format(radarr['host'].strip(), radarr['port'].strip())
 
 if start != 0: full = True
