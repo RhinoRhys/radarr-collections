@@ -1,5 +1,5 @@
-logs/
+config/rcm.conf
+config/people.conf
+config/memory.dat
 output/
-*.dat
-*.pyc
-config.py
+logs/
