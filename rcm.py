@@ -66,8 +66,6 @@ else: radarr_url = http + u"{0}:{1}/api/movie".format(config[u'radarr'][u'host']
 if start != 0: full = True
 printtime = False
 
-if sys.version_info[0] == 3: cache = True ## BUG
-
 def fatal(error):
     if quiet: print(error)
     log(error)
@@ -158,9 +156,7 @@ def api(host, com = "get", args = None ):
             url += "/lookup/tmdb"
             key.update({"tmdbid" : int(args)})
         elif com == "post":
-            url += "?apikey=" + config[u'radarr'][u'api_key']
-            if sys.version_info[0] == 2: args = json.dumps(args)
-            elif sys.version_info[0] == 3: args = json.dumps(args).strip("{}").encode("utf-8")
+            url += u"?apikey=" + config[u'radarr'][u'api_key']
             response = requests.post(url, data = args)
             return response.status_code
     elif host == "TMDB":
@@ -239,7 +235,7 @@ def collection_check(col_id, tmdbId = None):
     
 #%% Movie in Database Check Function
 
-def database_check(id_check, white_name, json, input_data):
+def database_check(id_check, white_name, json_in, input_data):
     global cache, fails
     if id_check in tmdb_ids:
         skip.append(id_check) 
@@ -256,21 +252,23 @@ def database_check(id_check, white_name, json, input_data):
             if stage == 1: index = input_data
             elif stage in [0, 2]: index = tmdb_ids.index(input_data) 
             elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
-            if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1]).encode("utf-8")
-            else: path = os.path.split(data[index]['path'])[0].encode(sys.getfilesystemencoding())
-            post_data = {"qualityProfileId" : int(data[index]['qualityProfileId']),
-                         "rootFolderPath": str(path),
-                         "monitored" : config[u'adding'][u'monitored'],
-                         "addOptions" : {"searchForMovie" : config[u'adding'][u'autosearch']}}
-            for dictkey in ["tmdbId","title","titleSlug","images","year"]: post_data.update({dictkey : lookup_json[dictkey]})
+            if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1])
+            else: path = os.path.split(data[index]['path'])[0]
+            post_data = {u"qualityProfileId" : int(data[index][u'qualityProfileId']),
+                         u"rootFolderPath": path,
+                         u"monitored" : config[u'adding'][u'monitored'],
+                         u"addOptions" : {u"searchForMovie" : config[u'adding'][u'autosearch']}}
+            for dictkey in [u"tmdbId",u"title",u"titleSlug",u"images",u"year"]: post_data.update({dictkey : lookup_json[dictkey]})
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
-            if stage == 3: name = json['name'] + " - " + input_data
-            else: name = json['name']
-            payload = words[u'text'][u'found'].format(name, white_name, post_data['tmdbId'], white_cid, post_data['title'], post_data['year'])
+            if stage == 3: name = json_in['name'] + " - " + input_data
+            else: name = json_in['name']
+            payload = words[u'text'][u'found'].format(name, white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             if not cache:
-                post = api("Radarr", com = "post", args = post_data)    
+                if sys.version_info[0] == 2: post_datar = json.dumps(post_data)
+                elif sys.version_info[0] == 3: post_datar = str(post_data).replace("'","\"")
+                post = api("Radarr", com = "post", args = post_datar)
                 white_yn = " "*(rad_top + 10)
                 if post == 201: 
                     log(words[u'text'][u'add_true'].format(white_yn))
