@@ -88,7 +88,7 @@ Example:<br>
 - You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`. <br>
 - In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf` as per above, and <br>
 - In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ~/config` to initiate a scan. <br>
-	Python v2 or v3 compatible (auto add not currently v3 compatible).<br>
+	Python v2 and v3 compatible.<br>
 
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
 
