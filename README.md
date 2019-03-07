@@ -87,7 +87,7 @@ Example:<br>
 - Download and extract the zip or clone with git to a location of your choice, <br>
 - You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`. <br>
 - In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf` as per above, and <br>
-- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ~/config` to initiate a scan. <br>
+- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. <br>
 	Python v2 and v3 compatible.<br>
 
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
@@ -99,7 +99,7 @@ Movies added into Radarr automatically from;
 
 #### Options
 
-You are able to change the function and output by running as `python rcm.py ~/config [options]`
+You are able to change the function and output by running as `python rcm.py ./config [options]`
 
 |	Short	|	Long	|	Use	|
 |	---		|	---		|	---	|
@@ -114,7 +114,7 @@ You are able to change the function and output by running as `python rcm.py ~/co
 | `-c` | `--cache`		|	Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
-Multiple options can be passed in, in any order. `python rcm.py ~/config -d -q -f` would work for example.
+Multiple options can be passed in, in any order. `python rcm.py ./config -d -q -f` would work for example.
 
 ## Additional Output Files
 
