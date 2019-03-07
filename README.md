@@ -130,4 +130,9 @@ Multiple options can be passed in, in any order. `python rcm.py ./config -d -q -
 > Quentin Tarantino - Directing - Director                            TMDB ID: 187            Sin City (2005)
 
 - When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
-> The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg 
+> The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg
+
+## Support
+
+- [Discord](https://discord.gg/nXcFvWX)
+- [Reddit](https://www.reddit.com/user/RhinoRhys)

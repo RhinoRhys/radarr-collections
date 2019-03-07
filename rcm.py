@@ -3,6 +3,8 @@
 
 import requests, json, datetime, os, sys, getopt, time, atexit, configparser
 
+start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+
 def get_dir(input_path):
     path = list(os.path.split(input_path))
     if path[0] in ["~","."]: path[0] = os.getcwd()
@@ -13,13 +15,17 @@ for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 
 start = 0 # 0
 
 config_path = get_dir(sys.argv[1])
-#print("Config Loading from: {}".format(config_path))
+
 if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
     print(u'Error - No configuration file found - Exiting')
     sys.exit(2)
     
 words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(), allow_no_value=True)
 words.read(os.path.join(config_path,u'words.conf'))
+config = configparser.ConfigParser(allow_no_value=True)
+config.read(os.path.join(config_path,u'rcm.conf'))
+people = configparser.ConfigParser(allow_no_value=True)
+people.read(os.path.join(config_path,u'people.conf'))
  
 if __name__ == '__main__':
     try:
@@ -44,23 +50,16 @@ if __name__ == '__main__':
             single = True
             single_id = int(arg)
 
-start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
-
-config = configparser.ConfigParser(allow_no_value=True)
-config.read(os.path.join(config_path,u'rcm.conf'))
-people = configparser.ConfigParser(allow_no_value=True)
-people.read(os.path.join(config_path,u'people.conf'))
-
-if config[u'results'][u'path'] == "": config[u'results'][u'path'] = "./"
+if config[u'results'][u'path'] in ["","0"]: config[u'results'][u'path'] = u"./"
 output_path = get_dir(config[u'results'][u'path'])
-#print("Output saved to: {}".format(output_path))
 
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
-blacklist = [int(item) for item in blacklist]
+if blacklist[0] != "": blacklist = [int(item) for item in blacklist]
 
-if 'true' in config[u'radarr'][u'ssl'].lower(): http = "https://"
-else: http = "http://"
-if 'true' in config[u'radarr'][u'reverse_proxy'].lower(): radarr_url = http + u"{0}{1}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'base_url'].strip())
+if u'true' in config[u'radarr'][u'ssl'].lower(): http = u"https://"
+else: http = u"http://"
+if all([u'true' in config[u'radarr'][u'reverse_proxy'].lower(), u'true' in config[u'radarr'][u'docker'].lower()]): http + u"{0}:{1}{2}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'port'].strip(), config[u'radarr'][u'base_url'].strip())
+elif 'true' in config[u'radarr'][u'reverse_proxy'].lower(): radarr_url = http + u"{0}{1}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'base_url'].strip())
 else: radarr_url = http + u"{0}:{1}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'port'].strip())
 
 if start != 0: full = True
