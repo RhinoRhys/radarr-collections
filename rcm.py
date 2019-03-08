@@ -20,7 +20,7 @@ if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
     print(u'Error - No configuration file found - Exiting')
     sys.exit(2)
     
-words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(), allow_no_value=True)
+words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(),allow_no_value=True)
 words.read(os.path.join(config_path,u'words.conf'))
 config = configparser.ConfigParser(allow_no_value=True)
 config.read(os.path.join(config_path,u'rcm.conf'))
@@ -327,7 +327,10 @@ if start > len(data): fatal(words[u'text'][u'start_err'].format(start, int(len(d
 
 tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 
-if len(people.sections()) != 0 and int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'])
+if len(people.sections()) != 0:
+    try: int(config[u'adding'][u'profile'])
+    except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
+    if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err']+ " " + words[u'text'][u'prof_err'])
 
 title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
