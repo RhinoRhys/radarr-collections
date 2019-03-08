@@ -286,7 +286,7 @@ def person_check(person):
     
     if len(per_gen_json['name']) < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
     else: top_p = len(per_gen_json['name']) + 5
-    search = [x.title() for x in people[person]['monitor'].split(",")]
+    search = [x.strip().title() for x in people[person]['monitor'].split(",")]
     payload = str(i+1) + ":", white_dex, per_gen_json['name'], per_id, ", ".join(search)
     log(words[u'text'][u'person'].format(*payload))
     scan_hold = []
