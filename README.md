@@ -1,6 +1,6 @@
 # Radarr Collection and People Manager
 
-A Python script for checking your [Radarr](https://radarr.video/) database against [TMDB](https://www.themoviedb.org/) Collections and following People's work.<br>
+A Python script for checking your [Radarr](https://radarr.video/) database against Collections and People's careers on [TMDB](https://www.themoviedb.org/).<br>
 
 This downloads information directly from the Movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. 
 
@@ -34,13 +34,11 @@ In the config folder, change `rcm.default.conf` to `rcm.conf`
 
 ### Radarr settings
 
-- **Host and Port** <br>
-If running Radarr in a Docker or on a different machine, the host will need to be set to the IP address of the (virtual) machine running Radarr. Please use the same values as you use for accessing the web interface. Default for running on the same machine is `"localhost"` and `"7878"`.<br>
-- **base_url** - Used for reverse proxies. Ignored unless reverse_proxy is set to True, if used needs to have / included eg. `"/radarr"`.<br>
+- **server** - Please use the same address as you use for accessing the web interface in your browser. Default for running on the same machine is `localhost:7878`.<br>
 - **api_key** - Can be found under Settings > General.<br>
-- **reverse_proxy** [`True`|`False`] - Changes your Radarr URL to `host/base_url` instead of `host:port`.<br>
-- **docker** [`True`|`False`] - Forces a unix type filepath for when running from Windows into Docker.<br>
 - **ssl** [`True`|`False`] - Changes to `https://` in Radarr URL instead of `http://`.<br>
+- **docker** [`True`|`False`] - Forces a unix type filepath for when running from Windows into Docker.<br>
+
 
 ### TMDB 
 - **api_key** - Your TMDB API (v3) key. <br>

@@ -10,10 +10,6 @@ def get_dir(input_path):
     if path[0] in ["~","."]: path[0] = os.getcwd()
     return os.path.join(*path)
 
-for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single']:
-    exec("{} = False".format(var))
-start = 0 # 0
-
 config_path = get_dir(sys.argv[1])
 
 if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
@@ -26,6 +22,10 @@ config = configparser.ConfigParser(allow_no_value=True)
 config.read(os.path.join(config_path,u'rcm.conf'))
 people = configparser.ConfigParser(allow_no_value=True)
 people.read(os.path.join(config_path,u'people.conf'))
+
+for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single']:
+    exec("{} = False".format(var))
+start = 0 # 0
  
 if __name__ == '__main__':
     try:
@@ -53,14 +53,15 @@ if __name__ == '__main__':
 if config[u'results'][u'path'] in ["","0"]: config[u'results'][u'path'] = u"./"
 output_path = get_dir(config[u'results'][u'path'])
 
+if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(output_path,"logs"))
+if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
+
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
-if blacklist[0] != "": blacklist = [int(item) for item in blacklist]
+if blacklist[0] != "": blacklist = [int(i) for i in blacklist]
 
 if u'true' in config[u'radarr'][u'ssl'].lower(): http = u"https://"
 else: http = u"http://"
-if all([u'true' in config[u'radarr'][u'reverse_proxy'].lower(), u'true' in config[u'radarr'][u'docker'].lower()]): http + u"{0}:{1}{2}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'port'].strip(), config[u'radarr'][u'base_url'].strip())
-elif 'true' in config[u'radarr'][u'reverse_proxy'].lower(): radarr_url = http + u"{0}{1}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'base_url'].strip())
-else: radarr_url = http + u"{0}:{1}/api/movie".format(config[u'radarr'][u'host'].strip(), config[u'radarr'][u'port'].strip())
+radarr_url = u"{0}{1}/api/movie".format(http, config[u'radarr'][u'server'])
 
 if start != 0: full = True
 printtime = False
@@ -71,9 +72,6 @@ def fatal(error):
     sys.exit(2)
     
 #%% Output files
-
-if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(output_path,"logs"))
-if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
 
 def log(text):
     if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
@@ -164,7 +162,7 @@ def api(host, com = "get", args = None ):
         elif com == "per": payload = "person/", str(args), ""
         elif com == "cred": payload = "person/", str(args), "/movie_credits"
         url = "https://api.themoviedb.org/3/{0}{1}{2}".format(*payload)
-        key = {"api_key": config[u'tmdb'][u'api_key'].strip(" ") }
+        key = {"api_key": config[u'tmdb'][u'api_key']}
     
     good = False
     tries = 0
@@ -288,19 +286,19 @@ def person_check(person):
     
     if len(per_gen_json['name']) < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
     else: top_p = len(per_gen_json['name']) + 5
-    search = [x.strip(' ').title() for x in people[person]['monitor'].split(",")]
+    search = [x.title() for x in people[person]['monitor'].split(",")]
     payload = str(i+1) + ":", white_dex, per_gen_json['name'], per_id, ", ".join(search)
     log(words[u'text'][u'person'].format(*payload))
-    
-    if 'cast' in people[person]['monitor'].lower():
+    scan_hold = []
+    if 'Cast' in search:
         log("")
         log(words[u'text'][u'cast'].format(len(per_cred_json['cast'])))
         log("")
         for k in range(len(per_cred_json['cast'])): 
+            scan_hold.append(per_cred_json['cast'][k]['id'])
             white_name = " "*(top_p - len(per_gen_json['name'] + " - Cast"))
             database_check(per_cred_json["cast"][k]['id'], white_name, per_gen_json, "Cast")
     roles = {}
-    scan_hold = []
     for k in range(len(per_cred_json['crew'])):
         if per_cred_json['crew'][k]['department'].title() in search \
         and per_cred_json['crew'][k]['id'] not in scan_hold:
@@ -330,7 +328,7 @@ tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
 if len(people.sections()) != 0:
     try: int(config[u'adding'][u'profile'])
     except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
-    if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err']+ " " + words[u'text'][u'prof_err'])
+    if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'prof_err'])
 
 title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
@@ -346,8 +344,6 @@ if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")
 try: 
     s = open(os.path.join(config_path,u'memory.dat'), "r+")
     s = s.readlines()
-    col_ids = s[1].strip('[]\n').split(', ')
-    col_ids = [int(col_ids[i]) for i in range(len(col_ids))]
 except: 
     full = True
 
@@ -356,6 +352,8 @@ if full:
     numbers = len(data) - start, len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'full'].format(*numbers) +  u"\n")
 else:
+    col_ids = s[1].strip('[]\n').split(', ')
+    col_ids = [int(col_ids[i]) for i in range(len(col_ids))]
     skip = s[0].strip('[]\n').split(', ')
     skip = [int(skip[i]) for i in range(len(skip))]
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
