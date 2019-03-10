@@ -76,7 +76,7 @@ def fatal(error):
 def log(text):
     if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
     else: pay = text
-    if not quiet: print(pay)
+    if not quiet: print(pay.encode("utf-8", "replace"))
     if not nolog: 
         f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
         if sys.version_info[0] == 2: f.write(pay.encode("utf-8", "replace") + "\n")
