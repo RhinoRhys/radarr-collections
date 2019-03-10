@@ -67,7 +67,6 @@ if check_num != 0: full = True
 printtime = False
 
 def fatal(error):
-    global printtime
     if quiet: print(error)
     log(error + u"\n")
     sys.exit(2)
@@ -78,8 +77,11 @@ def log(text):
     if printtime and text not in ("", "\n"): pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
     else: pay = text
     if not quiet: print(pay)
-    if sys.version_info[0] == 2 and not nolog: f.write(pay.encode("utf-8", "replace") + "\n")
-    elif sys.version_info[0] == 3 and not nolog: f.write(pay + u"\n")
+    if not nolog: 
+        f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
+        if sys.version_info[0] == 2: f.write(pay.encode("utf-8", "replace") + "\n")
+        elif sys.version_info[0] == 3: f.write(pay + u"\n")
+        f.close()
 
 def whitespace(tmdbId, title, year, rad_id):
     w_id = " "*(10 - len(str(tmdbId)))
@@ -137,8 +139,7 @@ def datadump():
     g.close()
     
     printtime = False
-    log(words[u'text'][u'bye'].format(len(found_col) + len(found_per)))
-    if not nolog: f.close() 
+    log(words[u'text'][u'bye'].format(len(found_col) + len(found_per))) 
  
 #%%  API Function
 
@@ -172,9 +173,7 @@ def api(host, com = "get", args = None ):
         response.content.decode("utf-8")
         code = response.status_code 
         
-        if code == 401: fatal(words[u'text'][u'api_auth'].format(host))
-        elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
-        elif code == 200: # GOOD
+        if code == 200: # GOOD
             good = True
             return response.json()  ## EXIT
         elif code == 404: # MINOR
@@ -184,6 +183,8 @@ def api(host, com = "get", args = None ):
             wait = int(response.headers["Retry-After"]) + 1
             if not quiet: print(u"\n" + words[u'text'][u'api_wait'].format(wait) + u"\n")
             time.sleep(wait) ## LOOP
+        elif code == 401: fatal(words[u'text'][u'api_auth'].format(host))
+        elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
         else: # UNKNOWN
             if tries < 5: ## RETRY
                 tries += 1
@@ -319,8 +320,6 @@ def person_check(person):
     
 #%% Opening
         
-if not nolog: f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'w+')
-
 log(words[u'text'][u'hello'] +  u"\n")
 
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
