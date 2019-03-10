@@ -325,8 +325,10 @@ log(words[u'text'][u'hello'] +  u"\n")
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
     memory = memory.readlines()
-    skip = memory[0].strip('[]\n').split(',')
-    skip = [int(mov_id) for mov_id in skip]
+    if full: skip = []
+    else:
+        skip = memory[0].strip('[]\n').split(',')
+        skip = [int(mov_id) for mov_id in skip]
     col_ids = memory[1].strip('[]\n').split(',')
     col_ids = [int(col_id) for col_id in col_ids]
 else:
@@ -386,15 +388,16 @@ stage = 1
 if not peeps and not single:    
     if numbers[0] != 0: log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":" + u"\n")
     printtime= True
-    for check_num in range(check_num,len(data)):
+    for movie in data[check_num:]:
         white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
         payload = mov_info(check_num)
         logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
         
-        if any([not all([ignore_wanted, not data[check_num]['hasFile']]), not ignore_wanted]) \
-        and data[check_num]["tmdbId"] not in skip:
-            tmdb_check(data[check_num]["tmdbId"])
+        if any([not all([ignore_wanted, not movie['hasFile']]), not ignore_wanted]) \
+        and movie["tmdbId"] not in skip:
+            tmdb_check(movie["tmdbId"])
         elif full: log(logtext + words[u'text'][u'skip']) # if id in list
+        check_num += 1
     log("")
 
 #%% Collection Monitor Loop
