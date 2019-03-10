@@ -24,11 +24,11 @@ People can also be monitored to automatically find missing Movies from their Act
   
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
-## Setting up the configuration file
+## Setting up the configuration files
 
 The config folder can be named and placed anywhere on your computer and the directory path must be specified when running the command.
 
-In the config folder, rename `rcm.default.conf` to `rcm.conf`.
+In the config folder, make a copy of `rcm.default.conf`, rename it `rcm.conf` and open it with any text editor.
 
 #### Radarr settings
 
@@ -63,7 +63,7 @@ There are a lot of bad sequels out there. To block a movie from being imported, 
 
 Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor. Should work with 'Cast' for acting roles and any of the separating headers on their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601).
 
-In the config folder, change `people.default.conf` to `people.conf`.
+In the config folder, make a copy of `people.default.conf` and rename it `people.conf`.
 
 #### Setting up an individual to follow
  
@@ -85,12 +85,12 @@ Example:
 ## Running
 **Local**
 - Download and extract the zip or clone with git to a location of your choice.
-- You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`.
-- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`.
-- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. Python v2 and v3 compatible.
+- You may name and place the config folder anywhere on the computer, the given command assumes the folder is still named `config` in the same folder as `rcm.py`.
+- In the config folder, make a copy of `rcm.default.conf` and rename it `rcm.conf`, edit `rcm.conf` for your values and optionally set up `people.conf`.
+- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to begin a scan. Python v2 and v3 compatible.
 
 **Docker Container** 
-- Container written and maintained by **Roxedus** is available [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections).
+- Container written and maintained by **Roxedus** is available [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections). I know nothing about Docker myself so cannot assist with any related issues, sorry.
 
 If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. <br>
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
