@@ -131,9 +131,9 @@ def datadump():
     
     col_ids.sort()
     g = open(os.path.join(config_path,u'memory.dat'),'w+')
-    if sys.version_info[0] == 2: g.write(str(tmdb_ids) + "\n")
-    elif sys.version_info[0] == 3: g.write(str(tmdb_ids) +  u"\n")
-    g.write(str(col_ids))
+    if sys.version_info[0] == 2: g.write(str(tmdb_ids).strip("[]") + "\n")
+    elif sys.version_info[0] == 3: g.write(str(tmdb_ids).strip("[]") +  u"\n")
+    g.write(str(col_ids).strip("[]"))
     g.close()
     
     printtime = False
@@ -345,7 +345,7 @@ if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].for
 if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")
 
 try: 
-    s = open(os.path.join(config_path,u'memory.dat'), "r+")
+    s = open(os.path.join(config_path,u'memory.dat'), "r")
     s = s.readlines()
 except: 
     full = True
@@ -355,10 +355,10 @@ if full:
     numbers = len(data) - check_num, len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'full'].format(*numbers) +  u"\n")
 else:
-    col_ids = s[1].strip('[]\n').split(', ')
-    if len(col_ids) != 0: col_ids = [int(col_id) for col_id in col_ids]
-    skip = s[0].strip('[]\n').split(', ')
+    skip = s[0].strip('\n').split(',')
     skip = [int(mov_id) for mov_id in skip]
+    col_ids = s[1].split(',')
+    if len(col_ids) != 0: col_ids = [int(col_id) for col_id in col_ids]
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'update'].format(*numbers))
 
