@@ -68,7 +68,7 @@ In the config folder, change `people.default.conf` to `people.conf`.
 #### Setting up an individual to follow
  
 For each person you wish to follow you need to make a new entry into `people.conf`.
-- **header** The section header needs to be their name inside [ &nbsp; ].
+- **header** The section header should be their name inside [ &nbsp; ].
 - **id** - The person's TMDB ID.
 - **monitor** - Comma separated list of the roles you wish to follw for that person.
 
