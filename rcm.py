@@ -57,7 +57,7 @@ if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(o
 if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
 
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
-if blacklist[0] != "": blacklist = [int(item) for item in blacklist]
+if blacklist[0] != "": blacklist = [int(mov_id) for mov_id in blacklist]
 
 if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
 else: radarr_url = u"http://"
@@ -76,10 +76,12 @@ def fatal(error):
 def log(text):
     if printtime and text != "": pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
     else: pay = text
-    if not quiet: print(pay)
+    if not quiet: 
+        try: print(pay)
+        except: print(pay.encode(sys.getdefaultencoding(), errors = 'replace'))
     if not nolog: 
         f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
-        if sys.version_info[0] == 2: f.write(pay.encode("utf-8", "replace") + "\n")
+        if sys.version_info[0] == 2: f.write(pay.encode("utf-8", errors = "replace") + "\n")
         elif sys.version_info[0] == 3: f.write(pay + u"\n")
         f.close()
 
@@ -108,10 +110,10 @@ def datadump():
             g.write(words[u'text'][u'found_open'].format(*payload) + "\n\n")
             if len(found_col) != 0: 
                 g.write(words[u'text'][u'found_start'].format(*payload) + "\n\n")
-                for item in found_col: g.write(item.encode("utf-8", "replace") + "\n")
+                for item in found_col: g.write(item.encode("utf-8", errors = "replace") + "\n")
                 g.write("\n")
             if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
-            for item in found_per: g.write(item.encode("utf-8", "replace") + "\n")
+            for item in found_per: g.write(item.encode("utf-8", errors = "replace") + "\n")
         elif sys.version_info[0] == 3:
             g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
             if len(found_col) != 0: 
@@ -126,7 +128,7 @@ def datadump():
         col_art.sort()
         g = open(os.path.join(output_path,'output','art_{0}.txt'.format(start_time)), 'w+')
         if sys.version_info[0] == 2: 
-            for line in col_art: g.write(line.encode("utf-8", "replace") +  "\n")
+            for line in col_art: g.write(line.encode("utf-8", errors = "replace") +  "\n")
         elif sys.version_info[0] == 3:
             for line in col_art: g.write(line +  u"\n")
         g.close()
@@ -329,8 +331,10 @@ if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     else:
         skip = memory[0].strip('[]\n').split(',')
         skip = [int(mov_id) for mov_id in skip]
+    del mov_id
     col_ids = memory[1].strip('[]\n').split(',')
     col_ids = [int(col_id) for col_id in col_ids]
+    del memory
 else:
     log(words[u'text'][u'first'] +  u"\n")
     full = True
