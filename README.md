@@ -80,13 +80,14 @@ Example:<br>
 > monitor = Directing, Production, Writing <br>
 
 ## Running
-- Download and extract the zip or clone with git to a location of your choice, <br>
-- You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`. <br>
-- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`, and <br>
-- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. <br>
-	Python v2 and v3 compatible.<br>
-_OR_
-- A **Docker Container** written by **si0972** is available for this script [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections).<br>
+**Local**
+- Download and extract the zip or clone with git to a location of your choice,
+- You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`.
+- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`, and
+- In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. Python v2 and v3 compatible.<br>
+
+**Docker Container** 
+- Container written and maintained by **Roxedus** is available [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections).<br>
 
 If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. <br>
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
