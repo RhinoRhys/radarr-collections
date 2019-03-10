@@ -322,6 +322,19 @@ def person_check(person):
 if not nolog: f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'w+')
 
 log(words[u'text'][u'hello'] +  u"\n")
+
+if os.path.isfile(os.path.join(config_path, u'memory.dat')):
+    memory = open(os.path.join(config_path, u'memory.dat'), "r")
+    memory = memory.readlines()
+    skip = memory[0].strip('[]\n').split(',')
+    skip = [int(mov_id) for mov_id in skip]
+    col_ids = memory[1].strip('[]\n').split(',')
+    col_ids = [int(col_id) for col_id in col_ids]
+else:
+    log(words[u'text'][u'first'] +  u"\n")
+    full = True
+    skip, col_ids = [],[]
+    
 data = api("Radarr")
 
 if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
@@ -336,7 +349,7 @@ if len(people.sections()) != 0:
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
-found_col, found_per, col_art, col_ids = [],[],[],[]
+found_col, found_per, col_art = [],[],[]
 fails = 0
 
 if cache: log(words[u'text'][u'cache'] +  u"\n")
@@ -344,21 +357,10 @@ if art and not peeps: log(words[u'text'][u'art'] +  u"\n")
 if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].format(check_num) +  u"\n")
 if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")
 
-try: 
-    s = open(os.path.join(config_path,u'memory.dat'), "r+")
-    s = s.readlines()
-except: 
-    full = True
-
-if full:
-    skip = []
+if full: 
     numbers = len(data) - check_num, len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'full'].format(*numbers) +  u"\n")
 else:
-    col_ids = s[1].strip('[]\n').split(', ')
-    if len(col_ids) != 0: col_ids = [int(col_id) for col_id in col_ids]
-    skip = s[0].strip('[]\n').split(', ')
-    skip = [int(mov_id) for mov_id in skip]
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'update'].format(*numbers))
 
