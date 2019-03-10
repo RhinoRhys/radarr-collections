@@ -25,7 +25,7 @@ people.read(os.path.join(config_path,u'people.conf'))
 
 for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single']:
     exec("{} = False".format(var))
-start = 0 # 0
+check_num = 0 # 0
  
 if __name__ == '__main__':
     try:
@@ -43,7 +43,7 @@ if __name__ == '__main__':
         elif opt in ("-f", "--full"): full = True
         elif opt in ("-p", "--people"): peeps = True
         elif opt in ("-a", "--art"): art = True
-        elif opt in ("-s", "--start"): start = int(arg)
+        elif opt in ("-s", "--start"): check_num = int(arg)
         elif opt in ("-n", "--nolog"): nolog = True
         elif opt in ("-c", "--cache"): cache = True
         elif opt in ("-t", "--tmdbid"):
@@ -57,18 +57,19 @@ if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(o
 if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
 
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
-if blacklist[0] != "": blacklist = [int(i) for i in blacklist]
+if blacklist[0] != "": blacklist = [int(item) for item in blacklist]
 
 if u'true' in config[u'radarr'][u'ssl'].lower(): http = u"https://"
 else: http = u"http://"
 radarr_url = u"{0}{1}/api/movie".format(http, config[u'radarr'][u'server'])
 
-if start != 0: full = True
+if check_num != 0: full = True
 printtime = False
 
 def fatal(error):
+    global printtime
     if quiet: print(error)
-    log(error)
+    log(error + u"\n")
     sys.exit(2)
     
 #%% Output files
@@ -171,24 +172,24 @@ def api(host, com = "get", args = None ):
         response.content.decode("utf-8")
         code = response.status_code 
         
-        if code == 200:                                     # GOOD
+        if code == 401: fatal(words[u'text'][u'api_auth'].format(host))
+        elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
+        elif code == 200: # GOOD
             good = True
-            return response.json()
-        elif code == 401: fatal(words[u'text'][u'api_auth'].format(host) +  u"\n")       # FATAL
-        elif code == 404:                                   # MINOR
+            return response.json()  ## EXIT
+        elif code == 404: # MINOR
             good = True
-            return code
-        elif code == 429:                                   # RETRY
+            return code ## EXIT
+        elif code == 429: # TOO FAST
             wait = int(response.headers["Retry-After"]) + 1
-            if not quiet: print(words[u'text'][u'api_wait'].format(wait))
-            time.sleep(wait)
-        elif code in (502,503): fatal( u"\n" + words[u'text'][u'offline'].format(host,i)) # FATAL
-        else:                                               # UNKNOWN
-            if tries < 5 :                                     ## RETRY
+            if not quiet: print(u"\n" + words[u'text'][u'api_wait'].format(wait) + u"\n")
+            time.sleep(wait) ## LOOP
+        else: # UNKNOWN
+            if tries < 5: ## RETRY
                 tries += 1
                 print(words[u'text'][u'api_misc'].format(host, code, tries))
-                time.sleep(5 + tries) 
-            else: fatal( u"\n" + words[u'text'][u'api_retry'].format(host,i))           ## LIMITED
+                time.sleep(5 + tries) ### LOOP
+            else: fatal(words[u'text'][u'api_retry'].format(host, check_num)) ## FATAL
                 
 #%% Movie in Collection Check Function
 
@@ -211,15 +212,15 @@ def collection_check(col_id, tmdbId = None):
     else: top_c = len(col_json['name']) + 5
     white_name = " "*(top_c - len(col_json['name'])) 
     if art: col_art.append(words[u'text'][u'col_art'].format(col_json['name'], white_name, col_json['poster_path']))
-    parts = [col_json['parts'][j]['id'] for j in range(len(col_json['parts']))]
+    parts = [col['id'] for col in col_json['parts']]
     number = len(parts)
     if stage == 1:
         try: parts.remove(int(tmdbId))
         except: pass
         log("")
     if stage in [0, 1]: payload = ">", " "*(1 + len(str(len(data)))), col_json['name'], col_id, number
-    elif stage == 2: payload = str(i + 1) + ":", white_dex, col_json['name'], col_id, number
-    if stage == 1: input_id = i
+    elif stage == 2: payload = str(check_num + 1) + ":", white_dex, col_json['name'], col_id, number
+    if stage == 1: input_id = check_num
     elif stage in [0, 2]:
         source = []
         for id_check in parts:
@@ -233,7 +234,7 @@ def collection_check(col_id, tmdbId = None):
 #%% Movie in Database Check Function
 
 def database_check(id_check, white_name, json_in, input_data):
-    global cache, fails
+    global cache, fails, printtime
     if id_check in tmdb_ids:
         skip.append(id_check) 
         log(words[u'text'][u'in_data'].format(*mov_info(tmdb_ids.index(id_check))))
@@ -275,7 +276,9 @@ def database_check(id_check, white_name, json_in, input_data):
                     fails += 1
                     if fails == 10:
                         cache = True
-                        print( u"\n" + words[u'text'][u'retry_err'] +  u"\n") 
+                        printtime = False
+                        log(u"\n" + words[u'text'][u'retry_err'] +  u"\n")
+                        printtime = True
 
 #%% Person Credits Check Function
 
@@ -287,7 +290,7 @@ def person_check(person):
     if len(per_gen_json['name']) < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
     else: top_p = len(per_gen_json['name']) + 5
     search = [x.strip().title() for x in people[person]['monitor'].split(",")]
-    payload = str(i+1) + ":", white_dex, per_gen_json['name'], per_id, ", ".join(search)
+    payload = str(per_num + 1) + ":", white_dex, per_gen_json['name'], per_id, ", ".join(search)
     log(words[u'text'][u'person'].format(*payload))
     scan_hold = []
     if 'Cast' in search:
@@ -321,16 +324,16 @@ if not nolog: f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start
 log(words[u'text'][u'hello'] +  u"\n")
 data = api("Radarr")
 
-if start > len(data): fatal(words[u'text'][u'start_err'].format(start, int(len(data))))
+if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
 
-tmdb_ids = [data[i]["tmdbId"] for i in range(len(data))]
+tmdb_ids = [movie["tmdbId"] for movie in data]
 
 if len(people.sections()) != 0:
     try: int(config[u'adding'][u'profile'])
     except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
     if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'prof_err'])
 
-title_top = max([len(data[i]["title"]) for i in range(len(data))]) + 2
+title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
 found_col, found_per, col_art, col_ids = [],[],[],[]
@@ -338,7 +341,7 @@ fails = 0
 
 if cache: log(words[u'text'][u'cache'] +  u"\n")
 if art and not peeps: log(words[u'text'][u'art'] +  u"\n")
-if start != 0 and not peeps and not single: log(words[u'text'][u'start'].format(start) +  u"\n")
+if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].format(check_num) +  u"\n")
 if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")
 
 try: 
@@ -349,13 +352,13 @@ except:
 
 if full:
     skip = []
-    numbers = len(data) - start, len(col_ids), len(people.sections())
+    numbers = len(data) - check_num, len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'full'].format(*numbers) +  u"\n")
 else:
     col_ids = s[1].strip('[]\n').split(', ')
-    col_ids = [int(col_ids[i]) for i in range(len(col_ids))]
+    if len(col_ids) != 0: col_ids = [int(col_id) for col_id in col_ids]
     skip = s[0].strip('[]\n').split(', ')
-    skip = [int(skip[i]) for i in range(len(skip))]
+    skip = [int(mov_id) for mov_id in skip]
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
     if not peeps and not single: log(words[u'text'][u'update'].format(*numbers))
 
@@ -382,14 +385,14 @@ stage = 1
 if not peeps and not single:    
     if numbers[0] != 0: log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":" + u"\n")
     printtime= True
-    for i in range(start,len(data)):
-        white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
-        payload = mov_info(i)
-        logtext = "{0}:{1}".format(i + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
+    for check_num in range(check_num,len(data)):
+        white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
+        payload = mov_info(check_num)
+        logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
         
-        if any([not all([ignore_wanted, not data[i]['hasFile']]), not ignore_wanted]) \
-        and data[i]["tmdbId"] not in skip:
-            tmdb_check(data[i]["tmdbId"])
+        if any([not all([ignore_wanted, not data[check_num]['hasFile']]), not ignore_wanted]) \
+        and data[check_num]["tmdbId"] not in skip:
+            tmdb_check(data[check_num]["tmdbId"])
         elif full: log(logtext + words[u'text'][u'skip']) # if id in list
     log("")
 
@@ -399,8 +402,8 @@ if not full and not peeps and not single:
     printtime = False
     log(words[u'text'][u'run_col_mon'].format(*numbers) + u":" +  u"\n")
     printtime= True
-    for i, col_id in enumerate(col_ids):
-        white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
+    for check_num, col_id in enumerate(col_ids):
+        white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
         collection_check(col_id)
 
 #%% Person Monitor Loop
@@ -409,7 +412,7 @@ if len(people.sections()) != 0 and not single:
     printtime = False
     log(words[u'text'][u'run_per_mon'].format(*numbers) + u":" +  u"\n")
     printtime= True  
-    for i, person in enumerate(people.sections()):
-        white_dex = " "*(len(str(len(data))) + 1 - len(str(i + 1)))
+    for per_num, person in enumerate(people.sections()):
+        white_dex = " "*(len(str(len(data))) + 1 - len(str(per_num + 1)))
         person_check(person)
         log("")

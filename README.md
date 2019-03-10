@@ -2,7 +2,7 @@
 
 A Python script for checking your [Radarr](https://radarr.video/) database against Collections and People's careers on [TMDB](https://www.themoviedb.org/).<br>
 
-This downloads information directly from the Movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing. If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. 
+This downloads information directly from the Movie's TMDB page and Collections are strictly limited to sequels. For example, with [Dark Knight (2008)](https://www.themoviedb.org/movie/155-the-dark-knight) in my database, this will look at the attached [collection information](https://www.themoviedb.org/collection/263-the-dark-knight-collection?language=en-US), check the Radarr database for [Batman Begins (2005)](https://www.themoviedb.org/movie/272?language=en-US) and [The Dark Knight Rises (2012)](https://www.themoviedb.org/movie/49026?language=en-US) and can either automatically add any missing into the database or save as a list for manual browsing.
 
 People can also be monitored to automatically find missing Movies from their Acting, Writng, Directing, and / or Production credits as listed on their [TMDB page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US). 
 
@@ -20,9 +20,7 @@ People can also be monitored to automatically find missing Movies from their Act
   
 ## Requirements:
 - Radarr, <br>
-- Your own TMDB API key, <br>
-- Python requests module<br>
-	usually `pip install requests` to get
+- Your own TMDB API key.
   
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
   
@@ -84,10 +82,13 @@ Example:<br>
 ## Running
 - Download and extract the zip or clone with git to a location of your choice, <br>
 - You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`. <br>
-- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf` as per above, and <br>
+- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`, and <br>
 - In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. <br>
 	Python v2 and v3 compatible.<br>
 
+- A **Docker Container** written by **si0972** is available for this script [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections).<br>
+
+If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. <br>
 After the initial scan, it will save a list of all the TMDB IDs in your Radarr database and all the Collection IDs discovered. Once this is saved, running the script again will run an update scan, only checking movies that have been added to Radarr since and then rechecking the monitored Collections and People for new additions.
 
 Movies added into Radarr automatically from;
@@ -113,6 +114,12 @@ You are able to change the function and output by running as `python rcm.py ./co
 | `-a` | `--art`		|	Saves list of Collection artwork URLs to text file.	|
 
 Multiple options can be passed in, in any order. `python rcm.py ./config -d -q -f` would work for example.
+
+#### Common Problems
+
+> Traceback (most recent call last): File "rcm.py", line 4, in <module> import requests, json, datetime, os, sys, getopt, time, atexit, configparser ImportError: No module named XXXX
+- You do not have the 'requests' or 'configparser' Python module(s) installed.<br> 
+- `pip install requests configparser`
 
 ## Additional Output Files
 
