@@ -85,7 +85,7 @@ Example:<br>
 - In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`, and <br>
 - In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. <br>
 	Python v2 and v3 compatible.<br>
-
+_OR_
 - A **Docker Container** written by **si0972** is available for this script [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections).<br>
 
 If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies. <br>
