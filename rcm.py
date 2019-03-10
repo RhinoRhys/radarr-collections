@@ -70,15 +70,13 @@ def fatal(error):
     if quiet: print(error)
     log(error + u"\n")
     sys.exit(2)
-    
+   
 #%% Output files
 
 def log(text):
     if printtime and text != "": pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
     else: pay = text
-    if not quiet: 
-        if sys.version_info[0] == 2: print(pay.encode("utf-8", "replace"))
-        elif sys.version_info[0] == 3: print(pay)
+    if not quiet: print(pay)
     if not nolog: 
         f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
         if sys.version_info[0] == 2: f.write(pay.encode("utf-8", "replace") + "\n")
