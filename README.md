@@ -7,19 +7,19 @@ This downloads information directly from the Movie's TMDB page and Collections a
 People can also be monitored to automatically find missing Movies from their Acting, Writng, Directing, and / or Production credits as listed on their [TMDB page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US). 
 
 ## Optional Features:
-- Automatically added into Radarr _or_ save results to text file, 
-	- Add Monitored _or_ Unmonitored, 
-	- Automatic search, 
-- Follow People and grab everything with / by them, 
-	- People only mode - disable scanning collections,
-- Ignore wanted list - only check movies with files, 
-- Save list of collection artwork URLs to text file, 
-- Set blacklist of TMDB IDs to ignore, 
-- Exclude results by minimum ratings and votes, 
+- Automatically added into Radarr _or_ save results to text file. 
+	- Add Monitored _or_ Unmonitored.
+	- Automatic search.
+- Follow People and grab everything with / by them.
+	- People only mode - disable scanning collections.
+- Ignore wanted list - only check movies with files.
+- Save list of collection artwork URLs to text file.
+- Set blacklist of TMDB IDs to ignore.
+- Exclude results by minimum ratings and votes.
 - Single TMDB ID scan.
   
 ## Requirements:
-- Radarr, 
+- Radarr
 - Your own TMDB API key.
   
 **Getting a TMDB API key:** TMDB offers free API keys to anyone with an account. Simply sign up and request a key via your account settings.
@@ -59,14 +59,16 @@ While checking for movie information, TMDB ratings and the number of votes that 
 There are a lot of bad sequels out there. To block a movie from being imported, simply find it on TMDB and grab the ID number from the web address and add it to the blacklist. Alternatively, the save file option lists the TMDB IDs in in the results file.
 - **blacklist** - Comma separated list of TMDB IDs to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `blacklist = 272, 49026`
 
-## Setting up People Monitoring
+## People Monitoring
 
 Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID from their profile web address and using the template below, select which credits you would like to monitor. Should work with 'Cast' for acting roles and any of the separating headers on their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601).
 
 In the config folder, change `people.default.conf` to `people.conf`.
 
-For each person you wish to follow you need to make a new entry into `people.conf`
-- **header** The section header needs to be their name inside [ &nbsp; ]
+#### Setting up an individual to follow
+ 
+For each person you wish to follow you need to make a new entry into `people.conf`.
+- **header** The section header needs to be their name inside [ &nbsp; ].
 - **id** - The person's TMDB ID.
 - **monitor** - Comma separated list of the roles you wish to follw for that person.
 
@@ -82,9 +84,9 @@ Example:
 
 ## Running
 **Local**
-- Download and extract the zip or clone with git to a location of your choice,
+- Download and extract the zip or clone with git to a location of your choice.
 - You may name and place the config folder anywhere on the computer, the given command assumes it has been left as `config` in the same folder as `rcm.py`.
-- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`, and
+- In the config folder, rename `rcm.default.conf` to `rcm.conf`, edit it for your values and optionally set up `people.conf`.
 - In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to initiate a scan. Python v2 and v3 compatible.
 
 **Docker Container** 

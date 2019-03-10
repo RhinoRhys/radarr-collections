@@ -59,9 +59,9 @@ if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
 if blacklist[0] != "": blacklist = [int(item) for item in blacklist]
 
-if u'true' in config[u'radarr'][u'ssl'].lower(): http = u"https://"
-else: http = u"http://"
-radarr_url = u"{0}{1}/api/movie".format(http, config[u'radarr'][u'server'])
+if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
+else: radarr_url = u"http://"
+radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
 
 if check_num != 0: full = True
 printtime = False
