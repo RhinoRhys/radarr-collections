@@ -297,7 +297,7 @@ def person_check(person):
     payload = str(per_num + 1) + ":", white_dex, per_json['name'], per_id, ", ".join(search)
     log(words[u'text'][u'person'].format(*payload))
     scan_hold = []
-    if 'Cast' in search:
+    if len(list(set(search).intersection(['Cast','Acting']))) != 0:
         log("")
         log(words[u'text'][u'cast'].format(len(per_json[u'movie_credits']['cast'])))
         log("")
