@@ -70,7 +70,7 @@ In the config folder, make a copy of `people.default.conf` and rename it `people
 For each person you wish to follow you need to make a new entry into `people.conf`.
 - **header** The section header should be their name inside [ &nbsp; ].
 - **id** - The person's TMDB ID number.
-- **monitor** - Comma separated list of the roles you wish to follw for that person.
+- **monitor** - Comma separated list of the roles you wish to follow for that person.
 
 Template:
 > [NAME] <br>
@@ -82,7 +82,7 @@ Example:
 > id = 138 <br>
 > monitor = Directing, Production, Writing <br>
 
-## Running
+## Installation and Running
 **Local**
 - Download and extract the zip or clone with git to a location of your choice.
 - You may name and place the config folder anywhere on the computer, the given command assumes the folder is still named `config` in the same folder as `rcm.py`.
@@ -101,23 +101,19 @@ Movies added into Radarr automatically from;
 
 ### Running options
 
-You are able to change the function and output by running as `python rcm.py ./config [options]`
-Running without any options will defualt to a **full update scan** after one **full initial scan** has completed.
+You are able to change the mode and output by running as `python rcm.py ./config [options]`. <br>
+Running without any mode options will default to a **full update scan** after one **full initial scan** has completed.
 
 | Short | Long 			| Use |
 |---|---|---|
 | `-h` | `--help`		| Displays this help.	|
-|---|---|---|
-| | | **Conflicting** |
-|---|---|---|
+| | **Conflicting** | **Mode options** |
 | `-f` | `--full`		| Repeat full initial scan, recheck all movies.	|
 | `-u` | `--up`			| Reduced update scan, only check recently added items.	|
 | `-p` | `--people`		| People only mode - disable all collection scanning	|
 | `-t <num>` | `--tmdbid <num>` | Single scan mode - check single TMDB ID for Collections.	|
 | `-s <num>` | `--start <num>`	| Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
-|---|---|---|
-| | | **Independant** |
-|---|---|---|
+| | **Independant** | **Output options** |
 | `-d` | `--down`		| Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		| Disables verbose logging in command line. Log file still created.	|
 | `-n` | `--nolog` 		| Disables log file creation. Verbose logging still visible.	|
@@ -127,7 +123,6 @@ Running without any options will defualt to a **full update scan** after one **f
 Multiple options can be passed in, in any order. `python rcm.py ./config -d -q -f` would work for example.
 
 ### Scan Modes
-
 #### Full initial Scan
 
 The first time the script is run, or when running with the `-f` option, every movie in your Radarr database will be checked for collections, then your monitored people if set up. After this complete scan, it will save a list of all the movie TMDB ID numbers in your Radarr database and all the Collection ID numbers discovered. 
