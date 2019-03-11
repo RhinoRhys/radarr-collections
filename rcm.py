@@ -355,7 +355,7 @@ if len(people.sections()) != 0 and not cache:
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
-found_col, found_per, found_json, col_art = [],[],[],[]
+found_col, found_per, col_art = [],[],[]
 fails = 0
 
 if cache: log(words[u'text'][u'cache'] +  u"\n")
