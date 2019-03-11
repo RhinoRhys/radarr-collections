@@ -151,7 +151,7 @@ If you do not wish to check your Radarr database against collection information 
 
 ### Scheduling
 
-To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often. This script makes one API call to TMDB per movie, collection and person that it checks, and while their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are only announced every few years and it takes months of people's time to make or be in one. A suggested set up would be to have two scheduled tasks, one running the **Reduced update scan** at regular intervals to keep the database checks up to date and the other running a **full update scan** once per week, or even less, to sync your monitored items.
+To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often. This script makes one API call to TMDB per movie, collection and person that it checks, and while their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are only announced every few years and it takes months of people's time to make or be in one. A suggested set up would be to have two scheduled tasks, one running the **Reduced update scan** at regular hourly intervals to keep the database checks up to date and the other running a **full update scan** once per week, or even less, to sync your monitored items.
 
 ### Additional output files
 #### Caching mode
