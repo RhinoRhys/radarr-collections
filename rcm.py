@@ -23,13 +23,13 @@ config.read(os.path.join(config_path,u'rcm.conf'))
 people = configparser.ConfigParser(allow_no_value=True)
 people.read(os.path.join(config_path,u'people.conf'))
 
-for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single','jason']:
+for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single']:
     exec("{} = False".format(var))
 check_num = 0 # 0
  
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:j",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid=","json"])
+        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:j",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
     except getopt.GetoptError:
         print(u'Error in options\n')
         print(words[u'help'][u'text'])
@@ -46,7 +46,6 @@ if __name__ == '__main__':
         elif opt in ("-s", "--start"): check_num = int(arg)
         elif opt in ("-n", "--nolog"): nolog = True
         elif opt in ("-c", "--cache"): cache = True
-        elif opt in ("-j","--json"): jason = True
         elif opt in ("-t", "--tmdbid"):
             single = True
             single_id = int(arg)
@@ -65,7 +64,6 @@ else: radarr_url = u"http://"
 radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
 
 if check_num != 0: full = True
-if jason: cache = True
 printtime = False
 
 def fatal(error):
@@ -108,25 +106,22 @@ def datadump():
         found_per.sort()
         g = open(os.path.join(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        if jason:
-            g.write(str(found_json))
-        else:
-            if sys.version_info[0] == 2:    
-                g.write(words[u'text'][u'found_open'].format(*payload) + "\n\n")
-                if len(found_col) != 0: 
-                    g.write(words[u'text'][u'found_start'].format(*payload) + "\n\n")
-                    for item in found_col: g.write(item.encode("utf-8", errors = "replace") + "\n")
-                    g.write("\n")
-                if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
-                for item in found_per: g.write(item.encode("utf-8", errors = "replace") + "\n")
-            elif sys.version_info[0] == 3:
-                g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
-                if len(found_col) != 0: 
-                    g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
-                    for item in found_col: g.write(item + u"\n")
-                    g.write(u"\n")
-                if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
-                for item in found_per: g.write(item +  u"\n")
+        if sys.version_info[0] == 2:    
+            g.write(words[u'text'][u'found_open'].format(*payload) + "\n\n")
+            if len(found_col) != 0: 
+                g.write(words[u'text'][u'found_start'].format(*payload) + "\n\n")
+                for item in found_col: g.write(item.encode("utf-8", errors = "replace") + "\n")
+                g.write("\n")
+            if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
+            for item in found_per: g.write(item.encode("utf-8", errors = "replace") + "\n")
+        elif sys.version_info[0] == 3:
+            g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
+            if len(found_col) != 0: 
+                g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
+                for item in found_col: g.write(item + u"\n")
+                g.write(u"\n")
+            if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
+            for item in found_per: g.write(item +  u"\n")
         g.close()
         
     if art and not peeps:
@@ -167,13 +162,12 @@ def api(host, com = "get", args = None ):
             return response.status_code
     elif host == "TMDB":
         key = {"api_key": config[u'tmdb'][u'api_key']}
-        if   com == "mov": endpoint = "movie/"
-        elif com == "col": endpoint = "collection/"
+        if   com == "mov": endpoint = "movie"
+        elif com == "col": endpoint = "collection"
         elif com == "per": 
-            endpoint = "person/"
+            endpoint = "person"
             key.update({"append_to_response" : "movie_credits"})
-        #elif com == "cred": endpoint = "person/", str(args)
-        url = "https://api.themoviedb.org/3/{0}{1}".format(endpoint, str(args))
+        url = "https://api.themoviedb.org/3/{0}/{1}".format(endpoint, str(args))
     
     good = False
     tries = 0
@@ -274,7 +268,6 @@ def database_check(id_check, white_name, json_in, input_data):
             payload = words[u'text'][u'found'].format(name, white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
-            
             if not cache:
                 if sys.version_info[0] == 2: post_data = json.dumps(post_data)
                 elif sys.version_info[0] == 3: post_data = str(post_data).replace("'","\"")
