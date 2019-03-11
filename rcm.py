@@ -107,22 +107,32 @@ def datadump():
         found_per.sort()
         g = open(os.path.join(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        if sys.version_info[0] == 2:    
+        if sys.version_info[0] == 2:
+            g.write(words[u'text'][u'name'] + "\n\n")
             g.write(words[u'text'][u'found_open'].format(*payload) + "\n\n")
             if len(found_col) != 0: 
                 g.write(words[u'text'][u'found_start'].format(*payload) + "\n\n")
                 for item in found_col: g.write(item.encode("utf-8", errors = "replace") + "\n")
                 g.write("\n")
-            if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
-            for item in found_per: g.write(item.encode("utf-8", errors = "replace") + "\n")
+            if len(found_per) != 0: 
+                g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
+                for item in found_per: g.write(item.encode("utf-8", errors = "replace") + "\n")
+                g.write("\n")
+            g.write(words[u'text'][u'found_black'] + "\n\n")
+            g.write("blacklist = {}".format(str(found_black).strip("[]")))
         elif sys.version_info[0] == 3:
+            g.write(words[u'text'][u'name'] + u"\n\n")
             g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
             if len(found_col) != 0: 
                 g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
                 for item in found_col: g.write(item + u"\n")
                 g.write(u"\n")
-            if len(found_per) != 0: g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
-            for item in found_per: g.write(item +  u"\n")
+            if len(found_per) != 0: 
+                g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
+                for item in found_per: g.write(item +  u"\n")
+                g.write(u"\n")
+            g.write(words[u'text'][u'found_black'] + u"\n\n")
+            g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
         g.close()
         
     if art and not peeps:
@@ -269,6 +279,7 @@ def database_check(id_check, white_name, json_in, input_data):
             payload = words[u'text'][u'found'].format(name, white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
+            found_black.append(post_data[u'tmdbId'])
             if not cache:
                 if sys.version_info[0] == 2: data_payload = json.dumps(post_data)
                 elif sys.version_info[0] == 3: data_payload = str(post_data).replace("'","\"")
@@ -326,8 +337,12 @@ def person_check(person):
         
 log(words[u'text'][u'hello'] +  u"\n")
 
-if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")    # -t -p error
-if peeps and quick: log(words[u'text'][u'tu_err'] +  u"\n")    # -t -p error
+if single and peeps: 
+    log(words[u'text'][u'tp_err'] +  u"\n")    # -t -p error
+    peeps = False
+if peeps and quick: 
+    log(words[u'text'][u'tu_err'] +  u"\n")    # -t -p error
+    peeps = False
 if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")      # -u -f error
 
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
@@ -337,10 +352,8 @@ if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     else:
         skip = memory[0].strip('[]\n').split(',')
         skip = [int(mov_id) for mov_id in skip]
-    del mov_id
     col_ids = memory[1].strip('[]\n').split(',')
     col_ids = [int(col_id) for col_id in col_ids]
-    del memory
 else:
     log(words[u'text'][u'first'] +  u"\n")
     full = True
@@ -360,7 +373,7 @@ if len(people.sections()) != 0 and not cache:
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
-found_col, found_per, col_art = [],[],[]
+found_col, found_per, found_black, col_art = [],[],[],[]
 fails = 0
 
 if cache: log(words[u'text'][u'cache'] +  u"\n")

@@ -170,12 +170,13 @@ If you do not wish to check your Radarr database against collection information 
 
 ### Scheduling
 
-To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often. This script makes one API call to TMDB per movie, collection and person that it checks, and while their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are only announced every few years and it takes months of people's time to make or be in one. A suggested set up would be to have two scheduled tasks, one running the **Reduced update scan** at regular hourly intervals to keep the database checks up to date and the other running a **full update scan** once per week, or even less, to sync your monitored items.
+To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often. This script makes one API call to TMDB per movie, collection and person that it checks, and while their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are only announced every few years and it takes months of people's time to make or be in something. I personally have it set up with two scheduled tasks, one running the **Reduced update scan** every day to keep new additions to the database checked and the other running a **full update scan** once a fortnight to sync all my monitored collections and people.
 
 ### Additional output files
 #### Caching mode
 
-When running with the `-c` option, no movies will be automatically added into Radarr. Instead, found\_date\_time.txt is the scan results file that lists the movies that have been found. It is not created if 0 movies are found.  <br>
+When running with the `-c` option, no movies will be automatically added into Radarr. Instead, found\_date\_time.txt is the scan results file that lists the movies that have been found. It is not created if 0 movies are found. A comma separated list of all the TMDB ID numbers found is also added at the end of the file. This allows you to run the scan once to list everything you are missing, add all the movies from the list that you want, then run the scan a second time and use the new list to paste into your rcm.conf file in the blacklist. Be sure to check there is a comma between the end of what is already there and what you paste in.<br>
+Example:
 > Total Movies Found: 2
 > 
 > From Collections: 1
@@ -185,10 +186,15 @@ When running with the `-c` option, no movies will be automatically added into Ra
 > From People: 1
 > 
 > Quentin Tarantino - Directing - Director                            TMDB ID: 187            Sin City (2005)
+> 
+> Blacklist entry for all movies:
+> 
+> blacklist = 272, 187
 
 #### Artwork mode
 
-When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.
+When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.<br>
+Example:
 > The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg
 
 ## Get in touch
