@@ -105,7 +105,8 @@ docker create \
   -e args=CHANGE_ME \ 
   si0972/radarr-collections
 ```
-The `args` enviroment variable refers to the [running options](https://github.com/RhinoRhys/radarr-collections#running-options)
+The `args` enviroment variable refers to the [running options](https://github.com/RhinoRhys/radarr-collections#running-options).
+
 I know nothing about Docker myself so cannot assist with any related issues, please open issues about the container [here](https://github.com/si0972/docker-containers/issues/new).
 
 **Running Process** <br>
