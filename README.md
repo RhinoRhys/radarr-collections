@@ -6,6 +6,12 @@ This downloads information directly from the Movie's TMDB page and Collections a
 
 People can also be monitored to automatically find missing Movies from their Acting, Writng, Directing, and / or Production credits as listed on their [TMDB page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US).
 
+Jump to:
+- [Setting up config files](https://github.com/RhinoRhys/radarr-collections#setting-up-the-configuration-files)
+- [Setting up People monitoring](https://github.com/RhinoRhys/radarr-collections#people-monitoring)
+- [Install and Run](https://github.com/RhinoRhys/radarr-collections#installation-and-running)
+- [Get in touch](https://github.com/RhinoRhys/radarr-collections#get-in-touch)
+
 ## Optional Features:
 - Automatically added into Radarr _or_ save results to text file. 
 	- Add Monitored _or_ Unmonitored.
