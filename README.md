@@ -108,7 +108,9 @@ docker create \
 The `args` enviroment variable refers to the [running options](https://github.com/RhinoRhys/radarr-collections#running-options)
 I know nothing about Docker myself so cannot assist with any related issues, please open issues about the container [here](https://github.com/si0972/docker-containers/issues/new).
 
-**Running** 
+**Running Process** <br>
+Running without any mode options will default to a **full update scan** after one **full initial scan** has completed.
+
 If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies so you may see large chunks of skipped movies towards the end.
 
 Movies added into Radarr automatically from;
@@ -119,7 +121,6 @@ Movies added into Radarr automatically from;
 ### Running options
 
 You are able to change the mode and output by running as `python rcm.py ./config [options]`. <br>
-Running without any mode options will default to a **full update scan** after one **full initial scan** has completed.
 
 | Short | Long 			| Use |
 |---|---|---|
