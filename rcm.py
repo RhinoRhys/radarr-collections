@@ -23,13 +23,13 @@ config.read(os.path.join(config_path,u'rcm.conf'))
 people = configparser.ConfigParser(allow_no_value=True)
 people.read(os.path.join(config_path,u'people.conf'))
 
-for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single']:
+for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single', 'quick']:
     exec("{} = False".format(var))
 check_num = 0 # 0
  
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:j",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid="])
+        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid=","up"])
     except getopt.GetoptError:
         print(u'Error in options\n')
         print(words[u'help'][u'text'])
@@ -46,6 +46,7 @@ if __name__ == '__main__':
         elif opt in ("-s", "--start"): check_num = int(arg)
         elif opt in ("-n", "--nolog"): nolog = True
         elif opt in ("-c", "--cache"): cache = True
+        elif opt in ("-u", "--up"): quick = True
         elif opt in ("-t", "--tmdbid"):
             single = True
             single_id = int(arg)
@@ -368,7 +369,9 @@ if full:
     if not peeps and not single: log(words[u'text'][u'full'].format(*numbers) +  u"\n")
 else:
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
-    if not peeps and not single: log(words[u'text'][u'update'].format(*numbers))
+    if not peeps and not single: 
+        if quick: log(words[u'text'][u'quick'].format(*numbers))
+        else: log(words[u'text'][u'update'].format(*numbers))
 
 if peeps and not single: log(words[u'text'][u'peeps'] +  u"\n")
 if ignore_wanted and not peeps and not single: log(words[u'text'][u'wanted'] +  u"\n")
@@ -404,6 +407,7 @@ if not peeps and not single:
         elif full: log(logtext + words[u'text'][u'skip']) # if id in list
         check_num += 1
     log("")
+if quick: sys.exit()
 
 #%% Collection Monitor Loop
 stage = 2
