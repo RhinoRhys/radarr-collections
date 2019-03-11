@@ -96,8 +96,19 @@ Example:
 - In Command Prompt or Terminal, navigate into the downloaded folder and run `python rcm.py ./config` to begin a scan with the default running options. Python v2 and v3 compatible.
 
 **Docker Container** 
-- Container written and maintained by **Roxedus** is available [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections). I know nothing about Docker myself so cannot assist with any related issues, sorry.
+- Container written and maintained by **Roxedus**, and is available [here](https://github.com/si0972/docker-containers/tree/master/alpine/radarr-collections).
+```
+docker create \
+  --name=radarr-collections \
+  -v <path to data>:/config \
+  -e PGID=<gid> -e PUID=<uid>  \
+  -e args=CHANGE_ME \ 
+  si0972/radarr-collections
+```
+The `args` enviroment variable refers to the [running options](https://github.com/RhinoRhys/radarr-collections#running-options)
+I know nothing about Docker myself so cannot assist with any related issues, please open issues about the container [here](https://github.com/si0972/docker-containers/issues/new).
 
+**Running** 
 If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies so you may see large chunks of skipped movies towards the end.
 
 Movies added into Radarr automatically from;
