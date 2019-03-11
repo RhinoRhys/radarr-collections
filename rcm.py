@@ -270,9 +270,9 @@ def database_check(id_check, white_name, json_in, input_data):
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             if not cache:
-                if sys.version_info[0] == 2: post_data = json.dumps(post_data)
-                elif sys.version_info[0] == 3: post_data = str(post_data).replace("'","\"")
-                post = api("Radarr", com = "post", args = post_data)
+                if sys.version_info[0] == 2: data_payload = json.dumps(post_data)
+                elif sys.version_info[0] == 3: data_payload = str(post_data).replace("'","\"")
+                post = api("Radarr", com = "post", args = data_payload)
                 white_yn = " "*(rad_top + 10)
                 if post == 201: 
                     log(words[u'text'][u'add_true'].format(white_yn))
