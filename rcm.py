@@ -64,7 +64,7 @@ if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
 else: radarr_url = u"http://"
 radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
 
-if check_num != 0: full = True
+if check_num != 0: full = True # -s override -f
 printtime = False
 
 def fatal(error):
@@ -326,6 +326,10 @@ def person_check(person):
         
 log(words[u'text'][u'hello'] +  u"\n")
 
+if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")    # -t -p error
+if peeps and quick: log(words[u'text'][u'tu_err'] +  u"\n")    # -t -p error
+if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")      # -u -f error
+
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
     memory = memory.readlines()
@@ -362,7 +366,6 @@ fails = 0
 if cache: log(words[u'text'][u'cache'] +  u"\n")
 if art and not peeps: log(words[u'text'][u'art'] +  u"\n")
 if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].format(check_num) +  u"\n")
-if single and peeps: log(words[u'text'][u'tp_err'] +  u"\n")
 
 if full: 
     numbers = len(data) - check_num, len(col_ids), len(people.sections())
