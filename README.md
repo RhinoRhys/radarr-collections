@@ -108,11 +108,11 @@ Running without any mode options will default to a **full update scan** after on
 |---|---|---|
 | `-h` | `--help`		| Displays this help.	|
 | | **Conflicting** | **Mode options** |
-| `-f` | `--full`		| Repeat full initial scan, recheck all movies.	|
-| `-u` | `--up`			| Reduced update scan, only check recently added items.	|
+| `-f` | `--full`		| Repeat full initial scan - recheck all movies.	|
+| `-u` | `--up`			| Reduced update scan - only check recently added items.	|
 | `-p` | `--people`		| People only mode - disable all collection scanning	|
 | `-t <num>` | `--tmdbid <num>` | Single scan mode - check single TMDB ID for Collections.	|
-| `-s <num>` | `--start <num>`	| Specify start point, useful for big libraries if errors occur. (forces `-f`)	|
+| `-s <num>` | `--start <num>`	| Specify start point - useful for big libraries if errors occur. (forces `-f`)	|
 | | **Independant** | **Output options** |
 | `-d` | `--down`		| Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		| Disables verbose logging in command line. Log file still created.	|
@@ -133,7 +133,7 @@ Running the script after this data is saved will perform an update scan, only ch
 
 #### Reduced update scan
 
-As new movies don't come out very often, running with the `-u` options allows you to check collections for newly added movies in Radarr without rechecking the saved collections or your monitored people. This is an ideal scan mode to schedule at short intervals, to keep all movies added into Radarr checked.
+As new movies don't come out very often, running with the `-u` options allows you to check collections for newly added movies in Radarr without rechecking the saved collections or your monitored people. This is an ideal scan mode to schedule at short intervals to keep all movies added into Radarr checked.
 
 #### Single scan
 
@@ -151,7 +151,7 @@ If you do not wish to check your Radarr database against collection information 
 
 ### Scheduling
 
-To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often. This script makes one API call to TMDB per movie, collection and person that it checks, and while their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are announced every few years and it takes months of people's time to make or be in one.
+To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often. This script makes one API call to TMDB per movie, collection and person that it checks, and while their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are only announced every few years and it takes months of people's time to make or be in one. A suggested set up would be to have two scheduled tasks, one running the **Reduced update scan** at regular intervals to keep the database checks up to date and the other running a **full update scan** once per week, or even less, to sync your monitored items.
 
 ### Additional output files
 #### Caching mode
