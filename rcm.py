@@ -138,9 +138,11 @@ def datadump():
     if art and not peeps:
         col_art.sort()
         g = open(os.path.join(output_path,'output','art_{0}.txt'.format(start_time)), 'w+')
-        if sys.version_info[0] == 2: 
+        if sys.version_info[0] == 2:
+            g.write(words[u'text'][u'name'] + "\n\n") 
             for line in col_art: g.write(line.encode("utf-8", errors = "replace") +  "\n")
         elif sys.version_info[0] == 3:
+            g.write(words[u'text'][u'name'] + u"\n\n")
             for line in col_art: g.write(line +  u"\n")
         g.close()
         
