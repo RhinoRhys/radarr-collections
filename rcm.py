@@ -226,11 +226,10 @@ def collection_check(col_id, tmdbId = None):
     elif stage == 2: payload = str(check_num + 1) + ":", white_dex, col_json['name'], col_id, number
     if stage == 1: input_id = check_num
     elif stage in [0, 2]:
-        source = []
-        for id_check in parts:
-            if id_check in tmdb_ids: source.append(id_check)
+        source = list(set(parts).intersection(tmdb_ids))
         if len(source) > 0: input_id = source[0]
-        else: input_id = int(config[u'adding'][u'profile'])
+        elif not cache: input_id = int(config[u'adding'][u'profile'])
+        else: input_id = None
     log(words[u'text'][u'other'].format(*payload) +  u"\n")
     for id_check in parts:  database_check(id_check, white_name, col_json, input_id)
     if any([full, all([not full, tmdbId not in skip])]): log("")
@@ -251,17 +250,18 @@ def database_check(id_check, white_name, json_in, input_data):
         or lookup_json['ratings'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
         else:
             log(words[u'text'][u'not_data'].format(*payload))
-            if stage == 1: index = input_data
-            elif stage in [0, 2]: index = tmdb_ids.index(input_data) 
-            elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
-            if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1])
-            else: path = os.path.split(data[index]['path'])[0]
-            post_data = {u"qualityProfileId" : int(data[index][u'qualityProfileId']),
+            if cache: post_data = {}
+            else:
+                if stage == 1: index = input_data
+                elif stage in [0, 2]: index = tmdb_ids.index(input_data) 
+                elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
+                if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1])
+                else: path = os.path.split(data[index]['path'])[0]
+                post_data = {u"qualityProfileId" : int(data[index][u'qualityProfileId']),
                          u"rootFolderPath": path,
                          u"monitored" : config[u'adding'][u'monitored'],
                          u"addOptions" : {u"searchForMovie" : config[u'adding'][u'autosearch']}}
             for dictkey in [u"tmdbId",u"title",u"titleSlug",u"images",u"year"]: post_data.update({dictkey : lookup_json[dictkey]})
-            found_json.append(post_data)
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
             if stage == 3: name = json_in['name'] + " - " + input_data
             else: name = json_in['name']
@@ -347,7 +347,7 @@ if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, l
 
 tmdb_ids = [movie["tmdbId"] for movie in data]
 
-if len(people.sections()) != 0:
+if len(people.sections()) != 0 and not cache:
     try: int(config[u'adding'][u'profile'])
     except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
     if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'prof_err'])
