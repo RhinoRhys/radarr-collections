@@ -17,6 +17,11 @@ def fatal(error):
     log(error + u"\n")
     sys.exit(2)
 
+def nologfatal(error):
+    global nolog 
+    nolog = True
+    fatal(error)
+
 #%% Output files
 
 def log(text):
@@ -302,8 +307,8 @@ def person_check(person):
 
 #%% User Errors
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
-else: nolog = True; fatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
-if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nolog = True; fatal(u"\n" + "Error - {}/rcm.conf does not exist - Exiting".format(config_path))
+else: nologfatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
+if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
     
 #%% Configuration
 
@@ -387,23 +392,23 @@ fails = 0
 
 #%% Updates Compatibility Checker
             
-if u'words_update' not in words['text'].keys(): nolog = True; fatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
-if u'file' not in words['text'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'words_update'])
+if u'words_update' not in words['text'].keys(): nologfatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
+if u'file' not in words['text'].keys(): nologfatal(u"\n" + words[u'text'][u'words_update'])
 
-if u'min_year'not in config[u'blacklist'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
-if u'ignore_wanted' not in config[u'results'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' to results section.")
+if u'min_year'not in config[u'blacklist'].keys(): nologfatal(u"\n" + words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
+if u'ignore_wanted' not in config[u'results'].keys(): nologfatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' to results section.")
 
-if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: nolog = True; fatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
+if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: nologfatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
   
 #%% Fatal User Errors
 
-if full and quick: nolog = True; fatal(u"\n" + words[u'text'][u'uf_err'])
-if check_num > len(data): nolog = True; fatal(u"\n" + words[u'text'][u'start_err'].format(check_num, len(data)))
+if full and quick: nologfatal(u"\n" + words[u'text'][u'uf_err'])
+if check_num > len(data): nologfatal(u"\n" + words[u'text'][u'start_err'].format(check_num, len(data)))
 if len(people.sections()) != 0:
     if not cache:
         try: int(config[u'adding'][u'profile'])
-        except: nolog = True; fatal("{0} {1}".format(u"\n" + words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
-        if int(config[u'adding'][u'profile']) not in tmdb_ids: nolog = True; fatal(u"\n" + "{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
+        except: nologfatal("{0} {1}".format(u"\n" + words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
+        if int(config[u'adding'][u'profile']) not in tmdb_ids: nologfatal(u"\n" + "{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
 
 #%% Begin
         
