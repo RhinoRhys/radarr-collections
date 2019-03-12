@@ -196,8 +196,8 @@ def api(host, com = "get", args = None ):
             good = True
             return code ## EXIT
         elif code == 429: # TOO FAST
-            wait = int(response.headers["Retry-After"]) + 1
-            if not quiet: print(u"\n" + words[u'text'][u'api_wait'].format(wait) + u"\n")
+            wait = int(response.headers["Retry-After"]) + 1 
+            if not quiet: print(u""); print(words[u'text'][u'api_wait'].format(wait) + u"\n")
             time.sleep(wait) ## LOOP
         elif code == 401: fatal(words[u'text'][u'api_auth'].format(host))
         elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
