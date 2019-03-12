@@ -13,12 +13,15 @@ def get_dir(input_path):
     return os.path.join(*path)
 
 def fatal(error):
+    global printtime
+    printtime = False
     if quiet: print(error)
     log(error + u"\n")
     sys.exit(2)
 
 def nologfatal(error):
-    global nolog 
+    global nolog, quiet
+    quiet = False
     nolog = True
     fatal(error)
 
