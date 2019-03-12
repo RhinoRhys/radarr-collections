@@ -159,6 +159,7 @@ def datadump():
 #%%  API Function
 
 def api(host, com = "get", args = None ):
+    global printtime
     """
     radarr: get & {} | lookup & {id:} | post & {**data}
     tmdb: get & com & {id}
@@ -183,7 +184,7 @@ def api(host, com = "get", args = None ):
         url = "https://api.themoviedb.org/3/{0}/{1}".format(endpoint, str(args))
     
     good = False
-    tries = 0
+    tries = 1
     while not good:    
         response = requests.get(url, params = key )
         response.content.decode("utf-8")
@@ -202,11 +203,13 @@ def api(host, com = "get", args = None ):
         elif code == 401: fatal(words[u'text'][u'api_auth'].format(host))
         elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
         else: # UNKNOWN
-            if tries < 5: ## RETRY
-                tries += 1
+            if tries < 6: ## RETRY
                 print(words[u'text'][u'api_misc'].format(host, code, tries))
-                time.sleep(5 + tries) ### LOOP
-            else: fatal(words[u'text'][u'api_retry'].format(host, check_num)) ## FATAL
+                time.sleep(5 + tries)
+                tries += 1 ### LOOP
+            else: 
+                printtime = False
+                fatal(u"\n" + words[u'text'][u'api_retry'].format(host, check_num)) ## FATAL
     
 #%% Movie in Database Check Function
 
@@ -424,7 +427,7 @@ stage = 0
 if not peeps and single:
     printtime = True
     lookup_json = api("Radarr", com = "lookup", args = single_id)
-    
+    check_num = 1
     w_rad, w_id, w_title = whitespace(single_id, lookup_json['title'], lookup_json['year'], "")
     payload = "", " "*(len(str(len(data))) + 13 + len(w_rad) - len(words[u'text'][u'single'])), single_id, w_id, lookup_json['title'], lookup_json['year'], w_title
     logtext = words[u'text'][u'single'] + words[u'text'][u'mov_info'].format(*payload)
