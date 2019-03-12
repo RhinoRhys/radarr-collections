@@ -85,7 +85,7 @@ Template:
 > [NAME] <br>
 > id = TMDB ID <br>
 > monitor = Cast, Directing, Production, Writing <br>
-> reject = Himself, Herself, Narrator <br>
+> reject = Blank, Himself, Herself, Narrator <br>
 > min_year = 0
 
 Example:
