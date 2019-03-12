@@ -330,16 +330,16 @@ def person_check(person):
         log(words[u'text'][u'cast'].format(len(cast)))
         log("")
         for movie in cast:
-                scan_hold.append(movie['id'])
-                white_name = " "*(top_p - len(per_json['name'] + " - Cast - " + movie[u'character']))
-                database_check(movie['id'], white_name, per_json, " - Cast - " + movie[u'character'].title())
+            scan_hold.append(movie['id'])
+            white_name = " "*(top_p - len(per_json['name'] + " - Cast - " + movie[u'character']))
+            database_check(movie['id'], white_name, per_json, " - Cast - " + movie[u'character'].title())
     roles = {}
     for movie in per_json[u'movie_credits']['crew']:
         if all([movie['department'].title() in search, \
                 movie['id'] not in scan_hold]):
             if movie['department'] not in roles.keys():
                 roles.update({movie['department'] : []})
-            roles[movie['department']].append([movie['id'],movie['job']])
+            roles[movie['department']].append([movie['id'],movie['job'].title()])
             scan_hold.append(movie['id'])
     for role in roles.keys(): 
         log("")
