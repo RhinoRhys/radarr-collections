@@ -58,17 +58,17 @@ Settings for automatic adding into Radarr. If using, the first time you run the 
 - **path** - Set folder where the two `output` and `logs` folders will be created. Default is to use the current working directory.
 
 #### Blacklist
-While checking for movie information, TMDB ratings and the number of votes that contributed were also included so can be used to reject poorly rated movies. If you only want movies after a certain year, these can also be rejected.
+While checking for movie information, TMDB ratings and the number of votes that contributed were also included so can be used to reject poorly rated movies. If you only want movies after a certain year, movies before this can also be rejected.
 - **min_rating** - Scale from 0.0 to 10.0
 - **min_votes** - Minimum number of votes
-- **min_year** - Reject movies in collections by earliest release year. 
+- **min_year** - Reject movies in collections by earliest release year. Does not apply to people monitoring.
 
 There are a lot of bad sequels out there. To block a movie from being imported, simply find it on TMDB and grab the ID number from the web address `themoviebd.org/movie/#####-name-of-movie` and add it to the blacklist.  Alternatively, running the script with automatic adding disabled will list the movie TMDB ID numbers in the results file.
 - **blacklist** - Comma separated list of movie TMDB ID numbers to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `blacklist = 272, 49026`
 
 ## People Monitoring
 
-Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID number from their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) web address `themoviebd.org/person/####-name-of-person` and using the template below, select which credits you would like to monitor. Should work with 'Cast' and any of the separating headers on their profile page or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601). If monitoring 'Acting' credits, specific charcater names can be set to allow you to reject movies where they are credited as "Himself" or "Herself", if "Uncredited" appears in there, or if you wish to exclude any other role they are credited with.
+Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID number from their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) web address `themoviebd.org/person/####-name-of-person` and using the template below, select which credits you would like to monitor. Should work with any of the separating headers on their profile page or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601). If monitoring 'Acting' credits, specific charcater names can be set to allow you to reject movies where they are credited as "Himself" or "Herself", if "Uncredited" appears in there, or if you wish to exclude any other role they are credited with.
 
 In the config folder, make a copy of `people.default.conf` and rename it `people.conf`.
 
