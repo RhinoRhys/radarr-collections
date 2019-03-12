@@ -126,8 +126,6 @@ I know nothing about Docker myself so cannot assist with any related issues, ple
 **Running Process** <br>
 Running without any mode options will default to a **full update scan** after one **full initial scan** has completed.
 
-If you already have two or more of the movies in a collection, it will only check the collection once and skip the other movies so you may see large chunks of skipped movies towards the end.
-
 Movies added into Radarr automatically from;
 - Collection scans will use the same Profile and Root Folder Path for the whole collection. 
 - People Monitoring will copy the Profile and Root Folder Path from the movie set in the varibale below. 
@@ -169,7 +167,7 @@ As new movies don't come out very often, running with the `-u` options allows yo
 
 #### Single scan
 
-When running with the `-t <num>` option, this will only run a collection check for that movie then stop. If you have limited your full scans to only movies with files, using the `-d` option, single scan mode can be set up as a post processing script in Radarr to automatically check collections as files are downloaded.
+When running with the `-t <num>` option, this will only run a collection check for that movie then stop. Designed for use with `ignore_wanted = true`, single scan mode can be set up as a post processing script in Radarr to automatically check collections as files are downloaded.
 
 #### People only scan
 
