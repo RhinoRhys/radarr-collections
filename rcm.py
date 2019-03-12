@@ -3,75 +3,20 @@
 
 import requests, json, datetime, os, sys, getopt, time, atexit, configparser
 
-start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")
+for var in ['quiet', 'full', 'peeps', 'art', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first']:
+    exec("{} = False".format(var))
+check_num = 0 # 0
 
 def get_dir(input_path):
     path = list(os.path.split(input_path))
     if path[0] in ["~","."]: path[0] = os.getcwd()
     return os.path.join(*path)
 
-config_path = get_dir(sys.argv[1])
-
-if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
-    print(u'Error - No configuration file found - Exiting')
-    sys.exit(2)
-    
-words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(),allow_no_value=True)
-words.read(os.path.join(config_path,u'words.conf'))
-config = configparser.ConfigParser(allow_no_value=True)
-config.read(os.path.join(config_path,u'rcm.conf'))
-people = configparser.ConfigParser(allow_no_value=True)
-people.read(os.path.join(config_path,u'people.conf'))
-
-for var in ['quiet', 'ignore_wanted', 'full', 'peeps', 'art', 'nolog', 'cache', 'single', 'quick']:
-    exec("{} = False".format(var))
-check_num = 0 # 0
- 
-if __name__ == '__main__':
-    try:
-        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid=","up"])
-    except getopt.GetoptError:
-        print(u'Error in options\n')
-        print(words[u'help'][u'text'])
-        sys.exit()
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            print(words[u'help'][u'text'])
-            sys.exit()
-        elif opt in ("-q", "--quiet"): quiet = True
-        elif opt in ("-d", "--down"): ignore_wanted = True
-        elif opt in ("-f", "--full"): full = True
-        elif opt in ("-p", "--people"): peeps = True
-        elif opt in ("-a", "--art"): art = True
-        elif opt in ("-s", "--start"): check_num = int(arg)
-        elif opt in ("-n", "--nolog"): nolog = True
-        elif opt in ("-c", "--cache"): cache = True
-        elif opt in ("-u", "--up"): quick = True
-        elif opt in ("-t", "--tmdbid"):
-            single = True
-            single_id = int(arg)
-
-if config[u'results'][u'path'] in ["","0"]: config[u'results'][u'path'] = u"./"
-output_path = get_dir(config[u'results'][u'path'])
-
-if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(output_path,"logs"))
-if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
-
-blacklist = config[u'blacklist'][u'blacklist'].split(",")
-if blacklist[0] != "": blacklist = [int(mov_id) for mov_id in blacklist]
-
-if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
-else: radarr_url = u"http://"
-radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
-
-if check_num != 0: full = True # -s override -f
-printtime = False
-
 def fatal(error):
     if quiet: print(error)
     log(error + u"\n")
     sys.exit(2)
-   
+
 #%% Output files
 
 def log(text):
@@ -147,7 +92,7 @@ def datadump():
         g.close()
         
     col_ids.sort()
-    if ignore_wanted: [tmdb_ids.remove(mov_id) for mov_id in wanted]
+    if u'true' in config[u'results'][u'ignore_wanted'].lower(): [tmdb_ids.remove(mov_id) for mov_id in wanted]
     g = open(os.path.join(config_path,u'memory.dat'),'w+')
     if sys.version_info[0] == 2: g.write(str(tmdb_ids) + "\n")
     elif sys.version_info[0] == 3: g.write(str(tmdb_ids) +  u"\n")
@@ -355,32 +300,55 @@ def person_check(person):
             white_name = " "*(top_p - len(per_json['name'] + " - " + role + " - " + job))    
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
-#%% UPDATES Checker
-            
-if u'words_update' not in words['text'].keys(): fatal(u"Error - words.conf has been updated. Please reload.") # 13-3-19
-if len(list(set([u'min_year']).intersection(config[u'blacklist'].keys()))) != 1: fatal(words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
-if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
-if len(list(set([u'file']).intersection(words['text'].keys()))) != 1: fatal(words[u'text'][u'words_update'])
+#%% 
+config_path = get_dir(sys.argv[1])
 
-#%% Opening
+#%% Configuration
 
-data = api("Radarr")
-tmdb_ids = [movie["tmdbId"] for movie in data]
-wanted = [movie["tmdbId"] for movie in data if not movie['hasFile']]
-      
-log(words[u'text'][u'hello'] +  u"\n")
+start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")    
 
-if single and peeps: 
-    log(words[u'text'][u'tp_err'] +  u"\n")
-    peeps = False
-if single and quick: 
-    log(words[u'text'][u'tu_err'] +  u"\n")
-    quick = False
-if peeps and quick: 
-    log(words[u'text'][u'up_err'] +  u"\n")
-    peeps = False    
-if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")
-if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
+if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
+    print(u'Error - No configuration file found - Exiting')
+    sys.exit(2)
+    
+words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(),allow_no_value=True)
+words.read(os.path.join(config_path,u'words.conf'))
+config = configparser.ConfigParser(allow_no_value=True)
+config.read(os.path.join(config_path,u'rcm.conf'))
+people = configparser.ConfigParser(allow_no_value=True)
+people.read(os.path.join(config_path,u'people.conf'))
+
+if config[u'results'][u'path'] == "": config[u'results'][u'path'] = u"./"
+output_path = get_dir(config[u'results'][u'path'])
+
+if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(output_path,"logs"))
+if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
+
+if __name__ == '__main__':
+    try:
+        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid=","up"])
+    except getopt.GetoptError:
+        print(u'Error in options\n')
+        print(words[u'help'][u'text'])
+        sys.exit()
+    for opt, arg in opts:
+        if opt in ("-h", "--help"):
+            print(words[u'help'][u'text'])
+            sys.exit()
+        elif opt in ("-d", "--down"):   # Updates 13-3-19
+            print("Error: -d option moved to rcm.conf for permanence")
+            sys.exit()
+        elif opt in ("-q", "--quiet"): quiet = True
+        elif opt in ("-f", "--full"): full = True
+        elif opt in ("-p", "--people"): peeps = True
+        elif opt in ("-a", "--art"): art = True
+        elif opt in ("-s", "--start"): check_num = int(arg)
+        elif opt in ("-n", "--nolog"): nolog = True
+        elif opt in ("-c", "--cache"): cache = True
+        elif opt in ("-u", "--up"): quick = True
+        elif opt in ("-t", "--tmdbid"):
+            single = True
+            single_id = int(arg)
 
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
@@ -394,15 +362,24 @@ if os.path.isfile(os.path.join(config_path, u'memory.dat')):
         col_ids = memory[1].strip('[]\n').split(',')
         col_ids = [int(col_id) for col_id in col_ids]
 else:
-    log(words[u'text'][u'first'] +  u"\n")
+    first = True
     full = True
     skip, col_ids = [],[]
 
-if len(people.sections()) != 0:
-    if not cache:
-        try: int(config[u'adding'][u'profile'])
-        except: fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
-        if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
+if check_num != 0: full = True
+
+#%% Data grab
+
+if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
+else: radarr_url = u"http://"
+radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
+
+data = api("Radarr")
+tmdb_ids = [movie["tmdbId"] for movie in data]
+wanted = [movie["tmdbId"] for movie in data if not movie['hasFile']]
+
+blacklist = config[u'blacklist'][u'blacklist'].split(",")
+if blacklist[0] != "": blacklist = [int(mov_id) for mov_id in blacklist]
 
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
@@ -410,10 +387,47 @@ rad_top = len(str(data[-1]['id'])) + 1
 found_col, found_per, found_black, col_art = [],[],[],[]
 fails = 0
 
-if art and not peeps: log(words[u'text'][u'art'] +  u"\n")
-if cache: log(words[u'text'][u'cache'] +  u"\n")
-if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].format(check_num) +  u"\n")
-if ignore_wanted and not peeps and not single: log(words[u'text'][u'wanted'] +  u"\n")
+#%% Updates Compatibility Checker
+            
+if u'words_update' not in words['text'].keys(): nolog = True; fatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
+if u'min_year'not in config[u'blacklist'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
+if u'ignore_wanted' not in config[u'results'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' to results section.")
+if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: nolog = True; fatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
+if u'file' not in words['text'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'words_update'])
+  
+#%% Fatal User Errors
+
+if full and quick: nolog = True; fatal(words[u'text'][u'uf_err'])
+if check_num > len(data): nolog = True; fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
+if len(people.sections()) != 0:
+    if not cache:
+        try: int(config[u'adding'][u'profile'])
+        except: nolog = True; fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
+        if int(config[u'adding'][u'profile']) not in tmdb_ids: nolog = True; fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
+
+#%% Begin
+        
+log(words[u'text'][u'hello'] +  u"\n")
+if first: log(words[u'text'][u'first'])
+if cache: log(words[u'text'][u'cache'])
+if single:
+    if peeps: 
+        log(words[u'text'][u'tp_err'])
+        peeps = False
+    if quick: 
+        log(words[u'text'][u'tu_err'])
+        quick = False
+else: # Not single
+    if peeps:
+        if quick: 
+            log(words[u'text'][u'up_err'])
+            peeps = False
+        else: log(words[u'text'][u'peeps'])
+    else: # not single not peeps
+        if check_num != 0: log(words[u'text'][u'start'].format(check_num))
+        if art: log(words[u'text'][u'art'])
+    
+if any([single, peeps, quick, cache, first]): log("")
 
 numbers = [0, len(col_ids), len(people.sections())]
 if full: 
@@ -421,18 +435,16 @@ if full:
     if not peeps and not single: log(words[u'text'][u'full_scan'].format(*numbers) +  u"\n")
 else:
     numbers[0] = max(0, len(data) - len(skip))
-    if ignore_wanted and len(wanted) <= numbers[0]: numbers[0] -= len(wanted)
+    if u'true' in config[u'results'][u'ignore_wanted'].lower(): numbers[0] -= len(wanted)
     if not peeps and not single: 
         if quick: log(words[u'text'][u'quick_scan'].format(*numbers) +  u"\n")
         else: log(words[u'text'][u'update_scan'].format(*numbers) +  u"\n")
-
-if peeps and not single: log(words[u'text'][u'peeps'] +  u"\n")
 
 atexit.register(datadump)
 
 #%% Single Scan Mode
 stage = 0
-if not peeps and single:
+if single:
     printtime = True
     check_num = 1
     lookup_json = api("Radarr", com = "lookup", args = single_id)
@@ -445,26 +457,27 @@ if not peeps and single:
 
 #%%  Database Search Loop
 stage = 1
-if not peeps and not single:    
-    if numbers[0] != 0: log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":\n")
-    printtime= True
-    for movie in data[check_num:]:
-        white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
-        payload = mov_info(check_num)
-        logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
-        
-        if ignore_wanted and movie["tmdbId"] in wanted:
-            if full: log(words[u'text'][u'file'].format(logtext))
-        elif movie["tmdbId"] not in skip:
-            tmdb_check(movie["tmdbId"])
-        elif full: log(words[u'text'][u'checked'].format(logtext)) # if id in list
-        check_num += 1
-    if full: log("")
+if not peeps:    
+    if numbers[0] > 0: 
+        log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":\n")
+        printtime= True
+        for movie in data[check_num:]:
+            white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
+            payload = mov_info(check_num)
+            logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
+            
+            if u'true' in config[u'results'][u'ignore_wanted'].lower() and movie["tmdbId"] in wanted:
+                if full: log(words[u'text'][u'file'].format(logtext))
+            elif movie["tmdbId"] not in skip:
+                tmdb_check(movie["tmdbId"])
+            elif full: log(words[u'text'][u'checked'].format(logtext)) # if id in list
+            check_num += 1
+        log("")
 if quick: sys.exit()
 
 #%% Collection Monitor Loop
 stage = 2
-if not full and not peeps and not single:
+if not peeps and not full:
     printtime = False
     log(words[u'text'][u'run_col_mon'].format(*numbers) + u":\n")
     printtime= True
@@ -474,7 +487,7 @@ if not full and not peeps and not single:
 
 #%% Person Monitor Loop
 stage = 3
-if len(people.sections()) != 0 and not single:
+if len(people.sections()) != 0:
     printtime = False
     log(words[u'text'][u'run_per_mon'].format(*numbers) + u":\n")
     printtime= True  

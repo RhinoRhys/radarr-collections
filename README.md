@@ -54,6 +54,7 @@ Settings for automatic adding into Radarr. If using, the first time you run the 
 - **profile** is the TMDB ID number of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies via People Monitoring and as a back-up for single scan mode if no movies in the collection are in the database. You need to find a movie in Radarr that has the root folder and profile that you want to copy and take the number from the end of the web address, `localhost:7878/movies/name-of-movie-#####`. The profile variable has to be a movie TMDB ID number, it cannot be the name of a movie.
 
 #### Output
+- **ignore_wanted** - Only check movies with files. Ignore Wanted list.
 - **column** - Minimum width for first column in output files, I had to give it a number to make everything line up so it might as well be here.
 - **path** - Set folder where the two `output` and `logs` folders will be created. Default is to use the current working directory.
 
@@ -146,13 +147,12 @@ You are able to change the mode and output by running as `python rcm.py ./config
 | `-t <num>` | `--tmdbid <num>` | Single scan mode - check single TMDB ID for Collections.	|
 | `-s <num>` | `--start <num>`	| Specify start point - useful for big libraries if errors occur. (forces `-f`)	|
 | | **Independant** | **Output options** |
-| `-d` | `--down`		| Only search movies with files. Ignore Wanted list.	|
 | `-q` | `--quiet`		| Disables verbose logging in command line. Log file still created.	|
 | `-n` | `--nolog` 		| Disables log file creation. Verbose logging still visible.	|
 | `-c` | `--cache`		| Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
 | `-a` | `--art`		| Saves list of Collection artwork URLs to text file.	|
 
-Multiple options can be passed in, in any order. `python rcm.py ./config -d -q -f` would work for example.
+Multiple options can be passed in, in any order. `python rcm.py ./config -c -a -f` would work for example.
 
 ### Scan Modes
 #### Full initial Scan
