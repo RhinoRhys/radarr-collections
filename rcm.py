@@ -322,7 +322,9 @@ def person_check(person):
         for movie in per_json[u'movie_credits']['cast']:
             role = movie[u'character'].lower()
             for string in ["/","(",")"]: role = role.replace(string,",")
-            if not any([len(list(set(role.split(",")).intersection(reject))) != 0,
+            role = role.split(",")
+            role = [string.strip() for string in role]
+            if not any([len(list(set(role).intersection(reject))) != 0,
                          all(['&blank' in reject,
                               movie[u'character'] == ""])]):
                 cast.append(movie)
