@@ -426,8 +426,8 @@ atexit.register(datadump)
 stage = 0
 if not peeps and single:
     printtime = True
-    lookup_json = api("Radarr", com = "lookup", args = single_id)
     check_num = 1
+    lookup_json = api("Radarr", com = "lookup", args = single_id)
     w_rad, w_id, w_title = whitespace(single_id, lookup_json['title'], lookup_json['year'], "")
     payload = "", " "*(len(str(len(data))) + 13 + len(w_rad) - len(words[u'text'][u'single'])), single_id, w_id, lookup_json['title'], lookup_json['year'], w_title
     logtext = words[u'text'][u'single'] + words[u'text'][u'mov_info'].format(*payload)
