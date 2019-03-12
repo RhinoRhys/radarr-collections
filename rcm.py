@@ -300,16 +300,19 @@ def person_check(person):
             white_name = " "*(top_p - len(per_json['name'] + " - " + role + " - " + job))    
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
-#%% 
-config_path = get_dir(sys.argv[1])
-
+#%%
+if len(sys.argv) >= 2 and "-" not in sys.argv[1]: config_path = get_dir(sys.argv[1])
+else: 
+    print(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config" + u"\n")
+    sys.exit(2)
+    
+if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
+    print(u"\n" + "Error - {}/rcm.conf does not exist - Exiting".format(config_path) + u"\n")
+    sys.exit(2)
+    
 #%% Configuration
 
 start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")    
-
-if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
-    print(u'Error - No configuration file found - Exiting')
-    sys.exit(2)
     
 words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(),allow_no_value=True)
 words.read(os.path.join(config_path,u'words.conf'))
@@ -328,7 +331,7 @@ if __name__ == '__main__':
     try:
         opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid=","up"])
     except getopt.GetoptError:
-        print(u'Error in options\n')
+        print(u"\n" + u'Error in options\n')
         print(words[u'help'][u'text'])
         sys.exit()
     for opt, arg in opts:
@@ -336,7 +339,7 @@ if __name__ == '__main__':
             print(words[u'help'][u'text'])
             sys.exit()
         elif opt in ("-d", "--down"):   # Updates 13-3-19
-            print("Error: -d option moved to rcm.conf for permanence")
+            print(u"\n" + "Error: -d option moved to rcm.conf for permanence" + u"\n")
             sys.exit()
         elif opt in ("-q", "--quiet"): quiet = True
         elif opt in ("-f", "--full"): full = True
