@@ -146,8 +146,8 @@ def api(host, com = "get", args = None ):
             wait = int(response.headers["Retry-After"]) + 1 
             if not quiet: print(words[u'text'][u'api_wait'].format(wait))
             time.sleep(wait) ## LOOP
-        elif code == 401: fatal(words[u'text'][u'api_auth'].format(host))
-        elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
+        elif code == 401: fatal(u"\n" + words[u'text'][u'api_auth'].format(host))
+        elif code in (502,503): fatal(u"\n" + words[u'text'][u'offline'].format(host, check_num))
         else: # UNKNOWN
             if tries < 6: ## RETRY
                 print(words[u'text'][u'api_misc'].format(host, code, tries))
@@ -300,15 +300,10 @@ def person_check(person):
             white_name = " "*(top_p - len(per_json['name'] + " - " + role + " - " + job))    
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
-#%%
+#%% User Errors
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
-else: 
-    print(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config" + u"\n")
-    sys.exit(2)
-    
-if not os.path.isfile(os.path.join(config_path, "rcm.conf")):
-    print(u"\n" + "Error - {}/rcm.conf does not exist - Exiting".format(config_path) + u"\n")
-    sys.exit(2)
+else: nolog = True; fatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
+if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nolog = True; fatal(u"\n" + "Error - {}/rcm.conf does not exist - Exiting".format(config_path))
     
 #%% Configuration
 
@@ -402,13 +397,13 @@ if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).interse
   
 #%% Fatal User Errors
 
-if full and quick: nolog = True; fatal(words[u'text'][u'uf_err'])
-if check_num > len(data): nolog = True; fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
+if full and quick: nolog = True; fatal(u"\n" + words[u'text'][u'uf_err'])
+if check_num > len(data): nolog = True; fatal(u"\n" + words[u'text'][u'start_err'].format(check_num, len(data)))
 if len(people.sections()) != 0:
     if not cache:
         try: int(config[u'adding'][u'profile'])
-        except: nolog = True; fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
-        if int(config[u'adding'][u'profile']) not in tmdb_ids: nolog = True; fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
+        except: nolog = True; fatal("{0} {1}".format(u"\n" + words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
+        if int(config[u'adding'][u'profile']) not in tmdb_ids: nolog = True; fatal(u"\n" + "{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
 
 #%% Begin
         
