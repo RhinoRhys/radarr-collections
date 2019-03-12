@@ -261,6 +261,10 @@ def database_check(id_check, white_name, json_in, input_data):
         if id_check in blacklist: log(words[u'text'][u'ignore'].format(*payload))
         elif lookup_json['ratings'][u'value'] < float(config[u'blacklist'][u'min_rating']) \
         or lookup_json['ratings'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
+        elif stage in [0,1,2] and not any([not lookup_json[u'year'] < int(config[u'blacklist'][u'min_year']), lookup_json[u'year'] == 0]):
+            log(words[u'text'][u'early'].format(*payload + (config[u'blacklist'][u'min_year'],)))
+        elif stage == 3 and not any([not lookup_json[u'year'] < int(people[person][u'min_year']), lookup_json[u'year'] == 0]):
+            log(words[u'text'][u'early'].format(*payload + (people[person][u'min_year'],)))
         else:
             log(words[u'text'][u'not_data'].format(*payload))
             if cache: post_data = {}
@@ -340,12 +344,17 @@ def person_check(person):
 log(words[u'text'][u'hello'] +  u"\n")
 
 if single and peeps: 
-    log(words[u'text'][u'tp_err'] +  u"\n")    # -t -p error
+    log(words[u'text'][u'tp_err'] +  u"\n")
     peeps = False
+if single and quick: 
+    log(words[u'text'][u'tu_err'] +  u"\n")
+    quick = False
 if peeps and quick: 
-    log(words[u'text'][u'tu_err'] +  u"\n")    # -t -p error
-    peeps = False
-if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")      # -u -f error
+    log(words[u'text'][u'up_err'] +  u"\n")
+    peeps = False    
+if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")
+
+if len(config[u'blacklist']) != 4: fatal(words[u'text'][u'config_update'] + " Added min_year to blacklist") # UPDATES 12-3-19
 
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
@@ -367,10 +376,12 @@ if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, l
 
 tmdb_ids = [movie["tmdbId"] for movie in data]
 
-if len(people.sections()) != 0 and not cache:
-    try: int(config[u'adding'][u'profile'])
-    except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
-    if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'prof_err'])
+if len(people.sections()) != 0:
+    if len(people[people.sections()[0]]) != 3: fatal(words[u'text'][u'people_update'] + " Added min_year to sections") # UPDATES 12-3-19
+    if not cache:
+        try: int(config[u'adding'][u'profile'])
+        except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
+        if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'prof_err'])
 
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
@@ -384,12 +395,12 @@ if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].for
 
 if full: 
     numbers = len(data) - check_num, len(col_ids), len(people.sections())
-    if not peeps and not single: log(words[u'text'][u'full'].format(*numbers) +  u"\n")
+    if not peeps and not single: log(words[u'text'][u'full_scan'].format(*numbers) +  u"\n")
 else:
     numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
     if not peeps and not single: 
-        if quick: log(words[u'text'][u'quick'].format(*numbers))
-        else: log(words[u'text'][u'update'].format(*numbers))
+        if quick: log(words[u'text'][u'quick_scan'].format(*numbers))
+        else: log(words[u'text'][u'update_scan'].format(*numbers))
 
 if peeps and not single: log(words[u'text'][u'peeps'] +  u"\n")
 if ignore_wanted and not peeps and not single: log(words[u'text'][u'wanted'] +  u"\n")
