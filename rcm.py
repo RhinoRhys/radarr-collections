@@ -354,9 +354,20 @@ def person_check(person):
         for tmdb_Id, job in roles[role]:
             white_name = " "*(top_p - len(per_json['name'] + " - " + role + " - " + job))    
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
-    
+
+#%% UPDATES Checker
+            
+if u'words_update' not in words['text'].keys(): fatal(u"Error - words.conf has been updated. Please reload.") # 13-3-19
+if len(list(set([u'min_year']).intersection(config[u'blacklist'].keys()))) != 1: fatal(words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
+if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
+if len(list(set([u'file']).intersection(words['text'].keys()))) != 1: fatal(words[u'text'][u'words_update'])
+
 #%% Opening
-        
+
+data = api("Radarr")
+tmdb_ids = [movie["tmdbId"] for movie in data]
+wanted = [movie["tmdbId"] for movie in data if not movie['hasFile']]
+      
 log(words[u'text'][u'hello'] +  u"\n")
 
 if single and peeps: 
@@ -369,8 +380,7 @@ if peeps and quick:
     log(words[u'text'][u'up_err'] +  u"\n")
     peeps = False    
 if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")
-
-if len(config[u'blacklist']) != 4: fatal(words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.") # UPDATES 12-3-19
+if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
 
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
@@ -387,16 +397,8 @@ else:
     log(words[u'text'][u'first'] +  u"\n")
     full = True
     skip, col_ids = [],[]
-    
-data = api("Radarr")
-
-if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
-
-tmdb_ids = [movie["tmdbId"] for movie in data]
-wanted = [movie["tmdbId"] for movie in data if not movie['hasFile']]
 
 if len(people.sections()) != 0:
-    if len(people[people.sections()[0]]) != 4: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.") # UPDATES 12-3-19
     if not cache:
         try: int(config[u'adding'][u'profile'])
         except: fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
