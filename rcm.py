@@ -147,6 +147,7 @@ def datadump():
         g.close()
         
     col_ids.sort()
+    if ignore_wanted: [tmdb_ids.remove(mov_id) for mov_id in wanted]
     g = open(os.path.join(config_path,u'memory.dat'),'w+')
     if sys.version_info[0] == 2: g.write(str(tmdb_ids) + "\n")
     elif sys.version_info[0] == 3: g.write(str(tmdb_ids) +  u"\n")
@@ -298,13 +299,13 @@ def collection_check(col_id, tmdbId = None):
 
 def tmdb_check(tmdbId):
     mov_json = api("TMDB", com = "mov", args = tmdbId)
-    if mov_json == 404: log(logtext + words[u'text'][u'col_err'])
+    if mov_json == 404: log(words[u'text'][u'col_err'].format(logtext))
     elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
         col_id = mov_json['belongs_to_collection'][u'id']
         if col_id not in col_ids: col_ids.append(col_id)
-        log(logtext + words[u'text'][u'in_col'])
+        log(words[u'text'][u'in_col'].format(logtext))
         collection_check(col_id, tmdbId)
-    else: log(logtext + words[u'text'][u'no_col'])          
+    else: log(words[u'text'][u'no_col'].format(logtext))          
 
 #%% Person Credits Check Function
 
@@ -378,8 +379,10 @@ if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     else:
         skip = memory[0].strip('[]\n').split(',')
         skip = [int(mov_id) for mov_id in skip]
-    col_ids = memory[1].strip('[]\n').split(',')
-    col_ids = [int(col_id) for col_id in col_ids]
+    if full and check_num == 0: col_ids = []
+    else:
+        col_ids = memory[1].strip('[]\n').split(',')
+        col_ids = [int(col_id) for col_id in col_ids]
 else:
     log(words[u'text'][u'first'] +  u"\n")
     full = True
@@ -390,13 +393,14 @@ data = api("Radarr")
 if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, len(data)))
 
 tmdb_ids = [movie["tmdbId"] for movie in data]
+wanted = [movie["tmdbId"] for movie in data if not movie['hasFile']]
 
 if len(people.sections()) != 0:
     if len(people[people.sections()[0]]) != 4: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.") # UPDATES 12-3-19
     if not cache:
         try: int(config[u'adding'][u'profile'])
-        except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
-        if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'prof_err'])
+        except: fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
+        if int(config[u'adding'][u'profile']) not in tmdb_ids: fatal("{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
 
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
@@ -404,21 +408,23 @@ rad_top = len(str(data[-1]['id'])) + 1
 found_col, found_per, found_black, col_art = [],[],[],[]
 fails = 0
 
-if cache: log(words[u'text'][u'cache'] +  u"\n")
 if art and not peeps: log(words[u'text'][u'art'] +  u"\n")
+if cache: log(words[u'text'][u'cache'] +  u"\n")
 if check_num != 0 and not peeps and not single: log(words[u'text'][u'start'].format(check_num) +  u"\n")
+if ignore_wanted and not peeps and not single: log(words[u'text'][u'wanted'] +  u"\n")
 
+numbers = [0, len(col_ids), len(people.sections())]
 if full: 
-    numbers = len(data) - check_num, len(col_ids), len(people.sections())
+    numbers[0] = len(data) - check_num
     if not peeps and not single: log(words[u'text'][u'full_scan'].format(*numbers) +  u"\n")
 else:
-    numbers = max(0, len(data) - len(skip)), len(col_ids), len(people.sections())
+    numbers[0] = max(0, len(data) - len(skip))
+    if ignore_wanted and len(wanted) <= numbers[0]: numbers[0] -= len(wanted)
     if not peeps and not single: 
-        if quick: log(words[u'text'][u'quick_scan'].format(*numbers))
-        else: log(words[u'text'][u'update_scan'].format(*numbers))
+        if quick: log(words[u'text'][u'quick_scan'].format(*numbers) +  u"\n")
+        else: log(words[u'text'][u'update_scan'].format(*numbers) +  u"\n")
 
 if peeps and not single: log(words[u'text'][u'peeps'] +  u"\n")
-if ignore_wanted and not peeps and not single: log(words[u'text'][u'wanted'] +  u"\n")
 
 atexit.register(datadump)
 
@@ -438,26 +444,27 @@ if not peeps and single:
 #%%  Database Search Loop
 stage = 1
 if not peeps and not single:    
-    if numbers[0] != 0: log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":" + u"\n")
+    if numbers[0] != 0: log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":\n")
     printtime= True
     for movie in data[check_num:]:
         white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
         payload = mov_info(check_num)
         logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
         
-        if any([not all([ignore_wanted, not movie['hasFile']]), not ignore_wanted]) \
-        and movie["tmdbId"] not in skip:
+        if ignore_wanted and movie["tmdbId"] in wanted:
+            if full: log(words[u'text'][u'file'].format(logtext))
+        elif movie["tmdbId"] not in skip:
             tmdb_check(movie["tmdbId"])
-        elif full: log(logtext + words[u'text'][u'skip']) # if id in list
+        elif full: log(words[u'text'][u'checked'].format(logtext)) # if id in list
         check_num += 1
-    log("")
+    if full: log("")
 if quick: sys.exit()
 
 #%% Collection Monitor Loop
 stage = 2
 if not full and not peeps and not single:
     printtime = False
-    log(words[u'text'][u'run_col_mon'].format(*numbers) + u":" +  u"\n")
+    log(words[u'text'][u'run_col_mon'].format(*numbers) + u":\n")
     printtime= True
     for check_num, col_id in enumerate(col_ids):
         white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
@@ -467,7 +474,7 @@ if not full and not peeps and not single:
 stage = 3
 if len(people.sections()) != 0 and not single:
     printtime = False
-    log(words[u'text'][u'run_per_mon'].format(*numbers) + u":" +  u"\n")
+    log(words[u'text'][u'run_per_mon'].format(*numbers) + u":\n")
     printtime= True  
     for per_num, person in enumerate(people.sections()):
         white_dex = " "*(len(str(len(data))) + 1 - len(str(per_num + 1)))
