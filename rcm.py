@@ -301,7 +301,7 @@ def person_check(person):
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
 #%%
-if len(sys.argv) >= 2 and "-" not in sys.argv[1]: config_path = get_dir(sys.argv[1])
+if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
 else: 
     print(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config" + u"\n")
     sys.exit(2)
