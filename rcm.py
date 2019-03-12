@@ -390,10 +390,12 @@ fails = 0
 #%% Updates Compatibility Checker
             
 if u'words_update' not in words['text'].keys(): nolog = True; fatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
+if u'file' not in words['text'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'words_update'])
+
 if u'min_year'not in config[u'blacklist'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
 if u'ignore_wanted' not in config[u'results'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' to results section.")
+
 if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: nolog = True; fatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
-if u'file' not in words['text'].keys(): nolog = True; fatal(u"\n" + words[u'text'][u'words_update'])
   
 #%% Fatal User Errors
 

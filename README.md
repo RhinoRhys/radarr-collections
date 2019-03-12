@@ -54,7 +54,7 @@ Settings for automatic adding into Radarr. If using, the first time you run the 
 - **profile** is the TMDB ID number of a Movie in your database that will be used to copy the Profile and Root Path from when adding movies via People Monitoring and as a back-up for single scan mode if no movies in the collection are in the database. You need to find a movie in Radarr that has the root folder and profile that you want to copy and take the number from the end of the web address, `localhost:7878/movies/name-of-movie-#####`. The profile variable has to be a movie TMDB ID number, it cannot be the name of a movie.
 
 #### Output
-- **ignore_wanted** - Only check movies with files. Ignore Wanted list.
+- **ignore_wanted** [`True`|`False`] - Only check movies with files. Ignore Wanted list.
 - **column** - Minimum width for first column in output files, I had to give it a number to make everything line up so it might as well be here.
 - **path** - Set folder where the two `output` and `logs` folders will be created. Default is to use the current working directory.
 
