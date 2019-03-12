@@ -68,7 +68,7 @@ There are a lot of bad sequels out there. To block a movie from being imported, 
 
 ## People Monitoring
 
-Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID number from their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) web address `themoviebd.org/person/####-name-of-person` and using the template below, select which credits you would like to monitor. Should work with 'Cast' and any of the separating headers on their profile page or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601).
+Do you want everything by a certain Actor, Producer, Director or Writer? Grab their TMDB ID number from their [TMDB profile page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US) web address `themoviebd.org/person/####-name-of-person` and using the template below, select which credits you would like to monitor. Should work with 'Cast' and any of the separating headers on their profile page or [this list](https://www.themoviedb.org/talk/598c3a70925141080100e601). If monitoring 'Acting' credits, specific charcater names can be set to allow you to reject movies where they are credited as "Himself" or "Herself", if "Uncredited" appears in there, or if you wish to exclude any other role they are credited with.
 
 In the config folder, make a copy of `people.default.conf` and rename it `people.conf`.
 
@@ -78,22 +78,28 @@ For each person you wish to follow you need to make a new section in `people.con
 - **header** The section header should be their name inside [ &nbsp; ].
 - **id** - The person's TMDB ID number.
 - **monitor** - Comma separated list of the roles you wish to follow for that person.
-- **reject** - Comma separated list of specific acting roles to reject, such as being credited as "Himself" / "Herself", or use "blank" to reject empty information. Can be any text, even specific character names.
+- **reject** - Comma separated list of specific character names to reject from acting roles, or use "&blank" to reject empty information and "&name" to reject character names that are their real names. Can be anything but must match letter for letter.
 - **min_year** - Reject movies by earliest release year for this person only. 
 
 Template:
 > [NAME] <br>
 > id = TMDB ID <br>
-> monitor = Cast, Directing, Production, Writing <br>
-> reject = Blank, Himself, Herself, Narrator <br>
+> monitor = Acting, Directing, Production, Writing <br>
+> reject = &blank, &name, Uncredited, Himself, Herself, Narrator <br>
 > min_year = 0
 
 Example:
 > [Quentin Tarantino] <br>
 > id = 138 <br>
 > monitor = Directing, Production, Writing <br>
-> reject = Himself, Narrator <br>
-> min_year = 2012
+> reject =  <br>
+> min_year = 0 <br>
+> <br>
+> [Tom Cruise] <br>
+> id = 500 <br>
+> monitor = Acting <br>
+> reject = &blank, Uncredited, Himself, Ethan Hunt <br>
+> min_year = 2000
 
 ## Installation and Running
 **Local**

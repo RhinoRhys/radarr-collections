@@ -306,23 +306,25 @@ def tmdb_check(tmdbId):
 #%% Person Credits Check Function
 
 def person_check(person):
-    per_id = int(people[person]['id'])
+    per_id = int(people[person][u'id'])
     per_json = api("TMDB", com = "per", args = per_id)
     
-    if len(per_json['name']) + 20 < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
-    else: top_p = len(per_json['name']) + 25
+    if len(per_json[u'name']) + 20 < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
+    else: top_p = len(per_json[u'name']) + 25
     search = [role.strip().title() for role in people[person][u'monitor'].split(",")]
     reject = [role.strip().lower() for role in people[person][u'reject'].split(",")]
+    if u'&name' in reject: reject.append(per_json[u'name'].lower())
     payload = str(per_num + 1) + ":", white_dex, per_json['name'], per_id, ", ".join(search)
     log(words[u'text'][u'person'].format(*payload))
     scan_hold = []
     if len(list(set(search).intersection(['Cast','Acting']))) != 0:
         cast = []
         for movie in per_json[u'movie_credits']['cast']:
-            if "uncredited" not in movie[u'character'].lower()\
-            and not any([len(list(set(movie[u'character'].lower().replace("/"," ").split()).intersection(reject))) != 0,
-                         all(['blank' in reject,
-                              movie[u'character'].title() == ""])]):
+            role = movie[u'character'].lower()
+            for string in ["/","(",")"]: role = role.replace(string,",")
+            if not any([len(list(set(role.split(",")).intersection(reject))) != 0,
+                         all(['&blank' in reject,
+                              movie[u'character'] == ""])]):
                 cast.append(movie)
         log("")
         log(words[u'text'][u'cast'].format(len(cast)))
@@ -385,7 +387,7 @@ if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, l
 tmdb_ids = [movie["tmdbId"] for movie in data]
 
 if len(people.sections()) != 0:
-    if len(people[people.sections()[0]]) != 4: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to sections.") # UPDATES 12-3-19
+    if len(people[people.sections()[0]]) != 4: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.") # UPDATES 12-3-19
     if not cache:
         try: int(config[u'adding'][u'profile'])
         except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
