@@ -74,22 +74,25 @@ In the config folder, make a copy of `people.default.conf` and rename it `people
 
 #### Setting up an individual to follow
  
-For each person you wish to follow you need to make a new entry into `people.conf`.
+For each person you wish to follow you need to make a new section in `people.conf`.
 - **header** The section header should be their name inside [ &nbsp; ].
 - **id** - The person's TMDB ID number.
 - **monitor** - Comma separated list of the roles you wish to follow for that person.
+- **reject** - Comma separated list of specific acting roles to reject, such as being credited as "Himself" / "Herself", or use "blank" to reject empty information. Can be any text, even specific character names.
 - **min_year** - Reject movies by earliest release year for this person only. 
 
 Template:
 > [NAME] <br>
 > id = TMDB ID <br>
 > monitor = Cast, Directing, Production, Writing <br>
+> reject = Himself, Herself, Narrator <br>
 > min_year = 0
 
 Example:
 > [Quentin Tarantino] <br>
 > id = 138 <br>
 > monitor = Directing, Production, Writing <br>
+> reject = Himself, Narrator <br>
 > min_year = 2012
 
 ## Installation and Running

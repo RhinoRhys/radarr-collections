@@ -197,7 +197,7 @@ def api(host, com = "get", args = None ):
             return code ## EXIT
         elif code == 429: # TOO FAST
             wait = int(response.headers["Retry-After"]) + 1 
-            if not quiet: print(u""); print(words[u'text'][u'api_wait'].format(wait) + u"\n")
+            if not quiet: print(words[u'text'][u'api_wait'].format(wait))
             time.sleep(wait) ## LOOP
         elif code == 401: fatal(words[u'text'][u'api_auth'].format(host))
         elif code in (502,503): fatal(words[u'text'][u'offline'].format(host, check_num))
@@ -207,45 +207,6 @@ def api(host, com = "get", args = None ):
                 print(words[u'text'][u'api_misc'].format(host, code, tries))
                 time.sleep(5 + tries) ### LOOP
             else: fatal(words[u'text'][u'api_retry'].format(host, check_num)) ## FATAL
-                
-#%% Movie in Collection Check Function
-
-def tmdb_check(tmdbId):
-    mov_json = api("TMDB", com = "mov", args = tmdbId)
-    if mov_json == 404: log(logtext + words[u'text'][u'col_err'])
-    elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
-        col_id = mov_json['belongs_to_collection'][u'id']
-        if col_id not in col_ids: col_ids.append(col_id)
-        log(logtext + words[u'text'][u'in_col'])
-        collection_check(col_id, tmdbId)
-    else: log(logtext + words[u'text'][u'no_col'])          
-
-#%% Collection Parts Check Function
-
-def collection_check(col_id, tmdbId = None):
-    if single: log("")
-    col_json = api("TMDB", com = "col", args = col_id)
-    if len(col_json['name']) < int(config[u'results'][u'column']): top_c = int(config[u'results'][u'column'])
-    else: top_c = len(col_json['name']) + 5
-    white_name = " "*(top_c - len(col_json['name'])) 
-    if art: col_art.append(words[u'text'][u'col_art'].format(col_json['name'], white_name, col_json['poster_path']))
-    parts = [col['id'] for col in col_json['parts']]
-    number = len(parts)
-    if stage == 1:
-        try: parts.remove(int(tmdbId))
-        except: pass
-        log("")
-    if stage in [0, 1]: payload = ">", " "*(1 + len(str(len(data)))), col_json['name'], col_id, number
-    elif stage == 2: payload = str(check_num + 1) + ":", white_dex, col_json['name'], col_id, number
-    if stage == 1: input_id = check_num
-    elif stage in [0, 2]:
-        source = list(set(parts).intersection(tmdb_ids))
-        if len(source) > 0: input_id = source[0]
-        elif not cache: input_id = int(config[u'adding'][u'profile'])
-        else: input_id = None
-    log(words[u'text'][u'other'].format(*payload) +  u"\n")
-    for id_check in parts:  database_check(id_check, white_name, col_json, input_id)
-    if any([full, all([not full, tmdbId not in skip])]): log("")
     
 #%% Movie in Database Check Function
 
@@ -280,7 +241,7 @@ def database_check(id_check, white_name, json_in, input_data):
                          u"addOptions" : {u"searchForMovie" : config[u'adding'][u'autosearch']}}
             for dictkey in [u"tmdbId",u"title",u"titleSlug",u"images",u"year"]: post_data.update({dictkey : lookup_json[dictkey]})
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
-            if stage == 3: name = json_in['name'] + " - " + input_data
+            if stage == 3: name = json_in['name'] + input_data
             else: name = json_in['name']
             payload = words[u'text'][u'found'].format(name, white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
@@ -303,30 +264,77 @@ def database_check(id_check, white_name, json_in, input_data):
                         log(u"\n" + words[u'text'][u'retry_err'] +  u"\n")
                         printtime = True
 
+#%% Collection Parts Check Function
+
+def collection_check(col_id, tmdbId = None):
+    if single: log("")
+    col_json = api("TMDB", com = "col", args = col_id)
+    if len(col_json['name']) < int(config[u'results'][u'column']): top_c = int(config[u'results'][u'column'])
+    else: top_c = len(col_json['name']) + 5
+    white_name = " "*(top_c - len(col_json['name'])) 
+    if art: col_art.append(words[u'text'][u'col_art'].format(col_json['name'], white_name, col_json['poster_path']))
+    parts = [col['id'] for col in col_json['parts']]
+    number = len(parts)
+    if stage == 1:
+        try: parts.remove(int(tmdbId))
+        except: pass
+        log("")
+    if stage in [0, 1]: payload = ">", " "*(1 + len(str(len(data)))), col_json['name'], col_id, number
+    elif stage == 2: payload = str(check_num + 1) + ":", white_dex, col_json['name'], col_id, number
+    if stage == 1: input_id = check_num
+    elif stage in [0, 2]:
+        source = list(set(parts).intersection(tmdb_ids))
+        if len(source) > 0: input_id = source[0]
+        elif not cache: input_id = int(config[u'adding'][u'profile'])
+        else: input_id = None
+    log(words[u'text'][u'other'].format(*payload) +  u"\n")
+    for id_check in parts:  database_check(id_check, white_name, col_json, input_id)
+    if any([full, all([not full, tmdbId not in skip])]): log("")
+                
+#%% Movie in Collection Check Function
+
+def tmdb_check(tmdbId):
+    mov_json = api("TMDB", com = "mov", args = tmdbId)
+    if mov_json == 404: log(logtext + words[u'text'][u'col_err'])
+    elif type(mov_json['belongs_to_collection']) != type(None): # Collection Found
+        col_id = mov_json['belongs_to_collection'][u'id']
+        if col_id not in col_ids: col_ids.append(col_id)
+        log(logtext + words[u'text'][u'in_col'])
+        collection_check(col_id, tmdbId)
+    else: log(logtext + words[u'text'][u'no_col'])          
+
 #%% Person Credits Check Function
 
 def person_check(person):
     per_id = int(people[person]['id'])
     per_json = api("TMDB", com = "per", args = per_id)
     
-    if len(per_json['name']) < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
-    else: top_p = len(per_json['name']) + 5
-    search = [role.strip().title() for role in people[person]['monitor'].split(",")]
+    if len(per_json['name']) + 20 < int(config[u'results'][u'column']): top_p = int(config[u'results'][u'column'])
+    else: top_p = len(per_json['name']) + 25
+    search = [role.strip().title() for role in people[person][u'monitor'].split(",")]
+    reject = [role.strip().lower() for role in people[person][u'reject'].split(",")]
     payload = str(per_num + 1) + ":", white_dex, per_json['name'], per_id, ", ".join(search)
     log(words[u'text'][u'person'].format(*payload))
     scan_hold = []
     if len(list(set(search).intersection(['Cast','Acting']))) != 0:
+        cast = []
+        for movie in per_json[u'movie_credits']['cast']:
+            if "uncredited" not in movie[u'character'].lower()\
+            and not any([len(list(set(movie[u'character'].lower().replace("/"," ").split()).intersection(reject))) != 0,
+                         all(['blank' in reject,
+                              movie[u'character'].title() == ""])]):
+                cast.append(movie)
         log("")
-        log(words[u'text'][u'cast'].format(len(per_json[u'movie_credits']['cast'])))
+        log(words[u'text'][u'cast'].format(len(cast)))
         log("")
-        for movie in per_json[u'movie_credits']['cast']: 
-            scan_hold.append(movie['id'])
-            white_name = " "*(top_p - len(per_json['name'] + " - Cast"))
-            database_check(movie['id'], white_name, per_json, "Cast")
+        for movie in cast:
+                scan_hold.append(movie['id'])
+                white_name = " "*(top_p - len(per_json['name'] + " - Cast - " + movie[u'character']))
+                database_check(movie['id'], white_name, per_json, " - Cast - " + movie[u'character'].title())
     roles = {}
     for movie in per_json[u'movie_credits']['crew']:
-        if movie['department'].title() in search \
-        and movie['id'] not in scan_hold:
+        if all([movie['department'].title() in search, \
+                movie['id'] not in scan_hold]):
             if movie['department'] not in roles.keys():
                 roles.update({movie['department'] : []})
             roles[movie['department']].append([movie['id'],movie['job']])
@@ -337,7 +345,7 @@ def person_check(person):
         log("")        
         for tmdb_Id, job in roles[role]:
             white_name = " "*(top_p - len(per_json['name'] + " - " + role + " - " + job))    
-            database_check(tmdb_Id, white_name, per_json, role + " - " + job)
+            database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
     
 #%% Opening
         
@@ -354,7 +362,7 @@ if peeps and quick:
     peeps = False    
 if full and quick: fatal(words[u'text'][u'uf_err'] +  u"\n")
 
-if len(config[u'blacklist']) != 4: fatal(words[u'text'][u'config_update'] + " Added min_year to blacklist") # UPDATES 12-3-19
+if len(config[u'blacklist']) != 4: fatal(words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.") # UPDATES 12-3-19
 
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
@@ -377,7 +385,7 @@ if check_num > len(data): fatal(words[u'text'][u'start_err'].format(check_num, l
 tmdb_ids = [movie["tmdbId"] for movie in data]
 
 if len(people.sections()) != 0:
-    if len(people[people.sections()[0]]) != 3: fatal(words[u'text'][u'people_update'] + " Added min_year to sections") # UPDATES 12-3-19
+    if len(people[people.sections()[0]]) != 4: fatal(words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to sections.") # UPDATES 12-3-19
     if not cache:
         try: int(config[u'adding'][u'profile'])
         except: fatal(words[u'text'][u'template_err'] + " " + words[u'text'][u'int_err']) 
