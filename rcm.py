@@ -3,7 +3,8 @@
 
 import requests, json, datetime, os, sys, getopt, time, atexit, configparser
 
-for var in ['quiet', 'full', 'peeps', 'art', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first']:
+for var in ['quiet', 'full', 'peeps', 'art', 'nolog', 'cache', 'single', \
+            'quick', 'printtime', 'first']:
     exec("{} = False".format(var))
 check_num = 0 # 0
 
@@ -100,11 +101,19 @@ def datadump():
         g.close()
         
     col_ids.sort()
-    if u'true' in config[u'results'][u'ignore_wanted'].lower(): [tmdb_ids.remove(mov_id) for mov_id in wanted]
+    [tmdb_ids.remove(mov_id) for mov_id in wanted]
+    [tmdb_ids.remove(mov_id) for mov_id in list(set(unmon)-set(wanted))]
     g = open(os.path.join(config_path,u'memory.dat'),'w+')
-    if sys.version_info[0] == 2: g.write(str(tmdb_ids) + "\n")
-    elif sys.version_info[0] == 3: g.write(str(tmdb_ids) +  u"\n")
-    g.write(str(col_ids))
+    if sys.version_info[0] == 2: 
+        g.write(str(tmdb_ids) + "\n")
+        g.write(str(col_ids) + "\n")
+        g.write(str(wanted) + "\n")
+        g.write(str(unmon) + "\n")
+    elif sys.version_info[0] == 3: 
+        g.write(str(tmdb_ids) +  u"\n")
+        g.write(str(col_ids) + u"\n")
+        g.write(str(wanted) + u"\n")
+        g.write(str(unmon) + u"\n")
     g.close()
     
     printtime = False
@@ -308,7 +317,7 @@ def person_check(person):
             white_name = " "*(top_p - len(per_json['name'] + " - " + role + " - " + job))    
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
-#%% User Errors
+#%% Config Check
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
 else: nologfatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
 if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
@@ -356,23 +365,42 @@ if __name__ == '__main__':
             single = True
             single_id = int(arg)
 
+if check_num != 0: full = True
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
     memory = memory.readlines()
-    if full: skip = []
+    if full: skip, old_want, old_unmon = [],[],[]
     else:
         skip = memory[0].strip('[]\n').split(',')
         skip = [int(mov_id) for mov_id in skip]
+        if len(memory) > 2:
+            old_want = memory[2].strip('[]\n').split(',')
+            if old_want[0] != "": old_want = [int(mov_id) for mov_id in old_want]
+            else: old_want = []
+            old_unmon = memory[3].strip('[]\n').split(',')
+            if old_unmon[0] != "": old_unmon = [int(mov_id) for mov_id in old_unmon]
+            else: old_unmon = []
+        else: old_want, old_unmon = [],[]
     if full and check_num == 0: col_ids = []
     else:
         col_ids = memory[1].strip('[]\n').split(',')
         col_ids = [int(col_id) for col_id in col_ids]
 else:
+    check_num = 0
     first = True
     full = True
     skip, col_ids = [],[]
 
-if check_num != 0: full = True
+
+#%% Updates Compatibility Checker
+            
+if u'words_update' not in words['text'].keys(): nologfatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
+if len(set([u'file', u'unmonitored']).intersection(words['text'].keys())) != 2: nologfatal(u"\n" + words[u'text'][u'words_update'])
+
+if len(set([u'ignore_wanted', u'ignore_unmonitored']).intersection(config[u'results'].keys())) != 2 : 
+    nologfatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' and 'ignore_unmonitored' to results section.")
+
+if len(people.sections()) != 0 and len(set([u'min_year',u'reject']).intersection(people[people.sections()[0]])) != 2: nologfatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
 
 #%% Data grab
 
@@ -381,8 +409,20 @@ else: radarr_url = u"http://"
 radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
 
 data = api("Radarr")
-tmdb_ids = [movie["tmdbId"] for movie in data]
-wanted = [movie["tmdbId"] for movie in data if not movie['hasFile']]
+tmdb_ids, wanted, unmon = [],[],[]
+for movie in data:
+    tmdb_ids.append(movie["tmdbId"])
+    if u'true' in config[u'results'][u'ignore_wanted'].lower() and not movie['hasFile']: 
+        wanted.append(movie["tmdbId"])
+    if u'true' in config[u'results'][u'ignore_unmonitored'].lower() and not movie['monitored']:
+        unmon.append(movie["tmdbId"])
+
+if full: numbers = [len(data) - check_num]
+else: 
+    numbers = [max(0, len(data) - len(skip + old_want) - len(set(old_unmon) - set(old_want).intersection(old_unmon)) \
+                   + len(set(old_unmon) - set(unmon) - set(wanted)) \
+                   + len(set(old_want) - set(wanted) - set(unmon)))]
+numbers += [len(col_ids), len(people.sections())]
 
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
 if blacklist[0] != "": blacklist = [int(mov_id) for mov_id in blacklist]
@@ -392,18 +432,8 @@ rad_top = len(str(data[-1]['id'])) + 1
 
 found_col, found_per, found_black, col_art = [],[],[],[]
 fails = 0
-
-#%% Updates Compatibility Checker
-            
-if u'words_update' not in words['text'].keys(): nologfatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
-if u'file' not in words['text'].keys(): nologfatal(u"\n" + words[u'text'][u'words_update'])
-
-if u'min_year'not in config[u'blacklist'].keys(): nologfatal(u"\n" + words[u'text'][u'config_update'] + " Added 'min_year' to blacklist section.")
-if u'ignore_wanted' not in config[u'results'].keys(): nologfatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' to results section.")
-
-if len(people.sections()) != 0 and len(list(set([u'min_year',u'reject']).intersection(people[people.sections()[0]]))) != 2: nologfatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
   
-#%% Fatal User Errors
+#%% Fatal Input Errors
 
 if full and quick: nologfatal(u"\n" + words[u'text'][u'uf_err'])
 if check_num > len(data): nologfatal(u"\n" + words[u'text'][u'start_err'].format(check_num, len(data)))
@@ -434,19 +464,13 @@ else: # Not single
     else: # not single not peeps
         if check_num != 0: log(words[u'text'][u'start'].format(check_num))
         if art: log(words[u'text'][u'art'])
-    
+
 if any([single, peeps, quick, cache, first]): log("")
 
-numbers = [0, len(col_ids), len(people.sections())]
-if full: 
-    numbers[0] = len(data) - check_num
-    if not peeps and not single: log(words[u'text'][u'full_scan'].format(*numbers) +  u"\n")
-else:
-    numbers[0] = max(0, len(data) - len(skip))
-    if u'true' in config[u'results'][u'ignore_wanted'].lower(): numbers[0] -= len(wanted)
-    if not peeps and not single: 
-        if quick: log(words[u'text'][u'quick_scan'].format(*numbers) +  u"\n")
-        else: log(words[u'text'][u'update_scan'].format(*numbers) +  u"\n")
+if not peeps and not single: 
+    if full: log(words[u'text'][u'full_scan'].format(*numbers) +  u"\n")
+    elif quick: log(words[u'text'][u'quick_scan'].format(*numbers) +  u"\n")
+    else: log(words[u'text'][u'update_scan'].format(*numbers) +  u"\n")
 
 atexit.register(datadump)
 
@@ -474,11 +498,13 @@ if not peeps:
             payload = mov_info(check_num)
             logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
             
-            if u'true' in config[u'results'][u'ignore_wanted'].lower() and movie["tmdbId"] in wanted:
-                if full: log(words[u'text'][u'file'].format(logtext))
-            elif movie["tmdbId"] not in skip:
-                tmdb_check(movie["tmdbId"])
-            elif full: log(words[u'text'][u'checked'].format(logtext)) # if id in list
+            if movie["tmdbId"] in unmon: 
+                if movie["tmdbId"] not in old_unmon + old_want: log(words[u'text'][u'unmonitored'].format(logtext))
+            elif movie["tmdbId"] in wanted: 
+                if movie["tmdbId"] not in old_unmon + old_want: log(words[u'text'][u'file'].format(logtext))
+            elif movie["tmdbId"] in skip:
+                if full or movie["tmdbId"] in old_unmon + old_want: log(words[u'text'][u'checked'].format(logtext)) # if id in list
+            else: tmdb_check(movie["tmdbId"]) 
             check_num += 1
         log("")
 if quick: sys.exit()

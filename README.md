@@ -15,14 +15,15 @@ People can also be monitored to automatically find missing Movies from their Act
 ## Optional Features:
 - Automatically added into Radarr _or_ save results to text file. 
 	- Add Monitored _or_ Unmonitored.
-	- Automatic search.
+	- Trigger search when added.
 - Follow People and grab everything with / by them.
 	- People only mode - disable scanning collections.
-- Ignore wanted list - only check movies with files.
+- Movie exclusions
+	- Ignore missing movies, only check movies that have files.
+	- Ignore unmonitored movies.
+	- Blacklist of movies to reject.
+	- Exclude results by minimum ratings and votes.
 - Save list of collection artwork URLs to text file.
-- Set blacklist of movies to ignore.
-- Exclude results by minimum ratings and votes.
-- Single movie scan mode.
   
 ## Requirements:
 - Radarr
@@ -55,6 +56,7 @@ Settings for automatic adding into Radarr. If using, the first time you run the 
 
 #### Output
 - **ignore_wanted** [`True`|`False`] - Only check movies with files. Ignore Wanted list.
+- **ignore_unmonitored** [`True`|`False`] - Only check monitored movies in Radarr.
 - **column** - Minimum width for first column in output files, I had to give it a number to make everything line up so it might as well be here.
 - **path** - Set folder where the two `output` and `logs` folders will be created. Default is to use the current working directory.
 
@@ -179,9 +181,12 @@ If you do not wish to check your Radarr database against collection information 
 - You do not have the 'requests' or 'configparser' Python module(s) installed.
 - `pip install requests configparser`
 
+> Traceback ..... KeyError: XXX
+- Please update your config files to the latest version
+
 ### Scheduling
 
-To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often and that this script makes one API call to TMDB per movie, collection and person that it checks. While their network can probably handle it, it just seems like a waste to be running repeated scans when new sequels are only announced every few years and it takes months of people's time to make or be in something. I personally have it set up with two scheduled tasks, one running the **Reduced update scan** every day to keep new additions to the database checked and the other running a **full update scan** only once a fortnight to sync all my monitored collections and people.
+To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often and that this script makes one API call to TMDB per movie, collection and person that it checks. While their network can probably handle it, it just seems like a waste to be repeatedly making thousands of data requests per run when new sequels are only announced every few years and it takes months of people's time to make or be in something. I personally have it set up with two scheduled tasks, one running the **Reduced update scan** every day to keep new additions to the database checked and the other running a **full update scan** only once a fortnight to sync all my monitored collections and people.
 
 ### Additional output files
 #### Caching mode
