@@ -384,7 +384,8 @@ if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     if full and check_num == 0: col_ids = []
     else:
         col_ids = memory[1].strip('[]\n').split(',')
-        col_ids = [int(col_id) for col_id in col_ids]
+        if col_ids[0] != "": col_ids = [int(col_id) for col_id in col_ids]
+        else: col_ids = []
 else:
     check_num = 0
     first = True

@@ -39,11 +39,10 @@ In the config folder, make a copy of `rcm.default.conf`, rename it `rcm.conf` an
 
 #### Radarr settings
 
-- **server** - Please use the same address as you use for accessing the web interface in your browser. Default for running on the same machine is `localhost:7878`.
+- **server** - Address used to access Radarr, usually only `host:port`. Can be `host:port/end`, `domain/end` or anything as needed for reverse proxied setups.
 - **api_key** - Can be found under Settings > General.
-- **ssl** [`True`|`False`] - Changes to `https://` in Radarr URL instead of `http://`.
+- **ssl** [`True`|`False`] - Add `https://` instead of `http://` before the _server_ setting when putting the Radarr URL together.
 - **docker** [`True`|`False`] - Forces a linux style directory path for when running from Windows with Radarr in a Docker or on a remote linux machine.
-
 
 #### TMDB 
 - **api_key** - Your TMDB API (v3) key. 
