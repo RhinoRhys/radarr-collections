@@ -100,21 +100,22 @@ def datadump():
             for line in col_art: g.write(line +  u"\n")
         g.close()
         
-    col_ids.sort()
-    [tmdb_ids.remove(mov_id) for mov_id in wanted]
-    [tmdb_ids.remove(mov_id) for mov_id in list(set(unmon)-set(wanted))]
-    g = open(os.path.join(config_path,u'memory.dat'),'w+')
-    if sys.version_info[0] == 2: 
-        g.write(str(tmdb_ids) + "\n")
-        g.write(str(col_ids) + "\n")
-        g.write(str(wanted) + "\n")
-        g.write(str(unmon) + "\n")
-    elif sys.version_info[0] == 3: 
-        g.write(str(tmdb_ids) +  u"\n")
-        g.write(str(col_ids) + u"\n")
-        g.write(str(wanted) + u"\n")
-        g.write(str(unmon) + u"\n")
-    g.close()
+    if check_num != 0:    
+        col_ids.sort()
+        [tmdb_ids.remove(mov_id) for mov_id in wanted]
+        [tmdb_ids.remove(mov_id) for mov_id in list(set(unmon)-set(wanted))]
+        g = open(os.path.join(config_path,u'memory.dat'),'w+')
+        if sys.version_info[0] == 2: 
+            g.write(str(tmdb_ids) + "\n")
+            g.write(str(col_ids) + "\n")
+            g.write(str(wanted) + "\n")
+            g.write(str(unmon) + "\n")
+        elif sys.version_info[0] == 3: 
+            g.write(str(tmdb_ids) +  u"\n")
+            g.write(str(col_ids) + u"\n")
+            g.write(str(wanted) + u"\n")
+            g.write(str(unmon) + u"\n")
+        g.close()
     
     printtime = False
     log(words[u'text'][u'bye'].format(len(found_col) + len(found_per))) 
