@@ -164,7 +164,7 @@ def api(host, com = "get", args = None ):
             wait = int(response.headers["Retry-After"]) + 1 
             if not quiet: print(words[u'text'][u'api_wait'].format(wait))
             time.sleep(wait) ## LOOP
-        elif code == 401: fatal(u"\n" + words[u'text'][u'api_auth'].format(host))
+        elif code == 401: fatal(words[u'text'][u'api_auth'].format(host))
         elif code in (502,503): fatal(u"\n" + words[u'text'][u'offline'].format(host, check_num))
         else: # UNKNOWN
             if tries < 6: ## RETRY
