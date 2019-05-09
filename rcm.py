@@ -287,7 +287,10 @@ def person_check(person):
     if len(list(set(search).intersection(['Cast','Acting']))) != 0:
         cast = []
         for movie in per_json[u'movie_credits']['cast']:
-            role = movie[u'character'].lower()
+            try: role = movie[u'character'].lower()
+            except: 
+                movie[u'character'] = u'No Data'
+                role = movie[u'character'].lower()
             for string in ["/","(",")"]: role = role.replace(string,",")
             role = role.split(",")
             role = [string.strip() for string in role]
