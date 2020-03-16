@@ -216,7 +216,7 @@ def database_check(id_check, white_name, json_in, input_data):
             found_black.append(post_data[u'tmdbId'])
             if not cache:
                 if sys.version_info[0] == 2: data_payload = json.dumps(post_data)
-                elif sys.version_info[0] == 3: data_payload = str(post_data).replace("'","\"")
+                elif sys.version_info[0] == 3: data_payload = str(post_data).replace("'","\'")
                 post = api("Radarr", com = "post", args = data_payload)
                 white_yn = " "*(rad_top + 10)
                 if post == 201: 
