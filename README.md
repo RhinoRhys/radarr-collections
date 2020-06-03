@@ -183,6 +183,9 @@ If you do not wish to check your Radarr database against collection information 
 > Traceback ..... KeyError: XXX
 - Please update your config files to the latest version
 
+> Failed to add: [response code: 200]
+- This error occurs when the URL in the config is not accurate enough, usually due to missing the reverse proxy URL base. While the script has been able to read your database, the API is very specific when adding information.
+
 ### Scheduling
 
 To automate running a scan at set intervals, please use your inbuilt OS scheduling tool to run the command. Please be aware that once the **full initial scan** has run, the **full update scan** is unlikely to find new movies very often and that this script makes one API call to TMDB per movie, collection and person that it checks. While their network can probably handle it, it just seems like a waste to be repeatedly making thousands of data requests per run when new sequels are only announced every few years and it takes months of people's time to make or be in something. I personally have it set up with two scheduled tasks, one running the **Reduced update scan** every day to keep new additions to the database checked and the other running a **full update scan** only once a fortnight to sync all my monitored collections and people.
