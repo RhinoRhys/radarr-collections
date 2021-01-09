@@ -136,7 +136,7 @@ def api(host, com = "get", args = None ):
             key.update({"tmdbid" : int(args)})
         elif com == "post":
             url += u"?apikey=" + config[u'radarr'][u'api_key']
-            response = requests.post(url, data = args)
+            response = requests.post(url, data = args.encode('utf-8'))
             return response.status_code
     elif host == "TMDB":
         key = {"api_key": config[u'tmdb'][u'api_key']}
