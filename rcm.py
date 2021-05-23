@@ -395,6 +395,7 @@ else:
     first = True
     full = True
     skip, col_ids = [],[]
+old_want, old_unmon = [],[]
 
 
 #%% Updates Compatibility Checker
