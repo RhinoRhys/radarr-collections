@@ -411,7 +411,7 @@ if len(people.sections()) != 0 and len(set([u'min_year',u'reject']).intersection
 
 if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
 else: radarr_url = u"http://"
-radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
+radarr_url += u"{0}/api/v3/movie".format(config[u'radarr'][u'server'])
 
 data = api("Radarr")
 tmdb_ids, wanted, unmon = [],[],[]
