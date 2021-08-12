@@ -522,6 +522,7 @@ if quick: sys.exit()
 #%% Collection Monitor Loop
 stage = 2
 if not peeps and not full:
+    data = api("Radarr")
     printtime = False
     log(words[u'text'][u'run_col_mon'].format(*numbers) + u":\n")
     printtime= True
