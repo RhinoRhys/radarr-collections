@@ -6,6 +6,9 @@ This downloads information directly from the Movie's TMDB page and Collections a
 
 People can also be monitored to automatically find missing Movies from their Acting, Writng, Directing, and / or Production credits as listed on their [TMDB page](https://www.themoviedb.org/person/138-quentin-tarantino?language=en-US).
 
+___
+# NOW UPDATED FOR RADARR API V3
+___
 **Jump to:**
 - [Setting up config files](https://github.com/RhinoRhys/radarr-collections#setting-up-the-configuration-files)
 - [Setting up People monitoring](https://github.com/RhinoRhys/radarr-collections#people-monitoring)
@@ -23,7 +26,6 @@ People can also be monitored to automatically find missing Movies from their Act
 	- Ignore unmonitored movies.
 	- Blacklist of movies to reject.
 	- Exclude results by minimum ratings and votes.
-- Save list of collection artwork URLs to text file.
   
 ## Requirements:
 - Radarr
@@ -64,6 +66,7 @@ While checking for movie information, TMDB ratings and the number of votes that 
 - **min_rating** - Scale from 0.0 to 10.0
 - **min_votes** - Minimum number of votes
 - **min_year** - Reject movies in collections by earliest release year. Does not apply to people monitoring.
+- **ignore_zero** - [`True`|`False`] - Ignore movies that have the year (0)
 
 There are a lot of bad sequels out there. To block a movie from being imported, simply find it on TMDB and grab the ID number from the web address `themoviebd.org/movie/#####-name-of-movie` and add it to the blacklist.  Alternatively, running the script with automatic adding disabled will list the movie TMDB ID numbers in the results file.
 - **blacklist** - Comma separated list of movie TMDB ID numbers to ignore if missing from the database. For example, to ignore both other Batman movies and only keep the middle one, I would have: `blacklist = 272, 49026`
@@ -149,9 +152,8 @@ You are able to change the mode and output by running as `python rcm.py ./config
 | `-q` | `--quiet`		| Disables verbose logging in command line. Log file still created.	|
 | `-n` | `--nolog` 		| Disables log file creation. Verbose logging still visible.	|
 | `-c` | `--cache`		| Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
-| `-a` | `--art`		| Saves list of Collection artwork URLs to text file.	|
 
-Multiple options can be passed in, in any order. `python rcm.py ./config -c -a -f` would work for example.
+Multiple options can be passed in, in any order. `python rcm.py ./config -c -n -f` would work for example.
 
 ### Scan Modes
 #### Full initial scan
@@ -178,7 +180,8 @@ If you do not wish to check your Radarr database against collection information 
 
 > Traceback ..... ImportError: No module named XXXX
 - You do not have the 'requests' or 'configparser' Python module(s) installed.
-- `pip install requests configparser`
+- unix `pip install requests configparser`
+- Windows `python -m pip install requests configparser`
 
 > Traceback ..... KeyError: XXX
 - Please update your config files to the latest version
@@ -208,12 +211,6 @@ Example:
 > Blacklist entry for all movies:
 > 
 > blacklist = 272, 187
-
-#### Artwork mode
-
-When running with the `-a` option, art\_date\_time.txt is a list of every collection that has been checked along with the URL to the default collection artwork from TMDB to be easily pasted into Plex or other media apps.<br>
-Example:
-> The Dark Knight Collection 	 	https://image.tmdb.org/t/p/original/bqS2lMgGkuodIXtDILFWTSWDDpa.jpg
 
 ## Get in touch
 
