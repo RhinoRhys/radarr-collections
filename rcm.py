@@ -1,11 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import requests, json, datetime, os, sys, getopt, time, atexit, configparser
 
-for var in ['quiet', 'full', 'peeps', 'art', 'nolog', 'cache', 'single', \
-            'quick', 'printtime', 'first']:
+for var in ['quiet', 'full', 'peeps', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first']:
     exec("{} = False".format(var))
+
 check_num = 0 # 0
 
 def get_dir(input_path):
@@ -26,18 +26,20 @@ def nologfatal(error):
     nolog = True
     fatal(error)
 
-#%% Output files
+# Output files
 
 def log(text):
     if printtime and text != "": pay = datetime.datetime.now().strftime("[%y-%m-%d %H:%M:%S] ") + text
     else: pay = text
     if not quiet: 
         try: print(pay)
-        except: print(pay.encode(sys.getdefaultencoding(), errors = 'replace'))
+        except: print(pay.encode("utf-8", errors = 'replace'))
     if not nolog: 
         f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
-        if sys.version_info[0] == 2: f.write(pay.encode("utf-8", errors = "replace") + "\n")
-        elif sys.version_info[0] == 3: f.write(pay + u"\n")
+        try: f.write(pay + u"\n")
+        except: pass
+        try: f.write(str(pay.encode("utf-8", errors = "replace")) + "\n")
+        except: pass
         f.close()
 
 def whitespace(tmdbId, title, year, rad_id):
@@ -61,45 +63,36 @@ def datadump():
         found_per.sort()
         g = open(os.path.join(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
         payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        if sys.version_info[0] == 2:
+        try:
             g.write(words[u'text'][u'name'] + "\n\n")
             g.write(words[u'text'][u'found_open'].format(*payload) + "\n\n")
             if len(found_col) != 0: 
                 g.write(words[u'text'][u'found_start'].format(*payload) + "\n\n")
-                for item in found_col: g.write(item.encode("utf-8", errors = "replace") + "\n")
+                for item in found_col: g.write(item + "\n")
                 g.write("\n")
             if len(found_per) != 0: 
                 g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
-                for item in found_per: g.write(item.encode("utf-8", errors = "replace") + "\n")
+                for item in found_per: g.write(item + "\n")
                 g.write("\n")
             g.write(words[u'text'][u'found_black'] + "\n\n")
             g.write("blacklist = {}".format(str(found_black).strip("[]")))
-        elif sys.version_info[0] == 3:
+        except: pass
+        try:
             g.write(words[u'text'][u'name'] + u"\n\n")
             g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
             if len(found_col) != 0: 
                 g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
-                for item in found_col: g.write(item + u"\n")
+                for item in found_col: g.write(str(item.encode()) + u'\n')
                 g.write(u"\n")
             if len(found_per) != 0: 
                 g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
-                for item in found_per: g.write(item +  u"\n")
+                for item in found_per: g.write(item.encode() +  "\n")
                 g.write(u"\n")
             g.write(words[u'text'][u'found_black'] + u"\n\n")
             g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
+        except: pass
         g.close()
-        
-    if art and not peeps:
-        col_art.sort()
-        g = open(os.path.join(output_path,'output','art_{0}.txt'.format(start_time)), 'w+')
-        if sys.version_info[0] == 2:
-            g.write(words[u'text'][u'name'] + "\n\n") 
-            for line in col_art: g.write(line.encode("utf-8", errors = "replace") +  "\n")
-        elif sys.version_info[0] == 3:
-            g.write(words[u'text'][u'name'] + u"\n\n")
-            for line in col_art: g.write(line +  u"\n")
-        g.close()
-        
+               
     if check_num != 0:    
         col_ids.sort()
         [tmdb_ids.remove(mov_id) for mov_id in wanted]
@@ -120,7 +113,7 @@ def datadump():
     printtime = False
     log(words[u'text'][u'bye'].format(len(found_col) + len(found_per))) 
  
-#%%  API Function
+#  API Function
 
 def api(host, com = "get", args = None ):
     global printtime
@@ -175,7 +168,7 @@ def api(host, com = "get", args = None ):
                 printtime = False
                 fatal(u"\n" + words[u'text'][u'api_retry'].format(host, check_num)) ## FATAL
     
-#%% Movie in Database Check Function
+# Movie in Database Check Function
 
 def database_check(id_check, white_name, json_in, input_data):
     global cache, fails, printtime
@@ -186,38 +179,59 @@ def database_check(id_check, white_name, json_in, input_data):
         lookup_json = api("Radarr", com = "lookup", args = id_check)
         w_rad, w_id, w_title = whitespace(id_check, lookup_json['title'], lookup_json['year'], "")
         payload = " "*11, w_rad, id_check, w_id, lookup_json['title'], lookup_json['year'], w_title
+    # check for rejections
         if id_check in blacklist: log(words[u'text'][u'ignore'].format(*payload))
-        elif lookup_json['ratings'][u'value'] < float(config[u'blacklist'][u'min_rating']) \
-        or lookup_json['ratings'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
-        elif stage in [0,1,2] and not any([not lookup_json[u'year'] < int(config[u'blacklist'][u'min_year']), lookup_json[u'year'] == 0]):
-            log(words[u'text'][u'early'].format(*payload + (config[u'blacklist'][u'min_year'],)))
-        elif stage == 3 and not any([not lookup_json[u'year'] < int(people[person][u'min_year']), lookup_json[u'year'] == 0]):
-            log(words[u'text'][u'early'].format(*payload + (people[person][u'min_year'],)))
+        elif lookup_json['ratings'][u'value'] < float(config[u'blacklist'][u'min_rating']) or lookup_json['ratings'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
+        elif stage != 3 and lookup_json[u'year'] < int(config[u'blacklist'][u'min_year']): log(words[u'text'][u'early'].format(*payload + (config[u'blacklist'][u'min_year'],)))
+        elif stage == 3 and lookup_json[u'year'] < int(people[person][u'min_year']): log(words[u'text'][u'early'].format(*payload + (people[person][u'min_year'],)))
+        elif lookup_json[u'year'] == 0 and 'true' in config[u'blacklist'][u'ignore_zero'].lower(): log(words[u'text'][u'ignore_zero'].format(*payload))
         else:
             log(words[u'text'][u'not_data'].format(*payload))
-            if cache: post_data = {}
-            else:
-                if stage == 1: index = input_data
-                elif stage in [0, 2]: index = tmdb_ids.index(input_data) 
-                elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
-                if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1])
-                else: path = os.path.split(data[index]['path'])[0]
-                post_data = {u"qualityProfileId" : int(data[index][u'qualityProfileId']),
-                         u"rootFolderPath": path,
-                         u"monitored" : config[u'adding'][u'monitored'],
-                         u"addOptions" : {u"searchForMovie" : config[u'adding'][u'autosearch']}}
-            for dictkey in [u"tmdbId",u"title",u"titleSlug",u"images",u"year"]: post_data.update({dictkey : lookup_json[dictkey]})
+            if stage == 0: 
+                try: index = tmdb_ids.index(input_data)
+                except: index = tmdb_ids.index(int(config[u"adding"][u"profile"]))
+            elif stage == 1: index = input_data
+            elif stage == 2: index = tmdb_ids.index(input_data) 
+            elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
+            if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1])
+            else: path = os.path.split(data[index]['path'])[0]
+            post_data = {u"id": 0,
+                         u"monitored" : bool(config[u'adding'][u'monitored']),
+                         u"rootFolderPath" : path, 
+                         u"path": os.path.join(path,lookup_json[u"title"] + " (" + str(lookup_json[u"year"]) + ")"), 
+                         u"inCinemas": lookup_json[u"added"],
+                         u"physicalRelease": lookup_json[u"added"],
+                         u"qualityProfileId": int(data[index][u'qualityProfileId']),
+                         u"certification": "string", 
+                         u"minimumAvailability" : "inCinemas",
+                         u"tags": [], 
+                         u"status": "deleted",
+                         u"addOptions" : {u"searchForMovie" : bool(config[u'adding'][u'autosearch'])}}
+      
+            for dictkey in [u"title", u"sortTitle", 
+                            u"sizeOnDisk", u"overview", 
+                            u"images", u"website", 
+                            u"year",  u"hasFile", 
+                            u"youTubeTrailerId", u"studio",
+                            u"isAvailable", 
+                            u"folderName", u"runtime", 
+                            u"cleanTitle",  u"imdbId", 
+                            u"tmdbId", u"titleSlug", 
+                            u"genres", u"added", 
+                            u"ratings", u"collection"]:
+                try: post_data.update({dictkey : lookup_json[dictkey]})
+                except: post_data.update({dictkey : "string" })
+                            
+                        
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
             if stage == 3: name = json_in['name'] + input_data
             else: name = json_in['name']
-            payload = words[u'text'][u'found'].format(name, white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
+            payload = words[u'text'][u'found'].format(name.encode(), white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             found_black.append(post_data[u'tmdbId'])
             if not cache:
-                if sys.version_info[0] == 2: data_payload = json.dumps(post_data)
-                elif sys.version_info[0] == 3: data_payload = str(post_data).replace("'","\'")
-                post = api("Radarr", com = "post", args = data_payload)
+                post = api("Radarr", com = "post", args = json.dumps(post_data))
                 white_yn = " "*(rad_top + 10)
                 if post == 201: 
                     log(words[u'text'][u'add_true'].format(white_yn))
@@ -231,7 +245,7 @@ def database_check(id_check, white_name, json_in, input_data):
                         log(u"\n" + words[u'text'][u'retry_err'] +  u"\n")
                         printtime = True
 
-#%% Collection Parts Check Function
+# Collection Parts Check Function
 
 def collection_check(col_id, tmdbId = None):
     if single: log("")
@@ -239,7 +253,6 @@ def collection_check(col_id, tmdbId = None):
     if len(col_json['name']) < int(config[u'results'][u'column']): top_c = int(config[u'results'][u'column'])
     else: top_c = len(col_json['name']) + 5
     white_name = " "*(top_c - len(col_json['name'])) 
-    if art: col_art.append(words[u'text'][u'col_art'].format(col_json['name'], white_name, col_json['poster_path']))
     parts = [col['id'] for col in col_json['parts']]
     number = len(parts)
     if stage == 1:
@@ -258,7 +271,7 @@ def collection_check(col_id, tmdbId = None):
     for id_check in parts:  database_check(id_check, white_name, col_json, input_id)
     if any([full, all([not full, tmdbId not in skip])]): log("")
                 
-#%% Movie in Collection Check Function
+# Movie in Collection Check Function
 
 def tmdb_check(tmdbId):
     mov_json = api("TMDB", com = "mov", args = tmdbId)
@@ -270,7 +283,7 @@ def tmdb_check(tmdbId):
         collection_check(col_id, tmdbId)
     else: log(words[u'text'][u'no_col'].format(logtext))          
 
-#%% Person Credits Check Function
+# Person Credits Check Function
 
 def person_check(person):
     per_id = int(people[person][u'id'])
@@ -322,10 +335,12 @@ def person_check(person):
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
 #%% Config Check
+
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
 else: nologfatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
 if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
-    
+
+
 #%% Configuration
 
 start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")    
@@ -345,7 +360,7 @@ if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","art","start=","nolog","cache","people","tmdbid=","up"])
+        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","start=","nolog","cache","people","tmdbid=","up"])
     except getopt.GetoptError:
         print(u"\n" + u'Error in options\n')
         print(words[u'help'][u'text'])
@@ -354,13 +369,9 @@ if __name__ == '__main__':
         if opt in ("-h", "--help"):
             print(words[u'help'][u'text'])
             sys.exit()
-        elif opt in ("-d", "--down"):   # Updates 13-3-19
-            print(u"\n" + "Error: -d option moved to rcm.conf for permanence" + u"\n")
-            sys.exit()
         elif opt in ("-q", "--quiet"): quiet = True
         elif opt in ("-f", "--full"): full = True
         elif opt in ("-p", "--people"): peeps = True
-        elif opt in ("-a", "--art"): art = True
         elif opt in ("-s", "--start"): check_num = int(arg)
         elif opt in ("-n", "--nolog"): nolog = True
         elif opt in ("-c", "--cache"): cache = True
@@ -370,21 +381,27 @@ if __name__ == '__main__':
             single_id = int(arg)
 
 if check_num != 0: full = True
+
+skip, old_want, old_unmon, col_ids = [],[], [],[]
+
 if os.path.isfile(os.path.join(config_path, u'memory.dat')):
     memory = open(os.path.join(config_path, u'memory.dat'), "r")
     memory = memory.readlines()
-    if full: skip, old_want, old_unmon = [],[],[]
-    else:
+    
+    if not full: 
         skip = memory[0].strip('[]\n').split(',')
         skip = [int(mov_id) for mov_id in skip]
-        if len(memory) > 2:
+        try:
             old_want = memory[2].strip('[]\n').split(',')
             if old_want[0] != "": old_want = [int(mov_id) for mov_id in old_want]
             else: old_want = []
+        except: pass
+        try:
             old_unmon = memory[3].strip('[]\n').split(',')
             if old_unmon[0] != "": old_unmon = [int(mov_id) for mov_id in old_unmon]
             else: old_unmon = []
-        else: old_want, old_unmon = [],[]
+        except: pass
+    
     if full and check_num == 0: col_ids = []
     else:
         col_ids = memory[1].strip('[]\n').split(',')
@@ -394,24 +411,13 @@ else:
     check_num = 0
     first = True
     full = True
-    skip, col_ids = [],[]
 
-
-#%% Updates Compatibility Checker
-            
-if u'words_update' not in words['text'].keys(): nologfatal(u"\n" + u"Error - words.conf has been updated. Please reload.") # 13-3-19
-if len(set([u'file', u'unmonitored']).intersection(words['text'].keys())) != 2: nologfatal(u"\n" + words[u'text'][u'words_update'])
-
-if len(set([u'ignore_wanted', u'ignore_unmonitored']).intersection(config[u'results'].keys())) != 2 : 
-    nologfatal(u"\n" + words[u'text'][u'config_update'] + " Added 'ignore_wanted' and 'ignore_unmonitored' to results section.")
-
-if len(people.sections()) != 0 and len(set([u'min_year',u'reject']).intersection(people[people.sections()[0]])) != 2: nologfatal(u"\n" + words[u'text'][u'people_update'] + " Added 'min_year' and 'reject' to each person.")
 
 #%% Data grab
 
 if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
 else: radarr_url = u"http://"
-radarr_url += u"{0}/api/movie".format(config[u'radarr'][u'server'])
+radarr_url += u"{0}/api/v3/movie".format(config[u'radarr'][u'server'])
 
 data = api("Radarr")
 tmdb_ids, wanted, unmon = [],[],[]
@@ -435,7 +441,7 @@ if blacklist[0] != "": blacklist = [int(mov_id) for mov_id in blacklist]
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
 
-found_col, found_per, found_black, col_art = [],[],[],[]
+found_col, found_per, found_black, = [],[],[]
 fails = 0
   
 #%% Fatal Input Errors
@@ -468,7 +474,6 @@ else: # Not single
         else: log(words[u'text'][u'peeps'])
     else: # not single not peeps
         if check_num != 0: log(words[u'text'][u'start'].format(check_num))
-        if art: log(words[u'text'][u'art'])
 
 if any([single, peeps, quick, cache, first]): log("")
 
