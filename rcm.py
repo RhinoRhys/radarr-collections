@@ -226,7 +226,7 @@ def database_check(id_check, white_name, json_in, input_data):
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
             if stage == 3: name = json_in['name'] + input_data
             else: name = json_in['name']
-            payload = words[u'text'][u'found'].format(name.encode(), white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
+            payload = words[u'text'][u'found'].format(name.encode('utf-8'), white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             found_black.append(post_data[u'tmdbId'])
