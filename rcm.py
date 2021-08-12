@@ -82,11 +82,11 @@ def datadump():
             g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
             if len(found_col) != 0: 
                 g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
-                for item in found_col: g.write(str(item.encode()) + u'\n')
+                for item in found_col: g.write(str(item.encode('utf-8')) + u'\n')
                 g.write(u"\n")
             if len(found_per) != 0: 
                 g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
-                for item in found_per: g.write(item.encode() +  "\n")
+                for item in found_per: g.write(item.encode('utf-8') +  "\n")
                 g.write(u"\n")
             g.write(words[u'text'][u'found_black'] + u"\n\n")
             g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
