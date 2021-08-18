@@ -26,6 +26,7 @@ ___
 	- Ignore unmonitored movies.
 	- Blacklist of movies to reject.
 	- Exclude results by minimum ratings and votes.
+	- Exclude unannounced / preproduction movies that have a release year 0 (on by default)
   
 ## Requirements:
 - Radarr
