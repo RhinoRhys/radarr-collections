@@ -193,12 +193,17 @@ def database_check(id_check, white_name, json_in, input_data):
             elif stage == 1: index = input_data
             elif stage == 2: index = tmdb_ids.index(input_data) 
             elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
-            if 'true' in config[u'radarr'][u'docker'].lower(): path = "/".join(data[index]['path'].split("/")[:-1])
-            else: path = os.path.split(data[index]['path'])[0]
+            folder = str(lookup_json[u"title"]) + " (" + str(lookup_json[u"year"]) + ")"
+            if 'true' in config[u'radarr'][u'docker'].lower(): 
+                rootpath = "/".join(data[index]['path'].split("/")[:-1])
+                path = "/".join(rootpath, folder)
+            else: 
+                rootpath = os.path.split(data[index]['path'])[0]
+                path = os.path.join(rootpath, folder)
             post_data = {u"id": 0,
-                         u"monitored" : bool(config[u'adding'][u'monitored']),
-                         u"rootFolderPath" : path, 
-                         u"path": os.path.join(path,lookup_json[u"title"] + " (" + str(lookup_json[u"year"]) + ")"), 
+                         u"monitored" : "true" in config[u'adding'][u'monitored'].lower(),
+                         u"rootFolderPath" : rootpath, 
+                         u"path": path,
                          u"inCinemas": lookup_json[u"added"],
                          u"physicalRelease": lookup_json[u"added"],
                          u"qualityProfileId": int(data[index][u'qualityProfileId']),
@@ -206,7 +211,7 @@ def database_check(id_check, white_name, json_in, input_data):
                          u"minimumAvailability" : "inCinemas",
                          u"tags": [], 
                          u"status": "deleted",
-                         u"addOptions" : {u"searchForMovie" : bool(config[u'adding'][u'autosearch'])}}
+                         u"addOptions" : {u"searchForMovie" : "true" in config[u'adding'][u'autosearch'].lower()}}
       
             for dictkey in [u"title", u"sortTitle", 
                             u"sizeOnDisk", u"overview", 
