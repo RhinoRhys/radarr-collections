@@ -196,10 +196,10 @@ def database_check(id_check, white_name, json_in, input_data):
             folder = str(lookup_json[u"title"]) + " (" + str(lookup_json[u"year"]) + ")"
             if 'true' in config[u'radarr'][u'docker'].lower(): 
                 rootpath = "/".join(data[index]['path'].split("/")[:-1])
-                path = "/".join(rootpath, folder)
+                path = "/".join([rootpath, folder])
             else: 
                 rootpath = os.path.split(data[index]['path'])[0]
-                path = os.path.join(rootpath, folder)
+                path = os.path.join([rootpath, folder])
             post_data = {u"id": 0,
                          u"monitored" : "true" in config[u'adding'][u'monitored'].lower(),
                          u"rootFolderPath" : rootpath, 
