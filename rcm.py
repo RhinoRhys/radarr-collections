@@ -199,7 +199,7 @@ def database_check(id_check, white_name, json_in, input_data):
                 path = "/".join([rootpath, folder])
             else: 
                 rootpath = os.path.split(data[index]['path'])[0]
-                path = os.path.join([rootpath, folder])
+                path = os.path.join(rootpath, folder)
             post_data = {u"id": 0,
                          u"monitored" : "true" in config[u'adding'][u'monitored'].lower(),
                          u"rootFolderPath" : rootpath, 
