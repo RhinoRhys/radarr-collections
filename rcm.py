@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests, json, datetime, os, sys, getopt, time, atexit, configparser
+import requests, datetime, os, sys, getopt, time, atexit, configparser 
+from pathlib import Path
 
 for var in ['quiet', 'full', 'peeps', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first']:
     exec("{} = False".format(var))
@@ -37,9 +38,7 @@ def log(text):
     if not nolog: 
         f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
         try: f.write(pay + u"\n")
-        except:
-            try: f.write(str(pay.encode("utf-8", errors = "replace")) + "\n")
-            except: pass
+        except: pass
         f.close()
 
 def whitespace(tmdbId, title, year, rad_id):
@@ -54,7 +53,7 @@ def mov_info(index):
     return data[index]['id'], w_rad, data[index]["tmdbId"], w_id, data[index]['title'], data[index]['year'], w_title
 
 def datadump():
-    global printtime
+    global printtime, added
     if len(found_col)+len(found_per) != 0 and cache:
         if fails == 10: 
             printtime = False
@@ -62,35 +61,18 @@ def datadump():
         found_col.sort()
         found_per.sort()
         g = open(os.path.join(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
-        payload = len(found_col) + len(found_per), len(found_col), len(found_per)
-        try:
-            g.write(words[u'text'][u'name'] + "\n\n")
-            g.write(words[u'text'][u'found_open'].format(*payload) + "\n\n")
-            if len(found_col) != 0: 
-                g.write(words[u'text'][u'found_start'].format(*payload) + "\n\n")
-                for item in found_col: g.write(item + "\n")
-                g.write("\n")
-            if len(found_per) != 0: 
-                g.write(words[u'text'][u'found_middle'].format(*payload) + "\n\n")
-                for item in found_per: g.write(item + "\n")
-                g.write("\n")
-            g.write(words[u'text'][u'found_black'] + "\n\n")
-            g.write("blacklist = {}".format(str(found_black).strip("[]")))
-        except: 
-            try:
-                g.write(words[u'text'][u'name'] + u"\n\n")
-                g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
-                if len(found_col) != 0: 
-                    g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
-                    for item in found_col: g.write(str(item.encode('utf-8')) + u'\n')
-                    g.write(u"\n")
-                if len(found_per) != 0: 
-                    g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
-                    for item in found_per: g.write(item.encode('utf-8') +  "\n")
-                    g.write(u"\n")
-                g.write(words[u'text'][u'found_black'] + u"\n\n")
-                g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
-            except: pass
+        g.write(words[u'text'][u'name'] + u"\n\n")
+        g.write(words[u'text'][u'found_total'].format(len(found_col) + len(found_per)) + u"\n\n")
+        if len(found_col) != 0: 
+            g.write(words[u'text'][u'found_cols'].format(len(found_col)) + u"\n\n")
+            for item in found_col: g.write(str(item.encode('utf-8')) + u'\n')
+            g.write(u"\n")
+        if len(found_per) != 0: 
+            g.write(words[u'text'][u'found_peep'].format(len(found_per)) +  u"\n\n")
+            for item in found_per: g.write(item.encode('utf-8') +  "\n")
+            g.write(u"\n")
+        g.write(words[u'text'][u'found_black'] + u"\n\n")
+        g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
         g.close()
                
     if check_num != 0:    
@@ -98,20 +80,13 @@ def datadump():
         [tmdb_ids.remove(mov_id) for mov_id in wanted]
         [tmdb_ids.remove(mov_id) for mov_id in list(set(unmon)-set(wanted))]
         g = open(os.path.join(config_path,u'memory.dat'),'w+')
-        if sys.version_info[0] == 2: 
-            g.write(str(tmdb_ids) + "\n")
-            g.write(str(col_ids) + "\n")
-            g.write(str(wanted) + "\n")
-            g.write(str(unmon) + "\n")
-        elif sys.version_info[0] == 3: 
-            g.write(str(tmdb_ids) +  u"\n")
-            g.write(str(col_ids) + u"\n")
-            g.write(str(wanted) + u"\n")
-            g.write(str(unmon) + u"\n")
+        for text in (str(tmdb_ids),str(col_ids),str(wanted),str(unmon)): g.write(text +  u"\n")
         g.close()
     
     printtime = False
-    log(words[u'text'][u'bye'].format(len(found_col) + len(found_per))) 
+    log(words[u'text'][u'found_total'].format(len(found_col) + len(found_per)) + u"\n")
+    if added > 0: log(words[u'text'][u'added_total'].format(added) + u"\n")
+    log(u"\n" + words[u'text'][u'bye']) 
  
 #  API Function
 
@@ -128,8 +103,7 @@ def api(host, com = "get", args = None ):
             url += "/lookup/tmdb"
             key.update({"tmdbid" : int(args)})
         elif com == "post":
-            url += u"?apikey=" + config[u'radarr'][u'api_key']
-            response = requests.post(url, data = args)
+            response = requests.post(url, json = args, headers={'Content-Type': 'application/json; charset=utf-8','x-api-key' : config[u'radarr'][u'api_key']})
             return response.status_code
     elif host == "TMDB":
         key = {"api_key": config[u'tmdb'][u'api_key']}
@@ -168,10 +142,10 @@ def api(host, com = "get", args = None ):
                 printtime = False
                 fatal(u"\n" + words[u'text'][u'api_retry'].format(host, check_num)) ## FATAL
     
-# Movie in Database Check Function
+# Movie in Database Check & POST Function
 
 def database_check(id_check, white_name, json_in, input_data):
-    global cache, fails, printtime
+    global cache, fails, printtime, added
     if id_check in tmdb_ids:
         skip.append(id_check) 
         log(words[u'text'][u'in_data'].format(*mov_info(tmdb_ids.index(id_check))))
@@ -185,7 +159,7 @@ def database_check(id_check, white_name, json_in, input_data):
         elif stage != 3 and lookup_json[u'year'] < int(config[u'blacklist'][u'min_year']): log(words[u'text'][u'early'].format(*payload + (config[u'blacklist'][u'min_year'],)))
         elif stage == 3 and lookup_json[u'year'] < int(people[person][u'min_year']): log(words[u'text'][u'early'].format(*payload + (people[person][u'min_year'],)))
         elif lookup_json[u'year'] == 0 and 'true' in config[u'blacklist'][u'ignore_zero'].lower(): log(words[u'text'][u'ignore_zero'].format(*payload))
-        else:
+        else: # add movie
             log(words[u'text'][u'not_data'].format(*payload))
             if stage == 0: 
                 try: index = tmdb_ids.index(input_data)
@@ -193,41 +167,20 @@ def database_check(id_check, white_name, json_in, input_data):
             elif stage == 1: index = input_data
             elif stage == 2: index = tmdb_ids.index(input_data) 
             elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
-            folder = str(lookup_json[u"title"]) + " (" + str(lookup_json[u"year"]) + ")"
-            if 'true' in config[u'radarr'][u'docker'].lower(): 
-                rootpath = data[index]['path']
-                path = "/".join(rootpath.split("/")[:-1].append(folder))
-            else: 
-                rootpath = os.path.split(data[index]['path'])[0]
-                path = os.path.join(rootpath, folder)
-            post_data = {u"id": 0,
-                         u"monitored" : "true" in config[u'adding'][u'monitored'].lower(),
-                         u"rootFolderPath" : rootpath, 
-                         u"path": path,
-                         u"inCinemas": lookup_json[u"added"],
-                         u"physicalRelease": lookup_json[u"added"],
-                         u"qualityProfileId": int(data[index][u'qualityProfileId']),
-                         u"certification": "string", 
-                         u"minimumAvailability" : "Released",
-                         u"tags": [], 
-                         u"status": "deleted",
-                         u"addOptions" : {u"searchForMovie" : "true" in config[u'adding'][u'autosearch'].lower()}}
-      
-            for dictkey in [u"title", u"sortTitle", 
-                            u"sizeOnDisk", u"overview", 
-                            u"images", u"website", 
-                            u"year",  u"hasFile", 
-                            u"youTubeTrailerId", u"studio",
-                            u"isAvailable", 
-                            u"folderName", u"runtime", 
-                            u"cleanTitle",  u"imdbId", 
-                            u"tmdbId", u"titleSlug", 
-                            u"genres", u"added", 
-                            u"ratings", u"collection"]:
-                try: post_data.update({dictkey : lookup_json[dictkey]})
-                except: post_data.update({dictkey : "string" })
-                            
-                        
+            folder = str(lookup_json[u"title"]).replace(":","") + " (" + str(lookup_json[u"year"]) + ")"
+            rootpath = str(Path(data[index]['path']).parent)
+            post_data = lookup_json       
+            post_data.update({
+                u"id": 0,
+                u"monitored" : "true" in config[u'adding'][u'monitored'].lower(),
+                u"rootFolderPath" : rootpath, 
+                u"folder": folder,
+                u"qualityProfileId": int(data[index][u'qualityProfileId']), 
+                u"minimumAvailability" : "released",
+                u"tags": [], 
+                u"addOptions" : {u"searchForMovie" : "true" in config[u'adding'][u'autosearch'].lower()}
+                            })
+
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
             if stage == 3: name = json_in['name'] + input_data
             else: name = json_in['name']
@@ -236,11 +189,12 @@ def database_check(id_check, white_name, json_in, input_data):
             elif stage == 3: found_per.append(payload)
             found_black.append(post_data[u'tmdbId'])
             if not cache:
-                post = api("Radarr", com = "post", args = json.dumps(post_data))
+                post = api("Radarr", com = "post", args = post_data)
                 white_yn = " "*(rad_top + 10)
                 if post == 201: 
                     log(words[u'text'][u'add_true'].format(white_yn))
                     tmdb_ids.append(post_data['tmdbId'])
+                    added += 1
                 else:
                     log(words[u'text'][u'add_fail'].format(white_yn, post))
                     fails += 1
@@ -447,6 +401,7 @@ rad_top = len(str(data[-1]['id'])) + 1
 
 found_col, found_per, found_black, = [],[],[]
 fails = 0
+added = 0
   
 #%% Fatal Input Errors
 
@@ -457,6 +412,8 @@ if len(people.sections()) != 0:
         try: int(config[u'adding'][u'profile'])
         except: nologfatal("{0} {1}".format(u"\n" + words[u'text'][u'template_err'], words[u'text'][u'int_err'])) 
         if int(config[u'adding'][u'profile']) not in tmdb_ids: nologfatal(u"\n" + "{0} {1}".format(words[u'text'][u'template_err'], words[u'text'][u'prof_err']))
+
+if u'added_total' not in words[u'text']: nologfatal(u"\n Error - Please download latest words.conf file")
 
 #%% Begin
         
@@ -501,7 +458,7 @@ if single:
     log(u"")
     sys.exit()
 
-#%%  Database Search Loop
+#%% Database Search Loop
 stage = 1
 if not peeps:    
     if numbers[0] > 0: 
