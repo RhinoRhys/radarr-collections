@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests, datetime, os, sys, getopt, time, atexit, configparser 
-from pathlib import Path
+import requests, datetime, sys, getopt, time, atexit, configparser
+from pathlib import Path, PurePosixPath 
 
 for var in ['quiet', 'full', 'peeps', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first']:
     exec("{} = False".format(var))
@@ -10,9 +10,8 @@ for var in ['quiet', 'full', 'peeps', 'nolog', 'cache', 'single', 'quick', 'prin
 check_num = 0 # 0
 
 def get_dir(input_path):
-    path = list(os.path.split(input_path))
-    if path[0] in ["~","."]: path[0] = os.getcwd()
-    return os.path.join(*path)
+    if not Path(input_path).is_absolute(): return Path.cwd() / input_path
+    else: return input_path
 
 def fatal(error):
     global printtime
@@ -36,7 +35,7 @@ def log(text):
         try: print(pay)
         except: print(pay.encode("utf-8", errors = 'replace'))
     if not nolog: 
-        f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
+        f = open(Path.joinpath(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
         try: f.write(pay + u"\n")
         except: pass
         f.close()
@@ -60,7 +59,7 @@ def datadump():
             log(words[u'text'][u'auto_cache'].format(start_time) + u"\n")
         found_col.sort()
         found_per.sort()
-        g = open(os.path.join(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
+        g = open(Path.joinpath(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
         g.write(words[u'text'][u'name'] + u"\n\n")
         g.write(words[u'text'][u'found_total'].format(len(found_col) + len(found_per)) + u"\n\n")
         if len(found_col) != 0: 
@@ -79,7 +78,7 @@ def datadump():
         col_ids.sort()
         [tmdb_ids.remove(mov_id) for mov_id in wanted]
         [tmdb_ids.remove(mov_id) for mov_id in list(set(unmon)-set(wanted))]
-        g = open(os.path.join(config_path,u'memory.dat'),'w+')
+        g = open(Path.joinpath(config_path,u'memory.dat'),'w+')
         for text in (str(tmdb_ids),str(col_ids),str(wanted),str(unmon)): g.write(text +  u"\n")
         g.close()
     
@@ -168,7 +167,8 @@ def database_check(id_check, white_name, json_in, input_data):
             elif stage == 2: index = tmdb_ids.index(input_data) 
             elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
             folder = str(lookup_json[u"title"]).replace(":","") + " (" + str(lookup_json[u"year"]) + ")"
-            rootpath = str(Path(data[index]['path']).parent)
+            if u'true' in config[u'radarr'][u'docker']: rootpath = str(PurePosixPath(data[index]['path']).parent)
+            else: rootpath = str(Path(data[index]['path']).parent)
             post_data = lookup_json       
             post_data.update({
                 u"id": 0,
@@ -297,24 +297,25 @@ def person_check(person):
 
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
 else: nologfatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
-if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
+if not Path.exists(Path.joinpath(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
 
 #%% Configuration
 
 start_time = datetime.datetime.now().strftime("%y-%m-%d_%H-%M-%S")    
     
 words = configparser.ConfigParser(interpolation=configparser.ExtendedInterpolation(),allow_no_value=True)
-words.read(os.path.join(config_path,u'words.conf'))
+words.read(Path.joinpath(config_path,u'words.conf'))
 config = configparser.ConfigParser(allow_no_value=True)
-config.read(os.path.join(config_path,u'rcm.conf'))
+config.read(Path.joinpath(config_path,u'rcm.conf'))
 people = configparser.ConfigParser(allow_no_value=True)
-people.read(os.path.join(config_path,u'people.conf'))
+people.read(Path.joinpath(config_path,u'people.conf'))
 
 if config[u'results'][u'path'] == "": config[u'results'][u'path'] = u"./"
 output_path = get_dir(config[u'results'][u'path'])
 
-if not os.path.exists(os.path.join(output_path,"logs")): os.mkdir(os.path.join(output_path,"logs"))
-if not os.path.exists(os.path.join(output_path,"output")): os.mkdir(os.path.join(output_path,"output"))
+for folder in ["logs","output"]: 
+    with Path.joinpath(output_path, folder) as fold: 
+        if not Path.exists(fold): Path.mkdir(fold)
 
 if __name__ == '__main__':
     try:
@@ -342,33 +343,34 @@ if check_num != 0: full = True
 
 skip, old_want, old_unmon, col_ids = [],[], [],[]
 
-if os.path.isfile(os.path.join(config_path, u'memory.dat')):
-    memory = open(os.path.join(config_path, u'memory.dat'), "r")
-    memory = memory.readlines()
-    
-    if not full: 
-        skip = memory[0].strip('[]\n').split(',')
-        skip = [int(mov_id) for mov_id in skip]
-        try:
-            old_want = memory[2].strip('[]\n').split(',')
-            if old_want[0] != "": old_want = [int(mov_id) for mov_id in old_want]
-            else: old_want = []
-        except: pass
-        try:
-            old_unmon = memory[3].strip('[]\n').split(',')
-            if old_unmon[0] != "": old_unmon = [int(mov_id) for mov_id in old_unmon]
-            else: old_unmon = []
-        except: pass
-    
-    if full and check_num == 0: col_ids = []
+with Path.joinpath(config_path, u'memory.dat') as file:
+    if Path.exists(file):
+        memory = open(Path.joinpath(config_path, u'memory.dat'), "r")
+        memory = memory.readlines()
+        
+        if not full: 
+            skip = memory[0].strip('[]\n').split(',')
+            skip = [int(mov_id) for mov_id in skip]
+            try:
+                old_want = memory[2].strip('[]\n').split(',')
+                if old_want[0] != "": old_want = [int(mov_id) for mov_id in old_want]
+                else: old_want = []
+            except: pass
+            try:
+                old_unmon = memory[3].strip('[]\n').split(',')
+                if old_unmon[0] != "": old_unmon = [int(mov_id) for mov_id in old_unmon]
+                else: old_unmon = []
+            except: pass
+        
+        if full and check_num == 0: col_ids = []
+        else:
+            col_ids = memory[1].strip('[]\n').split(',')
+            if col_ids[0] != "": col_ids = [int(col_id) for col_id in col_ids]
+            else: col_ids = []
     else:
-        col_ids = memory[1].strip('[]\n').split(',')
-        if col_ids[0] != "": col_ids = [int(col_id) for col_id in col_ids]
-        else: col_ids = []
-else:
-    check_num = 0
-    first = True
-    full = True
+        check_num = 0
+        first = True
+        full = True
 
 
 #%% Data grab
