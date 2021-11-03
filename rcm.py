@@ -37,9 +37,9 @@ def log(text):
     if not nolog: 
         f = open(os.path.join(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
         try: f.write(pay + u"\n")
-        except: pass
-        try: f.write(str(pay.encode("utf-8", errors = "replace")) + "\n")
-        except: pass
+        except:
+            try: f.write(str(pay.encode("utf-8", errors = "replace")) + "\n")
+            except: pass
         f.close()
 
 def whitespace(tmdbId, title, year, rad_id):
@@ -76,21 +76,21 @@ def datadump():
                 g.write("\n")
             g.write(words[u'text'][u'found_black'] + "\n\n")
             g.write("blacklist = {}".format(str(found_black).strip("[]")))
-        except: pass
-        try:
-            g.write(words[u'text'][u'name'] + u"\n\n")
-            g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
-            if len(found_col) != 0: 
-                g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
-                for item in found_col: g.write(str(item.encode('utf-8')) + u'\n')
-                g.write(u"\n")
-            if len(found_per) != 0: 
-                g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
-                for item in found_per: g.write(item.encode('utf-8') +  "\n")
-                g.write(u"\n")
-            g.write(words[u'text'][u'found_black'] + u"\n\n")
-            g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
-        except: pass
+        except: 
+            try:
+                g.write(words[u'text'][u'name'] + u"\n\n")
+                g.write(words[u'text'][u'found_open'].format(*payload) + u"\n\n")
+                if len(found_col) != 0: 
+                    g.write(words[u'text'][u'found_start'].format(*payload) + u"\n\n")
+                    for item in found_col: g.write(str(item.encode('utf-8')) + u'\n')
+                    g.write(u"\n")
+                if len(found_per) != 0: 
+                    g.write(words[u'text'][u'found_middle'].format(*payload) +  u"\n\n")
+                    for item in found_per: g.write(item.encode('utf-8') +  "\n")
+                    g.write(u"\n")
+                g.write(words[u'text'][u'found_black'] + u"\n\n")
+                g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
+            except: pass
         g.close()
                
     if check_num != 0:    
@@ -195,9 +195,8 @@ def database_check(id_check, white_name, json_in, input_data):
             elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
             folder = str(lookup_json[u"title"]) + " (" + str(lookup_json[u"year"]) + ")"
             if 'true' in config[u'radarr'][u'docker'].lower(): 
-                rootpath = data[index]['path'].split("/")[:-1]
-                rootpath.append(folder)
-                path = "/".join(rootpath)
+                rootpath = data[index]['path']
+                path = "/".join(rootpath.split("/")[:-1].append(folder))
             else: 
                 rootpath = os.path.split(data[index]['path'])[0]
                 path = os.path.join(rootpath, folder)
