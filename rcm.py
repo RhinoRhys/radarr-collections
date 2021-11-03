@@ -195,8 +195,9 @@ def database_check(id_check, white_name, json_in, input_data):
             elif stage == 3: index = tmdb_ids.index(int(config[u'adding'][u'profile']))
             folder = str(lookup_json[u"title"]) + " (" + str(lookup_json[u"year"]) + ")"
             if 'true' in config[u'radarr'][u'docker'].lower(): 
-                rootpath = "/".join(data[index]['path'].split("/")[:-1])
-                path = "/".join([rootpath, folder])
+                rootpath = data[index]['path'].split("/")[:-1]
+                rootpath.append(folder)
+                path = "/".join(rootpath)
             else: 
                 rootpath = os.path.split(data[index]['path'])[0]
                 path = os.path.join(rootpath, folder)
@@ -208,7 +209,7 @@ def database_check(id_check, white_name, json_in, input_data):
                          u"physicalRelease": lookup_json[u"added"],
                          u"qualityProfileId": int(data[index][u'qualityProfileId']),
                          u"certification": "string", 
-                         u"minimumAvailability" : "inCinemas",
+                         u"minimumAvailability" : "Released",
                          u"tags": [], 
                          u"status": "deleted",
                          u"addOptions" : {u"searchForMovie" : "true" in config[u'adding'][u'autosearch'].lower()}}
@@ -344,7 +345,6 @@ def person_check(person):
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
 else: nologfatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
 if not os.path.isfile(os.path.join(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
-
 
 #%% Configuration
 
