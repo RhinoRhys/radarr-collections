@@ -154,7 +154,7 @@ def database_check(id_check, white_name, json_in, input_data):
         payload = " "*11, w_rad, id_check, w_id, lookup_json['title'], lookup_json['year'], w_title
     # check for rejections
         if id_check in blacklist: log(words[u'text'][u'ignore'].format(*payload))
-        elif lookup_json['ratings'][u'value'] < float(config[u'blacklist'][u'min_rating']) or lookup_json['ratings'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
+        elif lookup_json[u'ratings'][u'tmdb'][u'value'] < float(config[u'blacklist'][u'min_rating']) or lookup_json['ratings'][u'tmdb'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
         elif stage != 3 and lookup_json[u'year'] < int(config[u'blacklist'][u'min_year']): log(words[u'text'][u'early'].format(*payload + (config[u'blacklist'][u'min_year'],)))
         elif stage == 3 and lookup_json[u'year'] < int(people[person][u'min_year']): log(words[u'text'][u'early'].format(*payload + (people[person][u'min_year'],)))
         elif lookup_json[u'year'] == 0 and 'true' in config[u'blacklist'][u'ignore_zero'].lower(): log(words[u'text'][u'ignore_zero'].format(*payload))
