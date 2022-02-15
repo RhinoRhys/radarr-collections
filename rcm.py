@@ -11,7 +11,7 @@ check_num = 0 # 0
 
 def get_dir(input_path):
     if not Path(input_path).is_absolute(): return Path.cwd() / input_path
-    else: return input_path
+    else: return Path(input_path)
 
 def fatal(error):
     global printtime
