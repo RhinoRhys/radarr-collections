@@ -68,7 +68,7 @@ def datadump():
             g.write(u"\n")
         if len(found_per) != 0: 
             g.write(words[u'text'][u'found_peep'].format(len(found_per)) +  u"\n\n")
-            for item in found_per: g.write(item.encode('utf-8') +  "\n")
+            for item in found_per: g.write(str(item.encode('utf-8')) +  "\n")
             g.write(u"\n")
         g.write(words[u'text'][u'found_black'] + u"\n\n")
         g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
