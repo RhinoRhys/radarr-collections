@@ -25,6 +25,7 @@ ___
 	- Ignore missing movies, only check movies that have files.
 	- Ignore unmonitored movies.
 	- Blacklist of movies to reject.
+	- Exclude movies on Radarr's exclusion list.
 	- Exclude results by minimum ratings and votes.
 	- Exclude unannounced / preproduction movies that have a release year 0 (on by default)
   
@@ -152,7 +153,9 @@ You are able to change the mode and output by running as `python rcm.py ./config
 | | **Independant** | **Output options** |
 | `-q` | `--quiet`		| Disables verbose logging in command line. Log file still created.	|
 | `-n` | `--nolog` 		| Disables log file creation. Verbose logging still visible.	|
+| `-e` | `--exclude`		| Movies on Radarr's exclusion list will be ignored and won't be added to the datbase.	|
 | `-c` | `--cache`		| Disables automatic adding to Radarr, instead saves list of missing movies to text file.	|
+
 
 Multiple options can be passed in, in any order. `python rcm.py ./config -c -n -f` would work for example.
 
