@@ -218,6 +218,9 @@ def database_check(id_check, white_name, json_in, input_data):
 def collection_check(col_id, tmdbId = None):
     if single: log("")
     col_json = api("TMDB", com = "col", args = col_id)
+    if type(col_json) != dict:
+        col_ids.remove(col_id)
+        return
     if len(col_json['name']) < int(config[u'results'][u'column']): top_c = int(config[u'results'][u'column'])
     else: top_c = len(col_json['name']) + 5
     white_name = " "*(top_c - len(col_json['name'])) 
