@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from encodings import utf_8
 import requests, datetime, sys, getopt, time, atexit, configparser
 from pathlib import Path, PurePosixPath 
 
-for var in ['quiet', 'full', 'peeps', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first']:
+for var in ['quiet', 'full', 'peeps', 'nolog', 'cache', 'single', 'quick', 'printtime', 'first', "exclude"]:
     exec("{} = False".format(var))
 
 check_num = 0 # 0
@@ -35,7 +36,7 @@ def log(text):
         try: print(pay)
         except: print(pay.encode("utf-8", errors = 'replace'))
     if not nolog: 
-        f = open(Path.joinpath(output_path,'logs',"log_{}.txt".format(start_time)),'a+')
+        f = open(Path.joinpath(output_path,'logs',"log_{}.txt".format(start_time)),'a+',encoding="utf_8")
         try: f.write(pay + u"\n")
         except: pass
         f.close()
@@ -48,6 +49,9 @@ def whitespace(tmdbId, title, year, rad_id):
     return w_rad, w_id, w_title
 
 def mov_info(index):
+    global data
+    if index >= len(data):
+        data = api("Radarr")
     w_rad, w_id, w_title = whitespace(data[index]["tmdbId"], data[index]['title'], data[index]['year'], data[index]['id'])
     return data[index]['id'], w_rad, data[index]["tmdbId"], w_id, data[index]['title'], data[index]['year'], w_title
 
@@ -59,16 +63,16 @@ def datadump():
             log(words[u'text'][u'auto_cache'].format(start_time) + u"\n")
         found_col.sort()
         found_per.sort()
-        g = open(Path.joinpath(output_path,'output','found_{0}.txt'.format(start_time)),'w+')
+        g = open(Path.joinpath(output_path,'output','found_{0}.txt'.format(start_time)),'w+',encoding="utf_8")
         g.write(words[u'text'][u'name'] + u"\n\n")
         g.write(words[u'text'][u'found_total'].format(len(found_col) + len(found_per)) + u"\n\n")
         if len(found_col) != 0: 
             g.write(words[u'text'][u'found_cols'].format(len(found_col)) + u"\n\n")
-            for item in found_col: g.write(str(item.encode('utf-8')) + u'\n')
+            for item in found_col: g.write(item + '\n')
             g.write(u"\n")
         if len(found_per) != 0: 
             g.write(words[u'text'][u'found_peep'].format(len(found_per)) +  u"\n\n")
-            for item in found_per: g.write(item.encode('utf-8') +  "\n")
+            for item in found_per: g.write(item +  "\n")
             g.write(u"\n")
         g.write(words[u'text'][u'found_black'] + u"\n\n")
         g.write(u"blacklist = {}".format(str(found_black).strip("[]")))
@@ -78,7 +82,7 @@ def datadump():
         col_ids.sort()
         [tmdb_ids.remove(mov_id) for mov_id in wanted]
         [tmdb_ids.remove(mov_id) for mov_id in list(set(unmon)-set(wanted))]
-        g = open(Path.joinpath(config_path,u'memory.dat'),'w+')
+        g = open(Path.joinpath(config_path,u'memory.dat'),'w+',encoding="utf_8")
         for text in (str(tmdb_ids),str(col_ids),str(wanted),str(unmon)): g.write(text +  u"\n")
         g.close()
     
@@ -99,11 +103,16 @@ def api(host, com = "get", args = None ):
         url = radarr_url
         key = {"apikey": config[u'radarr'][u'api_key']}
         if com == "lookup":
-            url += "/lookup/tmdb"
+            url += "/movie/lookup/tmdb"
             key.update({"tmdbid" : int(args)})
         elif com == "post":
+            url += "/movie"
             response = requests.post(url, json = args, headers={'Content-Type': 'application/json; charset=utf-8','x-api-key' : config[u'radarr'][u'api_key']})
             return response.status_code
+        elif com == "exclude":
+            url +="/exclusions"
+        elif com == "get":
+            url+="/movie"
     elif host == "TMDB":
         key = {"api_key": config[u'tmdb'][u'api_key']}
         if   com == "mov": endpoint = "movie"
@@ -119,7 +128,6 @@ def api(host, com = "get", args = None ):
         response = requests.get(url, params = key )
         response.content.decode("utf-8")
         code = response.status_code 
-        
         if code == 200: # GOOD
             good = True
             return response.json()  ## EXIT
@@ -146,7 +154,7 @@ def api(host, com = "get", args = None ):
 def database_check(id_check, white_name, json_in, input_data):
     global cache, fails, printtime, added
     if id_check in tmdb_ids:
-        skip.append(id_check) 
+        skip.append(id_check)
         log(words[u'text'][u'in_data'].format(*mov_info(tmdb_ids.index(id_check))))
     else:
         lookup_json = api("Radarr", com = "lookup", args = id_check)
@@ -154,6 +162,7 @@ def database_check(id_check, white_name, json_in, input_data):
         payload = " "*11, w_rad, id_check, w_id, lookup_json['title'], lookup_json['year'], w_title
     # check for rejections
         if id_check in blacklist: log(words[u'text'][u'ignore'].format(*payload))
+        elif excludeList and id_check in excludeList: log(words[u'text'][u'exclude'].format(*payload))
         elif lookup_json[u'ratings'][u'tmdb'][u'value'] < float(config[u'blacklist'][u'min_rating']) or lookup_json['ratings'][u'tmdb'][u'votes'] < int(config[u'blacklist'][u'min_votes']): log(words[u'text'][u'rated'].format(*payload))
         elif stage != 3 and lookup_json[u'year'] < int(config[u'blacklist'][u'min_year']): log(words[u'text'][u'early'].format(*payload + (config[u'blacklist'][u'min_year'],)))
         elif stage == 3 and lookup_json[u'year'] < int(people[person][u'min_year']): log(words[u'text'][u'early'].format(*payload + (people[person][u'min_year'],)))
@@ -184,7 +193,7 @@ def database_check(id_check, white_name, json_in, input_data):
             white_cid = " "*(15 - len(str(post_data["tmdbId"])))
             if stage == 3: name = json_in['name'] + input_data
             else: name = json_in['name']
-            payload = words[u'text'][u'found'].format(name.encode('utf-8'), white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
+            payload = words[u'text'][u'found'].format(name, white_name, post_data[u'tmdbId'], white_cid, post_data['title'], post_data['year'])
             if stage in [0, 1, 2]: found_col.append(payload)
             elif stage == 3: found_per.append(payload)
             found_black.append(post_data[u'tmdbId'])
@@ -294,7 +303,6 @@ def person_check(person):
             database_check(tmdb_Id, white_name, per_json, " - " + role + " - " + job)
 
 #%% Config Check
-
 if len(sys.argv) != 1 and sys.argv[1][0] != "-": config_path = get_dir(sys.argv[1])
 else: nologfatal(u"\n" + u"Error - path to config folder must be given in command. eg: python rcm.py ./config")
 if not Path.exists(Path.joinpath(config_path, "rcm.conf")): nologfatal(u"\n" + "Error - {}/rcm.conf does not exist.".format(config_path))
@@ -319,7 +327,7 @@ for folder in ["logs","output"]:
 
 if __name__ == '__main__':
     try:
-        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:u",["help","quiet","down","full","start=","nolog","cache","people","tmdbid=","up"])
+        opts, args = getopt.getopt(sys.argv[2:],"hqdfas:ncpt:ue",["help","quiet","down","full","start=","nolog","cache","people","tmdbid=","up","exclude"])
     except getopt.GetoptError:
         print(u"\n" + u'Error in options\n')
         print(words[u'help'][u'text'])
@@ -334,6 +342,7 @@ if __name__ == '__main__':
         elif opt in ("-s", "--start"): check_num = int(arg)
         elif opt in ("-n", "--nolog"): nolog = True
         elif opt in ("-c", "--cache"): cache = True
+        elif opt in ("-e", "--exclude"): exclude = True
         elif opt in ("-u", "--up"): quick = True
         elif opt in ("-t", "--tmdbid"):
             single = True
@@ -377,7 +386,7 @@ with Path.joinpath(config_path, u'memory.dat') as file:
 
 if u'true' in config[u'radarr'][u'ssl'].lower(): radarr_url = u"https://"
 else: radarr_url = u"http://"
-radarr_url += u"{0}/api/v3/movie".format(config[u'radarr'][u'server'])
+radarr_url += u"{0}/api/v3".format(config[u'radarr'][u'server'])
 
 data = api("Radarr")
 tmdb_ids, wanted, unmon = [],[],[]
@@ -397,6 +406,9 @@ numbers += [len(col_ids), len(people.sections())]
 
 blacklist = config[u'blacklist'][u'blacklist'].split(",")
 if blacklist[0] != "": blacklist = [int(mov_id) for mov_id in blacklist]
+
+excludeList = api("Radarr",com="exclude")
+if excludeList and len(excludeList) > 0: excludeList = [exclusion["tmdbId"] for exclusion in excludeList]
 
 title_top = max([len(movie["title"]) for movie in data]) + 2
 rad_top = len(str(data[-1]['id'])) + 1
@@ -466,7 +478,8 @@ if not peeps:
     if numbers[0] > 0: 
         log(words[u'text'][u'run_mov_mon'].format(*numbers) + u":\n")
         printtime= True
-        for movie in data[check_num:]:
+        slice_num = check_num
+        for movie in data[slice_num:]:
             white_dex = " "*(len(str(len(data))) + 1 - len(str(check_num + 1)))
             payload = mov_info(check_num)
             logtext = "{0}:{1}".format(check_num + 1, white_dex) + words[u'text'][u'radarr'].format(*payload) + words[u'text'][u'mov_info'].format(*payload)
