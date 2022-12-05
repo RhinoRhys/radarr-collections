@@ -186,7 +186,7 @@ def database_check(id_check, white_name, json_in, input_data):
                 u"folder": folder,
                 u"qualityProfileId": int(data[index][u'qualityProfileId']), 
                 u"minimumAvailability" : "released",
-                u"tags": [], 
+                u"tags": [config[u'radarr'][u'tag']], 
                 u"addOptions" : {u"searchForMovie" : "true" in config[u'adding'][u'autosearch'].lower()}
                             })
 
